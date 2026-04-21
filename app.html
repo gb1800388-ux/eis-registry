@@ -7,55 +7,73 @@
 <title>Реестр электронных систем · Загрузка и преемственность</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
 /* ========================================================================
-   DESIGN TOKENS — warm editorial palette, not generic SaaS
+   DESIGN TOKENS — "Sage & Clay" · modern-scandinavian, geometric, airy
+   (preserves legacy --paper* aliases so the rest of the CSS keeps working)
    ======================================================================== */
 :root {
-  /* Paper-warm neutrals */
-  --paper:        #F5F1E8;   /* main background — warm off-white */
-  --paper-2:      #EDE7D9;   /* secondary surfaces */
-  --paper-3:      #E4DCC9;   /* borders, subtle separators */
-  --ink:          #1A1714;   /* primary text — warm near-black */
-  --ink-2:        #4A4238;   /* secondary text */
-  --ink-3:        #7A6F5E;   /* tertiary / muted */
-  --ink-4:        #A89C86;   /* placeholder / disabled */
-  --card:         #FBF8F1;   /* card surfaces, a shade lighter than paper */
-  --card-hover:   #F0EBDC;
+  /* Surfaces — cool sage cream, crisp white cards */
+  --bg:           #EFF1EC;
+  --surface:      #FFFFFF;
+  --surface-2:    #F6F6F2;
+  --surface-3:    #ECEEE8;
+  --border:       #DFE0D9;
+  --border-2:     #C7C9BF;
 
-  /* Dark nav surface */
-  --nav-bg:       #1C1917;
-  --nav-bg-2:     #292524;
-  --nav-ink:      #E7E2D5;
-  --nav-ink-2:    #A8A195;
-  --nav-hover:    #3A3531;
+  /* Ink — warm near-black, consistent greys */
+  --ink:          #171614;
+  --ink-2:        #44433F;
+  --ink-3:        #7A7872;
+  --ink-4:        #B0AEA8;
 
-  /* Accents — deliberately restrained */
-  --accent:       #8A4F1C;   /* burnt sienna, the single brand accent */
-  --accent-dim:   #A86D3E;
-  --accent-bg:    #F0E3D4;
-  --accent-ink:   #5C3310;
+  /* Legacy aliases so existing references keep working */
+  --paper:        var(--bg);
+  --paper-2:      var(--surface-2);
+  --paper-3:      var(--border);
+  --card:         var(--surface);
+  --card-hover:   var(--surface-2);
+
+  /* Navigation — deep forest charcoal with a green undertone */
+  --nav-bg:       #1E2420;
+  --nav-bg-2:     #293029;
+  --nav-ink:      #E4E9E1;
+  --nav-ink-2:    #9EA79B;
+  --nav-hover:    #2D362E;
+
+  /* Primary accent — sage. Secondary "spark" — clay/coral */
+  --accent:       #3B6E4D;
+  --accent-dim:   #5A8C6C;
+  --accent-bg:    #DDE7DE;
+  --accent-ink:   #1F3E2B;
+  --spark:        #C95A3A;
+  --spark-bg:     #F3D9CD;
+  --spark-ink:    #7A2E18;
 
   /* Semantic */
-  --ok:           #3F6B3F;   --ok-bg:    #DFE8D7;   --ok-ink:    #2A4A2A;
-  --warn:         #A16207;   --warn-bg:  #F3E6C0;   --warn-ink:  #6D4403;
-  --bad:          #8B2C1C;   --bad-bg:   #F0D7D2;   --bad-ink:   #5C1C10;
-  --info:         #2C5775;   --info-bg:  #D9E4EC;   --info-ink:  #1A3A52;
+  --ok:           #1F7A47;   --ok-bg:    #D6E8DB;   --ok-ink:    #0F4A28;
+  --warn:         #B5580C;   --warn-bg:  #F5E0C0;   --warn-ink:  #6E3208;
+  --bad:          #A52834;   --bad-bg:   #F3D4D4;   --bad-ink:   #6E1A22;
+  --info:         #1E5E8C;   --info-bg:  #D2E0EC;   --info-ink:  #0F3C5A;
 
-  /* Layout */
-  --nav-w:        248px;
+  /* Layout — more generous radii for a cozy modern feel */
+  --nav-w:        260px;
   --pad-x:        40px;
   --pad-y:        32px;
-  --radius-sm:    4px;
-  --radius:       6px;
-  --radius-lg:    10px;
+  --radius-sm:    6px;
+  --radius:       10px;
+  --radius-lg:    18px;
 
-  /* Typography */
-  --font-display: 'Fraunces', Georgia, serif;
-  --font-body:    'Inter Tight', system-ui, sans-serif;
+  /* Typography — geometric display replaces editorial serif */
+  --font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-body:    'Inter', 'Inter Tight', system-ui, sans-serif;
   --font-mono:    'JetBrains Mono', ui-monospace, monospace;
+
+  /* Shadows */
+  --shadow-1:     0 1px 2px rgba(23,22,20,.04), 0 2px 6px rgba(23,22,20,.04);
+  --shadow-2:     0 4px 10px -4px rgba(23,22,20,.10), 0 10px 24px -8px rgba(23,22,20,.08);
 
   /* Motion */
   --ease:         cubic-bezier(.2,.6,.2,1);
@@ -69,14 +87,28 @@ html { font-size: 15px; -webkit-text-size-adjust: 100%; }
 body {
   font-family: var(--font-body);
   color: var(--ink);
-  background: var(--paper);
+  background: var(--bg);
   background-image:
-    radial-gradient(circle at 1px 1px, rgba(26,23,20,.025) 1px, transparent 0);
-  background-size: 24px 24px;
+    linear-gradient(to right, rgba(23,22,20,.025) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(23,22,20,.025) 1px, transparent 1px);
+  background-size: 32px 32px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   font-feature-settings: "ss01", "cv11";
   min-height: 100vh;
+}
+
+/* Display em accents — no more italic serif; weight-driven emphasis */
+.nav-brand-mark em,
+.topbar-title em,
+.card-head h2 em,
+.card-head h3 em,
+.hero-stat-num em,
+.dept-name em {
+  font-style: normal !important;
+  font-weight: 700 !important;
+  color: var(--accent);
+  letter-spacing: -.01em;
 }
 button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
 input, select, textarea { font: inherit; color: inherit; }
@@ -112,16 +144,15 @@ a { color: inherit; text-decoration: none; }
 }
 .nav-brand-mark {
   font-family: var(--font-display);
-  font-weight: 500;
-  font-size: 20px;
-  letter-spacing: -.02em;
-  line-height: 1.1;
-  color: var(--paper);
+  font-weight: 600;
+  font-size: 21px;
+  letter-spacing: -.025em;
+  line-height: 1.05;
+  color: #fff;
 }
 .nav-brand-mark em {
-  font-style: italic;
   color: var(--accent-dim);
-  font-weight: 400;
+  font-weight: 500;
 }
 .nav-brand-sub {
   font-size: 11px;
@@ -146,41 +177,35 @@ a { color: inherit; text-decoration: none; }
 .nav-item {
   display: flex; align-items: center; gap: 12px;
   width: 100%;
-  padding: 9px 12px;
+  padding: 10px 14px;
   border-radius: var(--radius);
   font-size: 13.5px;
   color: var(--nav-ink);
   font-weight: 500;
   text-align: left;
-  transition: background .15s var(--ease), color .15s var(--ease);
+  transition: background .18s var(--ease), color .18s var(--ease), transform .18s var(--ease);
   position: relative;
 }
-.nav-item:hover { background: var(--nav-hover); }
+.nav-item:hover { background: var(--nav-hover); transform: translateX(2px); }
 .nav-item.active {
-  background: var(--paper);
-  color: var(--ink);
+  background: var(--nav-hover);
+  color: #fff;
+  box-shadow: inset 3px 0 0 0 var(--accent-dim);
 }
-.nav-item.active::before {
-  content: '';
-  position: absolute; left: -12px; top: 50%;
-  width: 3px; height: 18px;
-  background: var(--accent);
-  transform: translateY(-50%);
-  border-radius: 0 2px 2px 0;
-}
-.nav-item .i { width: 16px; height: 16px; flex-shrink: 0; opacity: .85; }
-.nav-item.active .i { opacity: 1; color: var(--accent); }
+.nav-item.active::before { display: none; }
+.nav-item .i { width: 17px; height: 17px; flex-shrink: 0; opacity: .75; stroke-width: 1.6; }
+.nav-item.active .i { opacity: 1; color: var(--accent-dim); }
 .nav-item .count {
   margin-left: auto;
   font-size: 11px;
-  padding: 1px 7px;
+  padding: 2px 8px;
   border-radius: 99px;
   background: var(--nav-bg-2);
   color: var(--nav-ink-2);
   font-variant-numeric: tabular-nums;
   font-weight: 600;
 }
-.nav-item.active .count { background: var(--paper-2); color: var(--ink-2); }
+.nav-item.active .count { background: var(--accent); color: #fff; }
 
 .nav-foot {
   padding: 12px 20px 16px;
@@ -223,26 +248,26 @@ a { color: inherit; text-decoration: none; }
   min-width: 0;
 }
 .topbar {
-  padding: 20px var(--pad-x) 18px;
+  padding: 22px var(--pad-x) 18px;
   display: flex; align-items: flex-end; justify-content: space-between;
   gap: 24px;
-  border-bottom: 1px solid var(--paper-3);
-  background: var(--paper);
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: saturate(1.2) blur(8px);
+  -webkit-backdrop-filter: saturate(1.2) blur(8px);
   position: sticky; top: 0;
   z-index: 20;
 }
 .topbar-title {
   font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 32px;
-  letter-spacing: -.025em;
+  font-weight: 600;
+  font-size: 30px;
+  letter-spacing: -.03em;
   line-height: 1;
-  font-variation-settings: "opsz" 48;
 }
 .topbar-title em {
-  font-style: italic;
   color: var(--accent);
-  font-weight: 300;
+  font-weight: 700;
 }
 .topbar-sub {
   font-size: 12px;
@@ -271,31 +296,38 @@ a { color: inherit; text-decoration: none; }
   display: inline-flex; align-items: center; gap: 7px;
   padding: 8px 14px;
   border-radius: var(--radius);
-  background: var(--card);
-  border: 1px solid var(--paper-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
   font-size: 13px;
   font-weight: 500;
   color: var(--ink-2);
   transition: all .15s var(--ease);
   white-space: nowrap;
 }
-.btn:hover { background: var(--card-hover); color: var(--ink); border-color: var(--ink-4); }
+.btn:hover { background: var(--surface-2); color: var(--ink); border-color: var(--border-2); }
 .btn:active { transform: translateY(1px); }
 .btn svg { width: 14px; height: 14px; }
 .btn-primary {
   background: var(--ink);
-  color: var(--paper);
+  color: #fff;
   border-color: var(--ink);
 }
-.btn-primary:hover { background: #000; color: var(--paper); border-color: #000; }
+.btn-primary:hover { background: #000; color: #fff; border-color: #000; }
 .btn-accent {
   background: var(--accent);
-  color: var(--paper);
+  color: #fff;
   border-color: var(--accent);
+  box-shadow: 0 1px 0 rgba(23,22,20,.06);
 }
-.btn-accent:hover { background: var(--accent-ink); color: var(--paper); border-color: var(--accent-ink); }
+.btn-accent:hover { background: var(--accent-ink); color: #fff; border-color: var(--accent-ink); }
+.btn-spark {
+  background: var(--spark);
+  color: #fff;
+  border-color: var(--spark);
+}
+.btn-spark:hover { background: var(--spark-ink); color: #fff; border-color: var(--spark-ink); }
 .btn-ghost { background: transparent; border-color: transparent; }
-.btn-ghost:hover { background: var(--paper-2); }
+.btn-ghost:hover { background: var(--surface-2); }
 .btn-sm { padding: 5px 10px; font-size: 12px; }
 .btn-icon { padding: 6px; }
 .btn-danger { color: var(--bad); }
@@ -355,13 +387,13 @@ a { color: inherit; text-decoration: none; }
 .input:focus, .select:focus, .textarea:focus {
   outline: 0;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(138,79,28,.12);
+  box-shadow: 0 0 0 3px rgba(59,110,77,.18);
 }
 .input::placeholder { color: var(--ink-4); }
 .textarea { resize: vertical; min-height: 70px; }
 .select {
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237A6F5E' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237A7872' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
   padding-right: 32px;
@@ -386,31 +418,30 @@ a { color: inherit; text-decoration: none; }
    CARDS
    ======================================================================== */
 .card {
-  background: var(--card);
-  border: 1px solid var(--paper-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   overflow: hidden;
+  box-shadow: var(--shadow-1);
 }
-.card + .card { margin-top: 24px; }
+.card + .card { margin-top: 20px; }
 .card-head {
-  padding: 20px 24px;
+  padding: 22px 26px;
   display: flex; justify-content: space-between; align-items: flex-end;
   gap: 16px;
   flex-wrap: wrap;
-  border-bottom: 1px solid var(--paper-3);
+  border-bottom: 1px solid var(--border);
 }
 .card-head h2 {
   font-family: var(--font-display);
-  font-weight: 400;
+  font-weight: 600;
   font-size: 22px;
-  letter-spacing: -.02em;
+  letter-spacing: -.025em;
   line-height: 1.1;
-  font-variation-settings: "opsz" 24;
 }
 .card-head h2 em {
-  font-style: italic;
   color: var(--accent);
-  font-weight: 300;
+  font-weight: 700;
 }
 .card-head .sub {
   font-size: 12px;
@@ -428,19 +459,22 @@ a { color: inherit; text-decoration: none; }
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 0;
-  border: 1px solid var(--paper-3);
+  border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  background: var(--card);
+  background: var(--surface);
   overflow: hidden;
-  margin-bottom: 32px;
+  margin-bottom: 28px;
+  box-shadow: var(--shadow-1);
 }
 .hero-stat {
   padding: 24px 28px;
-  border-right: 1px solid var(--paper-3);
+  border-right: 1px solid var(--border);
   display: flex; flex-direction: column; gap: 8px;
   min-width: 0;
   position: relative;
+  transition: background .15s;
 }
+.hero-stat:hover { background: var(--surface-2); }
 .hero-stat:last-child { border-right: 0; }
 .hero-stat-label {
   font-size: 10.5px;
@@ -451,18 +485,16 @@ a { color: inherit; text-decoration: none; }
 }
 .hero-stat-num {
   font-family: var(--font-display);
-  font-weight: 300;
-  font-size: 56px;
-  letter-spacing: -.04em;
+  font-weight: 500;
+  font-size: 52px;
+  letter-spacing: -.035em;
   line-height: .95;
   font-variant-numeric: tabular-nums;
-  font-variation-settings: "opsz" 144;
   color: var(--ink);
 }
 .hero-stat-num em {
-  font-style: italic;
   color: var(--accent);
-  font-weight: 400;
+  font-weight: 700;
 }
 .hero-stat-num .suffix {
   font-family: var(--font-body);
@@ -562,107 +594,190 @@ a { color: inherit; text-decoration: none; }
 /* ========================================================================
    MATRIX — signature view
    ======================================================================== */
+/* ========================================================================
+   ACCESS MATRIX — sticky header + sticky first column, scroll-confined
+   ======================================================================== */
 .matrix-wrap {
-  overflow-x: auto;
+  overflow: auto;
+  max-height: min(72vh, 820px);
   border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  -webkit-overflow-scrolling: touch;
+  position: relative;
 }
 .matrix {
   border-collapse: separate;
-  border-spacing: 3px;
-  padding: 8px;
-  background: var(--paper-2);
+  border-spacing: 0;
+  background: var(--surface-2);
+  width: max-content;
 }
 .matrix th, .matrix td {
   padding: 0;
   text-align: center;
   font-size: 12px;
+  background-clip: padding-box;
 }
 .matrix thead th {
-  background: transparent;
+  background: var(--surface-2);
   color: var(--ink-3);
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: .08em;
+  font-size: 11px;
   font-weight: 600;
-  padding: 6px 4px 10px;
-  min-width: 46px;
-  max-width: 60px;
+  height: 180px;
+  padding: 0;
   vertical-align: bottom;
-  white-space: normal;
-  word-wrap: break-word;
-  line-height: 1.2;
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  border-bottom: 1px solid var(--border);
 }
 .matrix thead th.rotate {
+  min-width: 38px;
+  width: 38px;
+  max-width: 38px;
+}
+.matrix thead th.rotate span {
+  display: inline-block;
   writing-mode: vertical-rl;
   transform: rotate(180deg);
-  height: 140px;
-  padding: 8px 6px;
-  vertical-align: bottom;
   white-space: nowrap;
+  padding: 10px 0 12px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--ink-2);
+  font-weight: 600;
+  font-family: var(--font-body);
+  max-height: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1;
 }
 .matrix thead th.corner {
-  background: transparent;
+  background: var(--surface-2);
   text-align: left;
-  padding-left: 14px;
+  padding: 0 14px 12px;
   min-width: 220px;
+  vertical-align: bottom;
+  left: 0;
+  z-index: 4;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-2);
+  text-transform: none;
+  letter-spacing: 0;
+  border-right: 1px solid var(--border);
+}
+.matrix thead th.total {
+  min-width: 72px;
+  right: 0;
+  text-align: right;
+  padding-right: 14px;
+  border-left: 1px solid var(--border);
 }
 .matrix tbody th {
   text-align: left;
   padding: 10px 14px;
-  background: var(--card);
+  background: var(--surface);
   font-size: 13px;
   font-weight: 600;
   color: var(--ink);
-  border-radius: var(--radius-sm);
   min-width: 220px;
   position: sticky;
   left: 0;
-  z-index: 1;
+  z-index: 2;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
 .matrix tbody th .sub {
   display: block;
   font-size: 11px;
   color: var(--ink-3);
   font-weight: 400;
-  margin-top: 1px;
+  margin-top: 2px;
 }
+.matrix tbody td {
+  padding: 3px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.matrix tbody td.total {
+  padding: 10px 14px;
+  font-weight: 700;
+  text-align: right;
+  color: var(--ink);
+  border-left: 1px solid var(--border);
+  position: sticky;
+  right: 0;
+  z-index: 1;
+  background: var(--surface);
+}
+.matrix tbody tr:hover td,
+.matrix tbody tr:hover th { background: var(--surface-2); }
 .matrix-cell {
-  width: 42px; height: 42px;
+  width: 32px; height: 32px;
   border-radius: var(--radius-sm);
-  background: var(--card);
+  background: var(--surface-3);
   color: var(--ink-4);
-  transition: transform .15s var(--ease), background .15s;
+  transition: transform .15s var(--ease), background .15s, box-shadow .15s;
   cursor: pointer;
   display: inline-flex; align-items: center; justify-content: center;
   font-weight: 700;
   font-size: 13px;
   font-family: var(--font-display);
+  border: 1px solid transparent;
 }
-.matrix-cell:hover { transform: scale(1.1); z-index: 2; position: relative; box-shadow: 0 2px 8px rgba(26,23,20,.15); }
-.mc-main { background: var(--ok); color: #fff; }
-.mc-period { background: var(--warn); color: #fff; }
-.mc-rare { background: var(--info); color: #fff; opacity: .7; }
-.mc-none { background: var(--card); color: var(--ink-4); font-weight: 400; }
-.mc-none:hover { background: var(--paper-2); }
+.matrix-cell:hover {
+  transform: scale(1.15);
+  z-index: 2;
+  position: relative;
+  box-shadow: 0 2px 10px rgba(23,22,20,.18);
+}
+.mc-main   { background: var(--accent); color: #fff; }
+.mc-period { background: var(--spark);  color: #fff; }
+.mc-rare   { background: var(--info);   color: #fff; opacity: .82; }
+.mc-none   { background: var(--surface-3); color: var(--ink-4); font-weight: 400; }
+.mc-none:hover { background: var(--border); }
 .matrix tfoot th, .matrix tfoot td {
-  background: transparent;
-  padding: 10px 14px;
+  background: var(--surface-2);
+  padding: 10px 6px;
   font-size: 11px;
   color: var(--ink-3);
   text-transform: uppercase;
   letter-spacing: .08em;
   font-weight: 600;
   text-align: center;
+  border-top: 1px solid var(--border);
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
 }
-.matrix tfoot th.corner { text-align: left; }
+.matrix tfoot th.corner {
+  text-align: left;
+  padding-left: 14px;
+  left: 0;
+  z-index: 3;
+  border-right: 1px solid var(--border);
+}
 .matrix-legend {
-  display: flex; gap: 18px;
+  display: flex; gap: 16px;
   font-size: 12px;
   color: var(--ink-3);
   flex-wrap: wrap;
+  align-items: center;
 }
-.matrix-legend-item { display: flex; align-items: center; gap: 7px; }
-.matrix-legend-dot { width: 14px; height: 14px; border-radius: 3px; }
+.matrix-legend-item { display: inline-flex; align-items: center; gap: 7px; }
+.matrix-legend-dot { width: 14px; height: 14px; border-radius: 4px; }
+
+/* Mobile: matrix is inherently horizontal — give it a dedicated scroll box */
+@media (max-width: 600px) {
+  .matrix-wrap { max-height: 68vh; }
+  .matrix thead th { height: 150px; }
+  .matrix thead th.rotate span { max-height: 130px; }
+  .matrix thead th.corner,
+  .matrix tbody th { min-width: 160px; padding: 10px; }
+  .matrix-cell { width: 30px; height: 30px; }
+}
 
 /* ========================================================================
    SYSTEMS CATALOG — cozy index-card layout with avatar stack
@@ -3033,20 +3148,20 @@ function renderMatrixPage(root) {
           <div class="card-sub">Нажмите на ячейку, чтобы изменить уровень доступа · ● основная · ◐ периодическая · ○ редкая</div>
         </div>
         <div class="matrix-legend">
-          <div class="matrix-legend-item"><span class="matrix-legend-dot" style="background:var(--ok)"></span>Основная</div>
-          <div class="matrix-legend-item"><span class="matrix-legend-dot" style="background:var(--warn)"></span>Периодическая</div>
-          <div class="matrix-legend-item"><span class="matrix-legend-dot" style="background:var(--info);opacity:.7"></span>Редкая</div>
-          <div class="matrix-legend-item"><span class="matrix-legend-dot" style="background:var(--paper-2);border:1px solid var(--paper-3)"></span>Нет доступа</div>
+          <div class="matrix-legend-item"><span class="matrix-legend-dot" style="background:var(--accent)"></span>Основная</div>
+          <div class="matrix-legend-item"><span class="matrix-legend-dot" style="background:var(--spark)"></span>Периодическая</div>
+          <div class="matrix-legend-item"><span class="matrix-legend-dot" style="background:var(--info);opacity:.82"></span>Редкая</div>
+          <div class="matrix-legend-item"><span class="matrix-legend-dot" style="background:var(--surface-3);border:1px solid var(--border)"></span>Нет доступа</div>
         </div>
       </div>
       <div class="card-body">
-        <div class="tbl-wrap">
+        <div class="matrix-wrap">
           <table class="matrix">
             <thead>
               <tr>
                 <th class="corner">Сотрудник</th>
-                ${sysList.map(n => `<th class="rotate">${esc(n)}</th>`).join('')}
-                <th style="text-align:right;padding-right:14px">Итого</th>
+                ${sysList.map(n => `<th class="rotate" title="${esc(n)}"><span>${esc(n)}</span></th>`).join('')}
+                <th class="total">Итого</th>
               </tr>
             </thead>
             <tbody>
@@ -3057,9 +3172,9 @@ function renderMatrixPage(root) {
                     const link = (e.systems || []).find(s => systemKey(s.name) === systemKey(name));
                     const f = link?.frequency;
                     const cfg = f ? FREQ[f] : null;
-                    return `<td style="padding:4px;text-align:center"><button class="matrix-cell ${cfg ? cfg.cls : 'mc-none'}" onclick="cycleMatrix('${e.id}','${esc(name).replace(/'/g,"\\'")}')" title="${cfg ? cfg.label : 'Нет доступа'}">${cfg ? cfg.symbol : '·'}</button></td>`;
+                    return `<td><button class="matrix-cell ${cfg ? cfg.cls : 'mc-none'}" onclick="cycleMatrix('${e.id}','${esc(name).replace(/'/g,"\\'")}')" title="${cfg ? cfg.label : 'Нет доступа'}">${cfg ? cfg.symbol : '·'}</button></td>`;
                   }).join('')}
-                  <td style="text-align:right;padding-right:14px;font-weight:600" class="num">${e.systems?.length || 0}</td>
+                  <td class="total num">${e.systems?.length || 0}</td>
                 </tr>
               `).join('')}
             </tbody>
