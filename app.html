@@ -1,0 +1,3515 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Реестр электронных систем · Загрузка и преемственность</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+/* ========================================================================
+   DESIGN TOKENS — warm editorial palette, not generic SaaS
+   ======================================================================== */
+:root {
+  /* Paper-warm neutrals */
+  --paper:        #F5F1E8;   /* main background — warm off-white */
+  --paper-2:      #EDE7D9;   /* secondary surfaces */
+  --paper-3:      #E4DCC9;   /* borders, subtle separators */
+  --ink:          #1A1714;   /* primary text — warm near-black */
+  --ink-2:        #4A4238;   /* secondary text */
+  --ink-3:        #7A6F5E;   /* tertiary / muted */
+  --ink-4:        #A89C86;   /* placeholder / disabled */
+  --card:         #FBF8F1;   /* card surfaces, a shade lighter than paper */
+  --card-hover:   #F0EBDC;
+
+  /* Dark nav surface */
+  --nav-bg:       #1C1917;
+  --nav-bg-2:     #292524;
+  --nav-ink:      #E7E2D5;
+  --nav-ink-2:    #A8A195;
+  --nav-hover:    #3A3531;
+
+  /* Accents — deliberately restrained */
+  --accent:       #8A4F1C;   /* burnt sienna, the single brand accent */
+  --accent-dim:   #A86D3E;
+  --accent-bg:    #F0E3D4;
+  --accent-ink:   #5C3310;
+
+  /* Semantic */
+  --ok:           #3F6B3F;   --ok-bg:    #DFE8D7;   --ok-ink:    #2A4A2A;
+  --warn:         #A16207;   --warn-bg:  #F3E6C0;   --warn-ink:  #6D4403;
+  --bad:          #8B2C1C;   --bad-bg:   #F0D7D2;   --bad-ink:   #5C1C10;
+  --info:         #2C5775;   --info-bg:  #D9E4EC;   --info-ink:  #1A3A52;
+
+  /* Layout */
+  --nav-w:        248px;
+  --pad-x:        40px;
+  --pad-y:        32px;
+  --radius-sm:    4px;
+  --radius:       6px;
+  --radius-lg:    10px;
+
+  /* Typography */
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body:    'Inter Tight', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, monospace;
+
+  /* Motion */
+  --ease:         cubic-bezier(.2,.6,.2,1);
+}
+
+/* ========================================================================
+   RESET & BASE
+   ======================================================================== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 15px; -webkit-text-size-adjust: 100%; }
+body {
+  font-family: var(--font-body);
+  color: var(--ink);
+  background: var(--paper);
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(26,23,20,.025) 1px, transparent 0);
+  background-size: 24px 24px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "ss01", "cv11";
+  min-height: 100vh;
+}
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+input, select, textarea { font: inherit; color: inherit; }
+a { color: inherit; text-decoration: none; }
+
+/* Tabular numerals where numbers matter */
+.num { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--paper-3); border-radius: 10px; border: 2px solid var(--paper); }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-4); }
+
+/* ========================================================================
+   LAYOUT
+   ======================================================================== */
+.app { display: flex; min-height: 100vh; }
+
+/* ---- Sidebar ---- */
+.nav {
+  width: var(--nav-w);
+  background: var(--nav-bg);
+  color: var(--nav-ink);
+  position: fixed; inset: 0 auto 0 0;
+  display: flex; flex-direction: column;
+  z-index: 40;
+  border-right: 1px solid #000;
+}
+.nav-brand {
+  padding: 28px 24px 24px;
+  border-bottom: 1px solid var(--nav-bg-2);
+}
+.nav-brand-mark {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 20px;
+  letter-spacing: -.02em;
+  line-height: 1.1;
+  color: var(--paper);
+}
+.nav-brand-mark em {
+  font-style: italic;
+  color: var(--accent-dim);
+  font-weight: 400;
+}
+.nav-brand-sub {
+  font-size: 11px;
+  color: var(--nav-ink-2);
+  margin-top: 6px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+.nav-sections {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 12px;
+}
+.nav-section-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--nav-ink-2);
+  padding: 14px 12px 6px;
+  font-weight: 600;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 12px;
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: var(--radius);
+  font-size: 13.5px;
+  color: var(--nav-ink);
+  font-weight: 500;
+  text-align: left;
+  transition: background .15s var(--ease), color .15s var(--ease);
+  position: relative;
+}
+.nav-item:hover { background: var(--nav-hover); }
+.nav-item.active {
+  background: var(--paper);
+  color: var(--ink);
+}
+.nav-item.active::before {
+  content: '';
+  position: absolute; left: -12px; top: 50%;
+  width: 3px; height: 18px;
+  background: var(--accent);
+  transform: translateY(-50%);
+  border-radius: 0 2px 2px 0;
+}
+.nav-item .i { width: 16px; height: 16px; flex-shrink: 0; opacity: .85; }
+.nav-item.active .i { opacity: 1; color: var(--accent); }
+.nav-item .count {
+  margin-left: auto;
+  font-size: 11px;
+  padding: 1px 7px;
+  border-radius: 99px;
+  background: var(--nav-bg-2);
+  color: var(--nav-ink-2);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.nav-item.active .count { background: var(--paper-2); color: var(--ink-2); }
+
+.nav-foot {
+  padding: 14px 20px 18px;
+  border-top: 1px solid var(--nav-bg-2);
+  font-size: 11px;
+  color: var(--nav-ink-2);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.nav-foot-dot {
+  display: inline-block;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--ok);
+  margin-right: 6px;
+  vertical-align: 1px;
+  box-shadow: 0 0 0 3px rgba(63,107,63,.15);
+}
+
+/* ---- Main ---- */
+.main {
+  margin-left: var(--nav-w);
+  flex: 1;
+  min-width: 0;
+}
+.topbar {
+  padding: 20px var(--pad-x) 18px;
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 24px;
+  border-bottom: 1px solid var(--paper-3);
+  background: var(--paper);
+  position: sticky; top: 0;
+  z-index: 20;
+}
+.topbar-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 32px;
+  letter-spacing: -.025em;
+  line-height: 1;
+  font-variation-settings: "opsz" 48;
+}
+.topbar-title em {
+  font-style: italic;
+  color: var(--accent);
+  font-weight: 300;
+}
+.topbar-sub {
+  font-size: 12px;
+  color: var(--ink-3);
+  margin-top: 6px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+.topbar-actions { display: flex; gap: 8px; align-items: center; }
+
+.page {
+  padding: 32px var(--pad-x) 80px;
+  animation: pageFade .35s var(--ease);
+  display: none;
+}
+.page.active { display: block; }
+@keyframes pageFade {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ========================================================================
+   BUTTONS & FORMS
+   ======================================================================== */
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 14px;
+  border-radius: var(--radius);
+  background: var(--card);
+  border: 1px solid var(--paper-3);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-2);
+  transition: all .15s var(--ease);
+  white-space: nowrap;
+}
+.btn:hover { background: var(--card-hover); color: var(--ink); border-color: var(--ink-4); }
+.btn:active { transform: translateY(1px); }
+.btn svg { width: 14px; height: 14px; }
+.btn-primary {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+.btn-primary:hover { background: #000; color: var(--paper); border-color: #000; }
+.btn-accent {
+  background: var(--accent);
+  color: var(--paper);
+  border-color: var(--accent);
+}
+.btn-accent:hover { background: var(--accent-ink); color: var(--paper); border-color: var(--accent-ink); }
+.btn-ghost { background: transparent; border-color: transparent; }
+.btn-ghost:hover { background: var(--paper-2); }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+.btn-icon { padding: 6px; }
+.btn-danger { color: var(--bad); }
+.btn-danger:hover { background: var(--bad-bg); color: var(--bad-ink); border-color: var(--bad-bg); }
+
+/* Dropdown */
+.dd { position: relative; }
+.dd-menu {
+  position: absolute; right: 0; top: calc(100% + 4px);
+  min-width: 220px;
+  background: var(--card);
+  border: 1px solid var(--paper-3);
+  border-radius: var(--radius);
+  box-shadow: 0 12px 32px -12px rgba(26,23,20,.2), 0 0 0 1px rgba(26,23,20,.04);
+  padding: 4px;
+  z-index: 50;
+  display: none;
+  animation: ddIn .15s var(--ease);
+}
+@keyframes ddIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+.dd-menu.open { display: block; }
+.dd-item {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--ink-2);
+  text-align: left;
+}
+.dd-item:hover { background: var(--paper-2); color: var(--ink); }
+.dd-item svg { width: 14px; height: 14px; color: var(--ink-3); }
+.dd-sep { height: 1px; background: var(--paper-3); margin: 4px -4px; }
+
+/* Inputs */
+.field { display: block; }
+.label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--ink-3);
+  font-weight: 600;
+  display: block;
+  margin-bottom: 6px;
+}
+.input, .select, .textarea {
+  width: 100%;
+  padding: 9px 12px;
+  background: var(--card);
+  border: 1px solid var(--paper-3);
+  border-radius: var(--radius);
+  font-size: 13.5px;
+  color: var(--ink);
+  transition: border-color .15s, box-shadow .15s;
+  font-family: inherit;
+}
+.input:focus, .select:focus, .textarea:focus {
+  outline: 0;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(138,79,28,.12);
+}
+.input::placeholder { color: var(--ink-4); }
+.textarea { resize: vertical; min-height: 70px; }
+.select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237A6F5E' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+
+.search {
+  position: relative;
+}
+.search svg {
+  position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+  width: 14px; height: 14px; color: var(--ink-3);
+  pointer-events: none;
+}
+.search .input { padding-left: 34px; }
+
+.grid { display: grid; gap: 16px; }
+.grid-2 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.grid-3 { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+.grid-4 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+
+/* ========================================================================
+   CARDS
+   ======================================================================== */
+.card {
+  background: var(--card);
+  border: 1px solid var(--paper-3);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.card + .card { margin-top: 24px; }
+.card-head {
+  padding: 20px 24px;
+  display: flex; justify-content: space-between; align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--paper-3);
+}
+.card-head h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 22px;
+  letter-spacing: -.02em;
+  line-height: 1.1;
+  font-variation-settings: "opsz" 24;
+}
+.card-head h2 em {
+  font-style: italic;
+  color: var(--accent);
+  font-weight: 300;
+}
+.card-head .sub {
+  font-size: 12px;
+  color: var(--ink-3);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.card-body { padding: 24px; }
+
+/* ========================================================================
+   HERO STATS — the signature look: giant editorial numbers
+   ======================================================================== */
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  border: 1px solid var(--paper-3);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+  overflow: hidden;
+  margin-bottom: 32px;
+}
+.hero-stat {
+  padding: 24px 28px;
+  border-right: 1px solid var(--paper-3);
+  display: flex; flex-direction: column; gap: 8px;
+  min-width: 0;
+  position: relative;
+}
+.hero-stat:last-child { border-right: 0; }
+.hero-stat-label {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  color: var(--ink-3);
+  font-weight: 600;
+}
+.hero-stat-num {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 56px;
+  letter-spacing: -.04em;
+  line-height: .95;
+  font-variant-numeric: tabular-nums;
+  font-variation-settings: "opsz" 144;
+  color: var(--ink);
+}
+.hero-stat-num em {
+  font-style: italic;
+  color: var(--accent);
+  font-weight: 400;
+}
+.hero-stat-num .suffix {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-3);
+  margin-left: 4px;
+  letter-spacing: 0;
+  font-variant-numeric: normal;
+}
+.hero-stat-hint {
+  font-size: 12px;
+  color: var(--ink-3);
+  display: flex; align-items: center; gap: 6px;
+  margin-top: auto;
+}
+.hero-stat-hint .arrow { color: var(--ok); }
+.hero-stat-hint.neg .arrow { color: var(--bad); }
+
+/* ========================================================================
+   BADGES
+   ======================================================================== */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.badge::before {
+  content: '';
+  display: inline-block;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: .6;
+  flex-shrink: 0;
+}
+.badge.plain::before { display: none; }
+.b-ok   { background: var(--ok-bg);   color: var(--ok-ink); }
+.b-warn { background: var(--warn-bg); color: var(--warn-ink); }
+.b-bad  { background: var(--bad-bg);  color: var(--bad-ink); }
+.b-info { background: var(--info-bg); color: var(--info-ink); }
+.b-accent { background: var(--accent-bg); color: var(--accent-ink); }
+.b-neutral { background: var(--paper-2); color: var(--ink-2); }
+.b-strong { background: var(--ink); color: var(--paper); }
+.b-strong::before { background: var(--accent-dim); opacity: 1; }
+
+/* ========================================================================
+   TABLES — editorial, not SaaS
+   ======================================================================== */
+.tbl-wrap { overflow-x: auto; border-radius: var(--radius); }
+.tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+.tbl th {
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  font-weight: 600;
+  color: var(--ink-3);
+  background: var(--paper-2);
+  border-bottom: 1px solid var(--paper-3);
+  white-space: nowrap;
+  user-select: none;
+}
+.tbl th.sortable { cursor: pointer; }
+.tbl th.sortable:hover { color: var(--ink); }
+.tbl th .sort-ind { opacity: 0; margin-left: 4px; }
+.tbl th.sortable:hover .sort-ind,
+.tbl th.sorted .sort-ind { opacity: 1; }
+.tbl td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--paper-3);
+  vertical-align: middle;
+}
+.tbl tbody tr:hover td { background: var(--paper-2); }
+.tbl tbody tr:last-child td { border-bottom: 0; }
+.tbl .num { font-variant-numeric: tabular-nums; }
+.tbl .name { font-weight: 600; color: var(--ink); }
+.tbl .muted { color: var(--ink-3); font-size: 12.5px; }
+.tbl .mono { font-family: var(--font-mono); font-size: 12px; }
+.tbl .actions { white-space: nowrap; text-align: right; }
+.tbl .actions .btn { padding: 4px; }
+
+/* Dense mini-table inside forms */
+.tbl-sm td, .tbl-sm th { padding: 8px 10px; font-size: 13px; }
+.tbl-sm .input, .tbl-sm .select { padding: 7px 10px; font-size: 13px; }
+
+/* ========================================================================
+   MATRIX — signature view
+   ======================================================================== */
+.matrix-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius);
+}
+.matrix {
+  border-collapse: separate;
+  border-spacing: 3px;
+  padding: 8px;
+  background: var(--paper-2);
+}
+.matrix th, .matrix td {
+  padding: 0;
+  text-align: center;
+  font-size: 12px;
+}
+.matrix thead th {
+  background: transparent;
+  color: var(--ink-3);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-weight: 600;
+  padding: 6px 4px 10px;
+  min-width: 46px;
+  max-width: 60px;
+  vertical-align: bottom;
+  white-space: normal;
+  word-wrap: break-word;
+  line-height: 1.2;
+}
+.matrix thead th.rotate {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  height: 140px;
+  padding: 8px 6px;
+  vertical-align: bottom;
+  white-space: nowrap;
+}
+.matrix thead th.corner {
+  background: transparent;
+  text-align: left;
+  padding-left: 14px;
+  min-width: 220px;
+}
+.matrix tbody th {
+  text-align: left;
+  padding: 10px 14px;
+  background: var(--card);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  border-radius: var(--radius-sm);
+  min-width: 220px;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+}
+.matrix tbody th .sub {
+  display: block;
+  font-size: 11px;
+  color: var(--ink-3);
+  font-weight: 400;
+  margin-top: 1px;
+}
+.matrix-cell {
+  width: 42px; height: 42px;
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--ink-4);
+  transition: transform .15s var(--ease), background .15s;
+  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  font-family: var(--font-display);
+}
+.matrix-cell:hover { transform: scale(1.1); z-index: 2; position: relative; box-shadow: 0 2px 8px rgba(26,23,20,.15); }
+.mc-main { background: var(--ok); color: #fff; }
+.mc-period { background: var(--warn); color: #fff; }
+.mc-rare { background: var(--info); color: #fff; opacity: .7; }
+.mc-none { background: var(--card); color: var(--ink-4); font-weight: 400; }
+.mc-none:hover { background: var(--paper-2); }
+.matrix tfoot th, .matrix tfoot td {
+  background: transparent;
+  padding: 10px 14px;
+  font-size: 11px;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-weight: 600;
+  text-align: center;
+}
+.matrix tfoot th.corner { text-align: left; }
+.matrix-legend {
+  display: flex; gap: 18px;
+  font-size: 12px;
+  color: var(--ink-3);
+  flex-wrap: wrap;
+}
+.matrix-legend-item { display: flex; align-items: center; gap: 7px; }
+.matrix-legend-dot { width: 14px; height: 14px; border-radius: 3px; }
+
+/* ========================================================================
+   CARDS GRID — systems, risk items
+   ======================================================================== */
+.tile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+.tile {
+  background: var(--card);
+  border: 1px solid var(--paper-3);
+  border-radius: var(--radius);
+  padding: 18px;
+  transition: border-color .15s, transform .15s var(--ease);
+  position: relative;
+  overflow: hidden;
+}
+.tile:hover { border-color: var(--ink-4); }
+.tile-top {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.tile-name {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -.015em;
+  line-height: 1.15;
+}
+.tile-meta {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+.tile-users {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--paper-3);
+}
+.tile-users-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--ink-3);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+.tile-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.tile-chip {
+  font-size: 11.5px;
+  padding: 2px 8px;
+  border-radius: 99px;
+  background: var(--paper-2);
+  color: var(--ink-2);
+  border: 1px solid var(--paper-3);
+}
+.tile-chip.main { background: var(--ok-bg); color: var(--ok-ink); border-color: transparent; }
+.tile-chip.orphan {
+  background: var(--bad-bg);
+  color: var(--bad-ink);
+  font-weight: 600;
+}
+.tile-priority {
+  position: absolute; top: 0; left: 0; bottom: 0;
+  width: 3px;
+}
+.tile-priority.critical { background: var(--bad); }
+.tile-priority.important { background: var(--warn); }
+.tile-priority.nice { background: var(--ok); }
+
+/* ========================================================================
+   FORM LAYOUTS
+   ======================================================================== */
+.form-section { margin-bottom: 32px; }
+.form-section:last-child { margin-bottom: 0; }
+.form-section-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 14px;
+  gap: 12px;
+}
+.form-section-head h3 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 17px;
+  letter-spacing: -.01em;
+}
+.form-section-head h3 .num-badge {
+  display: inline-flex;
+  align-items: center; justify-content: center;
+  width: 22px; height: 22px;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 50%;
+  margin-right: 10px;
+  vertical-align: 2px;
+  font-variant-numeric: tabular-nums;
+}
+.form-section-hint {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+/* Add-row button */
+.add-row {
+  margin-top: 10px;
+  width: 100%;
+  padding: 10px;
+  font-size: 12.5px;
+  border: 1px dashed var(--paper-3);
+  background: transparent;
+  color: var(--ink-3);
+  border-radius: var(--radius);
+  font-weight: 500;
+  transition: all .15s;
+}
+.add-row:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-bg); }
+
+/* ========================================================================
+   MODAL
+   ======================================================================== */
+.modal-bg {
+  position: fixed; inset: 0;
+  background: rgba(26,23,20,.55);
+  backdrop-filter: blur(4px);
+  display: none;
+  align-items: center; justify-content: center;
+  z-index: 100;
+  padding: 20px;
+  animation: modalFadeIn .2s var(--ease);
+}
+.modal-bg.open { display: flex; }
+@keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
+.modal {
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  max-width: 560px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 48px -16px rgba(26,23,20,.4);
+  animation: modalIn .2s var(--ease);
+}
+@keyframes modalIn { from { opacity: 0; transform: scale(.96) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+.modal-head {
+  padding: 22px 24px 0;
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 16px;
+}
+.modal-head h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 22px;
+  letter-spacing: -.02em;
+  line-height: 1.15;
+}
+.modal-head .sub { font-size: 12px; color: var(--ink-3); margin-top: 4px; }
+.modal-body { padding: 20px 24px 8px; }
+.modal-foot {
+  padding: 16px 24px 20px;
+  display: flex; justify-content: flex-end; gap: 8px;
+}
+
+/* ========================================================================
+   TOAST
+   ======================================================================== */
+.toasts {
+  position: fixed; bottom: 20px; right: 20px;
+  display: flex; flex-direction: column; gap: 8px;
+  z-index: 200;
+  pointer-events: none;
+  max-width: 380px;
+}
+.toast {
+  pointer-events: auto;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  display: flex; align-items: center; gap: 8px;
+  box-shadow: 0 8px 24px -8px rgba(26,23,20,.4);
+  animation: tIn .25s var(--ease), tOut .25s var(--ease) 2.6s forwards;
+}
+.toast.ok  { background: var(--ok);  }
+.toast.bad { background: var(--bad); }
+.toast svg { width: 14px; height: 14px; flex-shrink: 0; }
+@keyframes tIn  { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes tOut { from { opacity: 1; } to { opacity: 0; transform: translateX(10px); } }
+
+/* ========================================================================
+   EMPTY STATES
+   ======================================================================== */
+.empty {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--ink-3);
+}
+.empty-mark {
+  display: inline-flex;
+  align-items: center; justify-content: center;
+  width: 44px; height: 44px;
+  background: var(--paper-2);
+  color: var(--ink-4);
+  border-radius: 50%;
+  margin-bottom: 14px;
+}
+.empty-mark svg { width: 20px; height: 20px; }
+.empty-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  color: var(--ink-2);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+.empty-text { font-size: 13px; margin-bottom: 16px; }
+
+/* ========================================================================
+   MISC UTILITIES
+   ======================================================================== */
+.row { display: flex; align-items: center; gap: 10px; }
+.row-between { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.gap-2 { gap: 8px; } .gap-3 { gap: 12px; } .gap-4 { gap: 16px; }
+.mt-1 { margin-top: 4px; } .mt-2 { margin-top: 8px; } .mt-3 { margin-top: 12px; } .mt-4 { margin-top: 16px; } .mt-6 { margin-top: 24px; }
+.mb-2 { margin-bottom: 8px; } .mb-3 { margin-bottom: 12px; } .mb-4 { margin-bottom: 16px; } .mb-6 { margin-bottom: 24px; }
+.hidden { display: none !important; }
+.flex-1 { flex: 1; }
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Divider with label */
+.divider {
+  display: flex; align-items: center; gap: 14px;
+  color: var(--ink-3);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  font-weight: 600;
+  margin: 24px 0;
+}
+.divider::before, .divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--paper-3);
+}
+
+/* Checklist */
+.chk-list { display: flex; flex-direction: column; gap: 2px; }
+.chk-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 11px 14px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background .12s;
+  border: 1px solid transparent;
+}
+.chk-item:hover { background: var(--paper-2); }
+.chk-item.done { color: var(--ink-3); }
+.chk-item.done .chk-label { text-decoration: line-through; text-decoration-color: var(--ink-4); }
+.chk-box {
+  width: 18px; height: 18px; border-radius: 4px;
+  border: 1.5px solid var(--ink-4);
+  display: inline-flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all .15s;
+  margin-top: 1px;
+}
+.chk-item.done .chk-box {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--paper);
+}
+.chk-box svg {
+  width: 12px; height: 12px;
+  opacity: 0;
+  transition: opacity .15s;
+}
+.chk-item.done .chk-box svg { opacity: 1; }
+.chk-label { font-size: 13.5px; font-weight: 500; line-height: 1.4; }
+.chk-hint { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+
+/* Tabs */
+.tabs {
+  display: flex; gap: 2px;
+  padding: 3px;
+  background: var(--paper-2);
+  border-radius: var(--radius);
+  border: 1px solid var(--paper-3);
+  width: fit-content;
+}
+.tab {
+  padding: 6px 14px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink-3);
+  border-radius: 4px;
+  transition: all .15s;
+}
+.tab:hover { color: var(--ink-2); }
+.tab.active {
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: 0 1px 2px rgba(26,23,20,.08);
+}
+
+/* Chart wrapper */
+.chart-box { height: 240px; position: relative; }
+
+/* ========================================================================
+   CHECKLIST — recovery steps per employee
+   ======================================================================== */
+.check-list { display: flex; flex-direction: column; gap: 2px; }
+.check-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background .15s;
+  border: 1px solid transparent;
+}
+.check-item:hover { background: var(--paper); }
+.check-item.done { opacity: .55; }
+.check-item.done .check-label { text-decoration: line-through; text-decoration-thickness: 1px; text-decoration-color: var(--ink-3); }
+.check-box {
+  width: 18px; height: 18px;
+  border: 1.5px solid var(--ink-4);
+  border-radius: 4px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: transparent;
+  transition: all .15s;
+}
+.check-item.done .check-box {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.check-box svg { width: 12px; height: 12px; }
+.check-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.35;
+}
+.check-hint {
+  font-size: 12px;
+  color: var(--ink-3);
+  margin-top: 3px;
+  line-height: 1.45;
+}
+.check-group {
+  margin-bottom: 18px;
+}
+.check-group-label {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  font-weight: 600;
+  color: var(--ink-3);
+  padding: 8px 14px 6px;
+}
+
+/* ========================================================================
+   PROGRESS BAR
+   ======================================================================== */
+.progress {
+  height: 6px;
+  background: var(--paper-2);
+  border-radius: 99px;
+  overflow: hidden;
+  position: relative;
+}
+.progress-bar {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 99px;
+  transition: width .4s var(--ease);
+}
+.progress.ok .progress-bar { background: var(--ok); }
+.progress.warn .progress-bar { background: var(--warn); }
+.progress.bad .progress-bar { background: var(--bad); }
+
+/* ========================================================================
+   KEY-VALUE LIST — used on recovery, department cards
+   ======================================================================== */
+.kv { display: flex; flex-direction: column; gap: 8px; }
+.kv-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  gap: 12px;
+  font-size: 13px;
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--paper-3);
+}
+.kv-row:last-child { border-bottom: 0; }
+.kv-row dt { color: var(--ink-3); font-weight: 400; }
+.kv-row dd { color: var(--ink); font-weight: 500; font-variant-numeric: tabular-nums; text-align: right; }
+
+/* ========================================================================
+   DEPARTMENT CARDS
+   ======================================================================== */
+.dept-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 16px;
+}
+.dept-card {
+  background: var(--card);
+  border: 1px solid var(--paper-3);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  display: flex; flex-direction: column;
+  gap: 16px;
+}
+.dept-card-head {
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--paper-3);
+}
+.dept-name {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -.01em;
+  line-height: 1.15;
+  margin-bottom: 4px;
+}
+.dept-name em { color: var(--accent); font-style: italic; }
+.dept-sub {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+.dept-section-label {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  font-weight: 600;
+  color: var(--ink-3);
+  margin-bottom: 8px;
+}
+.dept-people {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.dept-person {
+  display: flex; justify-content: space-between; align-items: baseline;
+  gap: 12px;
+  padding: 6px 0;
+  font-size: 13px;
+}
+.dept-person-name { color: var(--ink); font-weight: 500; }
+.dept-person-pos { color: var(--ink-3); font-size: 11.5px; }
+.dept-person-count {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-3);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.dept-chips {
+  display: flex; flex-wrap: wrap; gap: 5px;
+}
+.dept-chip {
+  font-size: 11px;
+  padding: 2px 9px;
+  background: var(--paper);
+  border: 1px solid var(--paper-3);
+  border-radius: 99px;
+  color: var(--ink-2);
+}
+
+/* ========================================================================
+   ALERT ROW — for ECP expiry & risks
+   ======================================================================== */
+.alert-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  background: var(--card);
+  border: 1px solid var(--paper-3);
+  border-left: 3px solid var(--paper-3);
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+}
+.alert-row.bad  { border-left-color: var(--bad); }
+.alert-row.warn { border-left-color: var(--warn); }
+.alert-row.info { border-left-color: var(--info); }
+.alert-row.ok   { border-left-color: var(--ok); }
+.alert-name { font-weight: 600; font-size: 14px; color: var(--ink); }
+.alert-sub  { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+.alert-meta { font-size: 12px; color: var(--ink-3); white-space: nowrap; }
+.alert-icon {
+  width: 32px; height: 32px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--paper-2);
+  border-radius: 50%;
+  color: var(--ink-3);
+}
+.alert-row.bad  .alert-icon { background: var(--bad-bg);  color: var(--bad-ink); }
+.alert-row.warn .alert-icon { background: var(--warn-bg); color: var(--warn-ink); }
+.alert-row.info .alert-icon { background: var(--info-bg); color: var(--info-ink); }
+.alert-row.ok   .alert-icon { background: var(--ok-bg);   color: var(--ok-ink); }
+.alert-icon svg { width: 15px; height: 15px; }
+
+/* Filter chips (segmented) */
+.seg {
+  display: inline-flex;
+  background: var(--paper-2);
+  padding: 3px;
+  border-radius: 8px;
+  gap: 2px;
+}
+.seg-btn {
+  padding: 5px 12px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink-3);
+  border-radius: 5px;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.seg-btn:hover { color: var(--ink-2); }
+.seg-btn.active {
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: 0 1px 2px rgba(26,23,20,.06);
+}
+
+/* Employee picker for recovery page */
+.emp-picker {
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.emp-pick-btn {
+  padding: 8px 14px;
+  background: var(--card);
+  border: 1px solid var(--paper-3);
+  border-radius: var(--radius);
+  font-size: 13px;
+  color: var(--ink-2);
+  transition: all .15s;
+}
+.emp-pick-btn:hover { border-color: var(--ink-4); color: var(--ink); }
+.emp-pick-btn.active {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+/* ========================================================================
+   RESPONSIVE
+   ======================================================================== */
+.burger { display: none; }
+@media (max-width: 960px) {
+  .nav {
+    transform: translateX(-100%);
+    transition: transform .3s var(--ease);
+    width: 280px;
+  }
+  .nav.open { transform: translateX(0); box-shadow: 0 0 48px rgba(0,0,0,.3); }
+  .main { margin-left: 0; }
+  .burger {
+    display: inline-flex;
+    padding: 6px;
+    background: transparent;
+    border: 1px solid var(--paper-3);
+    border-radius: var(--radius);
+  }
+  .burger svg { width: 18px; height: 18px; }
+  :root { --pad-x: 20px; --pad-y: 20px; }
+  .topbar { padding: 16px var(--pad-x); flex-wrap: wrap; }
+  .topbar-title { font-size: 26px; }
+  .page { padding: 24px var(--pad-x) 60px; }
+  .hero-stats { grid-template-columns: repeat(2, 1fr); }
+  .hero-stat { border-right: 1px solid var(--paper-3); border-bottom: 1px solid var(--paper-3); }
+  .hero-stat:nth-child(2n) { border-right: 0; }
+  .hero-stat:nth-last-child(-n+2) { border-bottom: 0; }
+  .hero-stat-num { font-size: 42px; }
+}
+@media (max-width: 600px) {
+  .hero-stat-num { font-size: 36px; }
+  .hero-stat { padding: 16px 20px; }
+  .card-head { padding: 16px 18px; }
+  .card-body { padding: 18px; }
+  .topbar-title { font-size: 22px; }
+}
+
+/* ========================================================================
+   PRINT
+   ======================================================================== */
+@media print {
+  body { background: white; }
+  .nav, .topbar, .nav-foot, .modal-bg, .toasts, .btn, .add-row { display: none !important; }
+  .main { margin-left: 0; }
+  .page { display: block !important; padding: 0; }
+  .page:not(.active) { display: none !important; }
+  .card { border: 1px solid #ccc; break-inside: avoid; }
+  .matrix-cell { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- ========================================================== SIDEBAR -->
+  <aside class="nav" id="nav">
+    <div class="nav-brand">
+      <div class="nav-brand-mark">Реестр <em>систем</em></div>
+      <div class="nav-brand-sub">Загрузка · Преемственность</div>
+    </div>
+    <nav class="nav-sections">
+      <div class="nav-section-label">Оперативно</div>
+      <button class="nav-item" data-page="survey">
+        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Опросный лист
+      </button>
+      <button class="nav-item" data-page="employees">
+        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Сотрудники
+        <span class="count" id="nav-count-emp">0</span>
+      </button>
+      <button class="nav-item" data-page="systems">
+        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        Картотека систем
+        <span class="count" id="nav-count-sys">0</span>
+      </button>
+
+      <div class="nav-section-label">Аналитика</div>
+      <button class="nav-item" data-page="dashboard">
+        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Сводная панель
+      </button>
+      <button class="nav-item" data-page="matrix">
+        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+        Матрица доступов
+      </button>
+      <button class="nav-item" data-page="departments">
+        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        По отделам
+      </button>
+
+      <div class="nav-section-label">Риски и контроль</div>
+      <button class="nav-item" data-page="ecp">
+        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        ЭЦП и КриптоПро
+        <span class="count" id="nav-count-alerts">0</span>
+      </button>
+      <button class="nav-item" data-page="risks">
+        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        «Автобусный фактор»
+        <span class="count" id="nav-count-risks">0</span>
+      </button>
+      <button class="nav-item" data-page="recovery">
+        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+        Восстановление АРМ
+      </button>
+    </nav>
+    <div class="nav-foot">
+      <span><span class="nav-foot-dot"></span>Данные сохранены</span>
+      <span class="num" id="last-save">—</span>
+    </div>
+  </aside>
+
+  <!-- ========================================================== MAIN -->
+  <main class="main">
+    <header class="topbar">
+      <div class="row gap-3">
+        <button class="burger" id="burgerBtn" aria-label="Меню">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div>
+          <h1 class="topbar-title" id="pageTitle">Опросный лист</h1>
+          <div class="topbar-sub" id="pageSub">Заполнение данных по сотруднику</div>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <div class="dd">
+          <button class="btn" onclick="toggleDD('ddExport')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Экспорт
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="dd-menu" id="ddExport">
+            <button class="dd-item" onclick="exportCSV('employees')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              CSV · Реестр сотрудников
+            </button>
+            <button class="dd-item" onclick="exportCSV('full')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              CSV · Полные данные
+            </button>
+            <div class="dd-sep"></div>
+            <button class="dd-item" onclick="exportJSON()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              JSON · Резервная копия
+            </button>
+            <label class="dd-item" style="cursor:pointer" for="importFile">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Импорт из JSON
+            </label>
+            <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)">
+            <div class="dd-sep"></div>
+            <button class="dd-item" onclick="window.print()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+              Печать текущей страницы
+            </button>
+          </div>
+        </div>
+        <button class="btn btn-danger btn-sm" onclick="clearAll()" title="Очистить все данные">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- ============================================== PAGES -->
+    <div id="pages"></div>
+  </main>
+</div>
+
+<!-- Modal -->
+<div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <h3 id="modalTitle">—</h3>
+        <div class="sub" id="modalSub"></div>
+      </div>
+      <button class="btn btn-ghost btn-sm btn-icon" onclick="closeModal()" aria-label="Закрыть">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot" id="modalFoot"></div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<!-- Script placeholder — populated by subsequent edits -->
+<script id="appScript">
+/* ============================================================================
+   STATE & PERSISTENCE
+   ============================================================================ */
+const STORAGE_KEY = 'eis_registry_v3';
+const CHECKLIST_KEY = 'eis_checklists_v3';
+
+const FREQ = {
+  main:    { label: 'Основная',     symbol: '●', cls: 'mc-main' },
+  periodic:{ label: 'Периодическая',symbol: '◐', cls: 'mc-period' },
+  rare:    { label: 'Редкая',       symbol: '○', cls: 'mc-rare' }
+};
+
+const PRIORITY = {
+  critical: { label: 'Критично',   tone: 'bad'  },
+  important:{ label: 'Важно',      tone: 'warn' },
+  nice:     { label: 'Желательно', tone: 'ok'   }
+};
+
+const CRYPTO_STATUS = {
+  active:        { label: 'Активна',        tone: 'ok'      },
+  expiring_soon: { label: 'Истекает',       tone: 'warn'    },
+  expired:       { label: 'Истекла',        tone: 'bad'     },
+  not_installed: { label: 'Не установлена', tone: 'neutral' }
+};
+
+// Default recovery checklist — applies to any AРМ
+const DEFAULT_RECOVERY_STEPS = [
+  { id: 'os',      label: 'Установка ОС и базового ПО',        hint: 'Windows / Linux + офисный пакет' },
+  { id: 'net',     label: 'Настройка сети, VPN',                hint: 'Проверить доступ в корп. сеть и к внешним сервисам' },
+  { id: 'crypto',  label: 'Установка КриптоПро CSP',            hint: 'Соответствующая версия, проверить лицензию' },
+  { id: 'certs',   label: 'Установка сертификатов ЭЦП',         hint: 'Проверить сроки действия всех ключей' },
+  { id: 'systems', label: 'Развёртывание всех систем из матрицы',hint: 'По чек-листу сотрудника' },
+  { id: 'test',    label: 'Тестовый вход во все системы',       hint: 'Подписание акта о восстановлении' }
+];
+
+let state = {
+  employees: [],    // { id, fullName, position, department, systems:[{name, purpose, frequency}], ecps:[{type, expiry}], cryptoVersion, cryptoExpiry, cryptoStatus, armId, notes }
+  systems: [],      // { id, name, type: 'WEB'|'Desktop', priority, requiresEcp, notes, recoverySteps: [{id, label, hint}] }
+};
+
+let checklists = {}; // key = system_id, value = {stepId: true}
+let ui = {
+  currentPage: 'survey',
+  editingEmployeeId: null,
+  sortBy: null,
+  sortDir: 'asc',
+  search: {},
+  charts: {}
+};
+
+/* ============================================================================
+   UTIL
+   ============================================================================ */
+const $ = (sel, ctx=document) => ctx.querySelector(sel);
+const $$ = (sel, ctx=document) => [...ctx.querySelectorAll(sel)];
+
+const uid = () => Math.random().toString(36).slice(2, 11);
+
+const esc = (s) => {
+  if (s == null) return '';
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+};
+
+const fmtDate = (iso) => {
+  if (!iso) return '—';
+  try {
+    const d = new Date(iso);
+    return d.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  } catch { return '—'; }
+};
+
+const fmtTime = (iso) => {
+  if (!iso) return '—';
+  try {
+    const d = new Date(iso);
+    return d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+  } catch { return '—'; }
+};
+
+const daysLeft = (iso) => {
+  if (!iso) return null;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const d = new Date(iso); d.setHours(0,0,0,0);
+  return Math.round((d - today) / 86400000);
+};
+
+const plural = (n, one, few, many) => {
+  const m = Math.abs(n) % 100; const k = m % 10;
+  if (m > 10 && m < 20) return many;
+  if (k > 1 && k < 5) return few;
+  if (k === 1) return one;
+  return many;
+};
+
+const systemKey = (name) => (name || '').trim().toLowerCase();
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  localStorage.setItem(CHECKLIST_KEY, JSON.stringify(checklists));
+  $('#last-save').textContent = fmtTime(new Date().toISOString());
+}
+
+function load() {
+  try {
+    const s = localStorage.getItem(STORAGE_KEY);
+    if (s) state = JSON.parse(s);
+  } catch {}
+  try {
+    const c = localStorage.getItem(CHECKLIST_KEY);
+    if (c) checklists = JSON.parse(c);
+  } catch {}
+
+  // Demo data if empty
+  if (!state.employees?.length && !state.systems?.length) {
+    seedDemo();
+  }
+  // migrations
+  state.employees ||= [];
+  state.systems ||= [];
+  state.employees.forEach(e => {
+    e.id ||= uid();
+    e.systems ||= [];
+    e.ecps ||= [];
+    e.cryptoStatus ||= 'not_installed';
+  });
+  state.systems.forEach(s => {
+    s.id ||= uid();
+    s.recoverySteps ||= DEFAULT_RECOVERY_STEPS.map(x => ({ ...x }));
+  });
+}
+
+function seedDemo() {
+  const sys = [
+    { id: uid(), name: '1С:Бухгалтерия',  type: 'Desktop', priority: 'critical',  requiresEcp: true,  notes: '' },
+    { id: uid(), name: 'СБИС',            type: 'WEB',     priority: 'critical',  requiresEcp: true,  notes: '' },
+    { id: uid(), name: 'Диадок',          type: 'WEB',     priority: 'important', requiresEcp: true,  notes: '' },
+    { id: uid(), name: 'Банк-Клиент',     type: 'Desktop', priority: 'critical',  requiresEcp: true,  notes: '' },
+    { id: uid(), name: 'Госуслуги',       type: 'WEB',     priority: 'important', requiresEcp: true,  notes: '' },
+    { id: uid(), name: '1С:ЗУП',          type: 'Desktop', priority: 'important', requiresEcp: false, notes: '' },
+    { id: uid(), name: 'Архив документов',type: 'Desktop', priority: 'nice',      requiresEcp: false, notes: 'Legacy-система' }
+  ];
+  sys.forEach(s => s.recoverySteps = DEFAULT_RECOVERY_STEPS.map(x => ({...x})));
+
+  const emp = [
+    {
+      id: uid(),
+      fullName: 'Иванова Елена Петровна',
+      position: 'Главный бухгалтер',
+      department: 'Бухгалтерия',
+      systems: [
+        { name: '1С:Бухгалтерия', purpose: 'Ведение учёта', frequency: 'main' },
+        { name: 'СБИС',           purpose: 'Отчётность ФНС, ПФР', frequency: 'main' },
+        { name: 'Диадок',         purpose: 'Входящие/исходящие документы', frequency: 'main' },
+        { name: 'Банк-Клиент',    purpose: 'Выписки, платежи', frequency: 'main' },
+        { name: '1С:ЗУП',         purpose: 'Зарплатные ведомости', frequency: 'periodic' }
+      ],
+      ecps: [
+        { type: 'УКЭП для ФНС', expiry: '2026-09-15' },
+        { type: 'УКЭП для банка', expiry: '2026-06-20' }
+      ],
+      cryptoVersion: '5.0.12000',
+      cryptoExpiry: '2027-01-10',
+      cryptoStatus: 'active',
+      armId: 'АРМ-07',
+      notes: ''
+    },
+    {
+      id: uid(),
+      fullName: 'Петров Алексей Сергеевич',
+      position: 'Ведущий юрист',
+      department: 'Юридический',
+      systems: [
+        { name: 'Госуслуги',       purpose: 'Подача заявлений, проверка контрагентов', frequency: 'main' },
+        { name: 'СБИС',            purpose: 'Согласование договоров', frequency: 'periodic' },
+        { name: 'Архив документов',purpose: 'Ведение дел', frequency: 'main' }
+      ],
+      ecps: [
+        { type: 'УКЭП ФЛ', expiry: '2025-08-10' }
+      ],
+      cryptoVersion: '5.0',
+      cryptoExpiry: '2025-09-01',
+      cryptoStatus: 'expiring_soon',
+      armId: 'АРМ-12',
+      notes: ''
+    },
+    {
+      id: uid(),
+      fullName: 'Соколова Мария Игоревна',
+      position: 'Специалист по кадрам',
+      department: 'Кадры',
+      systems: [
+        { name: '1С:ЗУП',          purpose: 'Кадровый учёт', frequency: 'main' },
+        { name: 'СБИС',            purpose: 'Отчёты в ПФР/СФР', frequency: 'periodic' },
+        { name: 'Госуслуги',       purpose: 'Справки о судимости и пр.', frequency: 'rare' }
+      ],
+      ecps: [],
+      cryptoVersion: '',
+      cryptoExpiry: '',
+      cryptoStatus: 'not_installed',
+      armId: 'АРМ-05',
+      notes: 'Подписи не требуются для текущих задач'
+    },
+    {
+      id: uid(),
+      fullName: 'Николаев Дмитрий Владимирович',
+      position: 'IT-специалист',
+      department: 'ИТ',
+      systems: [
+        { name: 'Архив документов', purpose: 'Администрирование, бэкапы', frequency: 'main' },
+        { name: '1С:Бухгалтерия',  purpose: 'Техподдержка', frequency: 'periodic' },
+        { name: 'СБИС',            purpose: 'Техподдержка пользователей', frequency: 'rare' }
+      ],
+      ecps: [
+        { type: 'УКЭП адм.', expiry: '2025-05-20' }
+      ],
+      cryptoVersion: '4.0',
+      cryptoExpiry: '2025-04-10',
+      cryptoStatus: 'expired',
+      armId: 'АРМ-01',
+      notes: ''
+    }
+  ];
+  state.employees = emp;
+  state.systems = sys;
+}
+
+/* ============================================================================
+   TOAST & MODAL
+   ============================================================================ */
+function toast(text, type='ok') {
+  const box = $('#toasts');
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  const icon = type === 'bad'
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+  el.innerHTML = icon + ' ' + esc(text);
+  box.appendChild(el);
+  setTimeout(() => el.remove(), 3000);
+}
+
+function openModal({ title, sub, body, footer }) {
+  $('#modalTitle').textContent = title;
+  $('#modalSub').textContent = sub || '';
+  $('#modalBody').innerHTML = body || '';
+  $('#modalFoot').innerHTML = footer || '';
+  $('#modalBg').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  $('#modalBg').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function confirmAction(title, text, onConfirm) {
+  openModal({
+    title,
+    sub: text,
+    body: '',
+    footer: `
+      <button class="btn" onclick="closeModal()">Отмена</button>
+      <button class="btn btn-accent" id="confirmBtn">Подтвердить</button>
+    `
+  });
+  $('#confirmBtn').onclick = () => { closeModal(); onConfirm(); };
+}
+
+function toggleDD(id) {
+  const menu = document.getElementById(id);
+  const isOpen = menu.classList.contains('open');
+  $$('.dd-menu').forEach(m => m.classList.remove('open'));
+  if (!isOpen) menu.classList.add('open');
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.dd')) $$('.dd-menu').forEach(m => m.classList.remove('open'));
+});
+
+/* ============================================================================
+   PAGE ROUTER
+   ============================================================================ */
+const PAGES = {
+  survey:      { title: 'Опросный лист',         sub: 'Заполнение данных по сотруднику',   render: renderSurveyPage },
+  employees:   { title: 'Сотрудники',             sub: 'Реестр опрошенных сотрудников',     render: renderEmployeesPage },
+  systems:     { title: 'Картотека систем',       sub: 'Справочник используемых систем',    render: renderSystemsPage },
+  dashboard:   { title: 'Сводная панель',         sub: 'Ключевые показатели и распределение',render: renderDashboardPage },
+  matrix:      { title: 'Матрица доступов',       sub: 'Сотрудник × Система',               render: renderMatrixPage },
+  departments: { title: 'Распределение по отделам',sub: 'Загрузка и покрытие по отделам',   render: renderDepartmentsPage },
+  ecp:         { title: 'ЭЦП и КриптоПро',        sub: 'Контроль сроков и лицензий',        render: renderEcpPage },
+  risks:       { title: 'Автобусный фактор',      sub: 'Единственные носители знаний',      render: renderRisksPage },
+  recovery:    { title: 'Восстановление АРМ',     sub: 'Чек-листы по сотрудникам и системам',render: renderRecoveryPage }
+};
+
+function goto(page) {
+  ui.currentPage = page;
+  $$('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.page === page));
+  const conf = PAGES[page];
+  $('#pageTitle').innerHTML = conf.title.replace(/(\S+)$/, '<em>$1</em>');
+  $('#pageSub').textContent = conf.sub;
+  $('#pages').innerHTML = `<div class="page active" id="page-${page}"></div>`;
+  conf.render($('#page-' + page));
+  // close nav on mobile
+  $('#nav').classList.remove('open');
+  // Reset scroll
+  window.scrollTo(0, 0);
+}
+
+/* ============================================================================
+   ============================== PAGE: SURVEY ================================
+   ============================================================================ */
+function renderSurveyPage(root) {
+  const emp = ui.editingEmployeeId
+    ? state.employees.find(e => e.id === ui.editingEmployeeId)
+    : null;
+
+  root.innerHTML = `
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <h2>Опросный <em>лист</em></h2>
+          <div class="sub mt-1">Актуализация данных об используемых электронных системах, ЭЦП и ПО</div>
+        </div>
+        <div class="row gap-2">
+          <select class="select" id="empSelector" style="min-width:260px"></select>
+          <button class="btn" onclick="newSurvey()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Новый
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <form id="surveyForm" onsubmit="saveSurvey(event)">
+
+          <div class="form-section">
+            <div class="grid grid-3">
+              <div class="field">
+                <label class="label">ФИО <span style="color:var(--bad)">*</span></label>
+                <input class="input" id="sFullName" required placeholder="Иванов Иван Иванович" value="${esc(emp?.fullName || '')}">
+              </div>
+              <div class="field">
+                <label class="label">Должность <span style="color:var(--bad)">*</span></label>
+                <input class="input" id="sPosition" required placeholder="Ведущий специалист" value="${esc(emp?.position || '')}">
+              </div>
+              <div class="field">
+                <label class="label">Отдел</label>
+                <input class="input" id="sDepartment" placeholder="Бухгалтерия" value="${esc(emp?.department || '')}">
+              </div>
+            </div>
+          </div>
+
+          <div class="divider">Раздел 1 · Используемые системы</div>
+
+          <div class="form-section">
+            <div class="form-section-head">
+              <h3><span class="num-badge">1</span>Системы и сервисы</h3>
+              <div class="form-section-hint" id="sysCountLabel">—</div>
+            </div>
+            <div class="tbl-wrap">
+              <table class="tbl tbl-sm">
+                <thead>
+                  <tr>
+                    <th style="width:30px">#</th>
+                    <th>Система / сервис</th>
+                    <th>Цель использования</th>
+                    <th style="width:160px">Частота</th>
+                    <th style="width:40px"></th>
+                  </tr>
+                </thead>
+                <tbody id="sysBody"></tbody>
+              </table>
+            </div>
+            <button type="button" class="add-row" onclick="addSystemRow()">+ Добавить систему</button>
+          </div>
+
+          <div class="divider">Раздел 2 · Криптографические средства</div>
+
+          <div class="form-section">
+            <div class="form-section-head">
+              <h3><span class="num-badge">2</span>Электронная подпись (ЭЦП)</h3>
+              <div class="form-section-hint">Перечислите все ключи, которыми пользуется сотрудник</div>
+            </div>
+            <div class="tbl-wrap">
+              <table class="tbl tbl-sm">
+                <thead>
+                  <tr>
+                    <th>Вид / назначение</th>
+                    <th style="width:180px">Действует до</th>
+                    <th style="width:40px"></th>
+                  </tr>
+                </thead>
+                <tbody id="ecpBody"></tbody>
+              </table>
+            </div>
+            <button type="button" class="add-row" onclick="addEcpRow()">+ Добавить ЭЦП</button>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-head">
+              <h3><span class="num-badge">3</span>Лицензия КриптоПро CSP</h3>
+            </div>
+            <div class="grid grid-4">
+              <div class="field">
+                <label class="label">Версия</label>
+                <input class="input" id="sCryptoVersion" placeholder="5.0.12000" value="${esc(emp?.cryptoVersion || '')}">
+              </div>
+              <div class="field">
+                <label class="label">Лицензия до</label>
+                <input class="input" type="date" id="sCryptoExpiry" value="${esc(emp?.cryptoExpiry || '')}">
+              </div>
+              <div class="field">
+                <label class="label">Статус</label>
+                <select class="select" id="sCryptoStatus">
+                  ${Object.entries(CRYPTO_STATUS).map(([k,v]) =>
+                    `<option value="${k}" ${emp?.cryptoStatus===k?'selected':''}>${v.label}</option>`
+                  ).join('')}
+                </select>
+              </div>
+              <div class="field">
+                <label class="label">АРМ / ID рабочего места</label>
+                <input class="input" id="sArmId" placeholder="АРМ-001" value="${esc(emp?.armId || '')}">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-head">
+              <h3><span class="num-badge">4</span>Комментарий</h3>
+            </div>
+            <textarea class="textarea" id="sNotes" rows="3" placeholder="Особенности, замечания, нестандартные процессы…">${esc(emp?.notes || '')}</textarea>
+          </div>
+
+          <div class="row gap-2 mt-6">
+            <button type="submit" class="btn btn-primary">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              ${emp ? 'Сохранить изменения' : 'Сохранить анкету'}
+            </button>
+            ${emp ? `
+              <button type="button" class="btn btn-danger" onclick="deleteEmployee('${emp.id}')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                Удалить анкету
+              </button>
+            ` : ''}
+            <button type="button" class="btn btn-ghost" onclick="newSurvey()">Очистить</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+
+  // Populate selector
+  const sel = $('#empSelector');
+  sel.innerHTML = `
+    <option value="">— Новый сотрудник —</option>
+    ${state.employees.map(e => `
+      <option value="${e.id}" ${e.id === ui.editingEmployeeId ? 'selected' : ''}>${esc(e.fullName)} · ${esc(e.position)}</option>
+    `).join('')}
+  `;
+  sel.onchange = () => {
+    ui.editingEmployeeId = sel.value || null;
+    goto('survey');
+  };
+
+  // Populate rows
+  $('#sysBody').innerHTML = '';
+  if (emp?.systems?.length) {
+    emp.systems.forEach(s => addSystemRow(s));
+  } else {
+    for (let i = 0; i < 3; i++) addSystemRow();
+  }
+
+  $('#ecpBody').innerHTML = '';
+  if (emp?.ecps?.length) {
+    emp.ecps.forEach(c => addEcpRow(c));
+  } else {
+    for (let i = 0; i < 2; i++) addEcpRow();
+  }
+
+  updateSysCount();
+}
+
+function newSurvey() {
+  ui.editingEmployeeId = null;
+  goto('survey');
+}
+
+function addSystemRow(data = {}) {
+  const body = $('#sysBody');
+  const existingNames = [...new Set(state.systems.map(s => s.name).concat(
+    state.employees.flatMap(e => (e.systems||[]).map(s => s.name))
+  ))].sort();
+
+  const tr = document.createElement('tr');
+  const idx = body.children.length + 1;
+  tr.innerHTML = `
+    <td class="muted num">${idx}</td>
+    <td>
+      <input class="input sys-name" list="sysNames" placeholder="Название системы" value="${esc(data.name || '')}">
+      ${body.children.length === 0 ? `<datalist id="sysNames">${existingNames.map(n => `<option value="${esc(n)}">`).join('')}</datalist>` : ''}
+    </td>
+    <td><input class="input sys-purpose" placeholder="Цель использования" value="${esc(data.purpose || '')}"></td>
+    <td>
+      <select class="select sys-freq">
+        ${Object.entries(FREQ).map(([k,v]) =>
+          `<option value="${k}" ${data.frequency === k ? 'selected' : ''}>${v.symbol} ${v.label}</option>`
+        ).join('')}
+      </select>
+    </td>
+    <td>
+      <button type="button" class="btn btn-ghost btn-icon btn-danger" onclick="removeRow(this); updateSysCount();" title="Удалить строку">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </td>
+  `;
+  body.appendChild(tr);
+  tr.querySelector('.sys-name').addEventListener('input', updateSysCount);
+  updateSysCount();
+}
+
+function addEcpRow(data = {}) {
+  const body = $('#ecpBody');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input class="input ecp-type" placeholder="Например: УКЭП для ФНС" value="${esc(data.type || '')}"></td>
+    <td><input class="input ecp-expiry" type="date" value="${esc(data.expiry || '')}"></td>
+    <td>
+      <button type="button" class="btn btn-ghost btn-icon btn-danger" onclick="removeRow(this)" title="Удалить строку">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </td>
+  `;
+  body.appendChild(tr);
+}
+
+function removeRow(btn) {
+  btn.closest('tr').remove();
+}
+
+function updateSysCount() {
+  const filled = $$('.sys-name').filter(i => i.value.trim()).length;
+  $('#sysCountLabel').textContent = filled + ' ' + plural(filled, 'система', 'системы', 'систем');
+}
+
+function saveSurvey(ev) {
+  ev?.preventDefault();
+  const fullName = $('#sFullName').value.trim();
+  const position = $('#sPosition').value.trim();
+  if (!fullName || !position) {
+    toast('Заполните ФИО и должность', 'bad');
+    return;
+  }
+
+  const systems = $$('#sysBody tr').map(tr => ({
+    name: tr.querySelector('.sys-name').value.trim(),
+    purpose: tr.querySelector('.sys-purpose').value.trim(),
+    frequency: tr.querySelector('.sys-freq').value
+  })).filter(s => s.name);
+
+  const ecps = $$('#ecpBody tr').map(tr => ({
+    type: tr.querySelector('.ecp-type').value.trim(),
+    expiry: tr.querySelector('.ecp-expiry').value
+  })).filter(c => c.type);
+
+  const entry = {
+    id: ui.editingEmployeeId || uid(),
+    fullName, position,
+    department: $('#sDepartment').value.trim(),
+    systems, ecps,
+    cryptoVersion: $('#sCryptoVersion').value.trim(),
+    cryptoExpiry: $('#sCryptoExpiry').value,
+    cryptoStatus: $('#sCryptoStatus').value,
+    armId: $('#sArmId').value.trim(),
+    notes: $('#sNotes').value.trim(),
+    updatedAt: new Date().toISOString()
+  };
+
+  if (ui.editingEmployeeId) {
+    const idx = state.employees.findIndex(e => e.id === ui.editingEmployeeId);
+    state.employees[idx] = entry;
+    toast('Анкета обновлена');
+  } else {
+    state.employees.push(entry);
+    ui.editingEmployeeId = entry.id;
+    toast('Анкета сохранена');
+  }
+
+  // Auto-register new systems in catalog
+  systems.forEach(s => {
+    const key = systemKey(s.name);
+    if (!state.systems.find(x => systemKey(x.name) === key)) {
+      state.systems.push({
+        id: uid(),
+        name: s.name,
+        type: 'WEB',
+        priority: 'important',
+        requiresEcp: false,
+        notes: '',
+        recoverySteps: DEFAULT_RECOVERY_STEPS.map(x => ({...x}))
+      });
+    }
+  });
+
+  save();
+  refreshSidebarCounts();
+  goto('survey');
+}
+
+function deleteEmployee(id) {
+  const emp = state.employees.find(e => e.id === id);
+  if (!emp) return;
+  confirmAction('Удалить анкету?', `Анкета сотрудника «${emp.fullName}» будет удалена безвозвратно.`, () => {
+    state.employees = state.employees.filter(e => e.id !== id);
+    ui.editingEmployeeId = null;
+    save();
+    refreshSidebarCounts();
+    toast('Анкета удалена');
+    goto('survey');
+  });
+}
+
+/* ============================================================================
+   ============================ PAGE: EMPLOYEES ===============================
+   ============================================================================ */
+function renderEmployeesPage(root) {
+  const sortKey = ui.sortBy || 'fullName';
+  const dir = ui.sortDir === 'desc' ? -1 : 1;
+  const query = (ui.search.emp || '').toLowerCase();
+
+  let list = state.employees.filter(e => {
+    if (!query) return true;
+    return [e.fullName, e.position, e.department].join(' ').toLowerCase().includes(query);
+  });
+
+  list.sort((a, b) => {
+    let va, vb;
+    switch (sortKey) {
+      case 'systems': va = a.systems?.length || 0; vb = b.systems?.length || 0; break;
+      case 'ecps':    va = a.ecps?.length || 0;    vb = b.ecps?.length || 0;    break;
+      case 'department': va = a.department || ''; vb = b.department || ''; break;
+      case 'position': va = a.position; vb = b.position; break;
+      default: va = a.fullName; vb = b.fullName;
+    }
+    if (typeof va === 'number') return (va - vb) * dir;
+    return String(va).localeCompare(String(vb), 'ru') * dir;
+  });
+
+  const totalSys = state.employees.reduce((s,e) => s + (e.systems?.length || 0), 0);
+  const avgSys = state.employees.length ? (totalSys / state.employees.length).toFixed(1) : '0';
+
+  root.innerHTML = `
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-label">Сотрудников</div>
+        <div class="hero-stat-num num">${state.employees.length}</div>
+        <div class="hero-stat-hint">Заполнено анкет</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-label">Всего систем</div>
+        <div class="hero-stat-num num">${totalSys}</div>
+        <div class="hero-stat-hint">Связей «сотрудник → система»</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-label">Средняя загрузка</div>
+        <div class="hero-stat-num num">${avgSys}<span class="suffix">сист.</span></div>
+        <div class="hero-stat-hint">На одного сотрудника</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-label">Отделов</div>
+        <div class="hero-stat-num num">${new Set(state.employees.map(e => e.department).filter(Boolean)).size}</div>
+        <div class="hero-stat-hint">Представленных в реестре</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <h2>Реестр <em>сотрудников</em></h2>
+          <div class="sub mt-1">Кликните по строке для редактирования анкеты</div>
+        </div>
+        <div class="row gap-2">
+          <div class="search" style="width:260px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input class="input" placeholder="Поиск по ФИО, должности…" value="${esc(query)}" oninput="ui.search.emp=this.value; renderEmployeesPage(document.querySelector('#page-employees'))">
+          </div>
+          <button class="btn btn-accent" onclick="newSurvey()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Добавить
+          </button>
+        </div>
+      </div>
+      ${list.length === 0 ? emptyState('Никто не подошёл под запрос', 'Попробуйте изменить поиск или добавьте нового сотрудника.', 'user') : `
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th class="sortable ${sortKey==='fullName'?'sorted':''}" onclick="setSort('fullName')">ФИО <span class="sort-ind">${sortKey==='fullName'?(dir>0?'↑':'↓'):'↕'}</span></th>
+              <th class="sortable ${sortKey==='position'?'sorted':''}" onclick="setSort('position')">Должность <span class="sort-ind">${sortKey==='position'?(dir>0?'↑':'↓'):'↕'}</span></th>
+              <th class="sortable ${sortKey==='department'?'sorted':''}" onclick="setSort('department')">Отдел <span class="sort-ind">${sortKey==='department'?(dir>0?'↑':'↓'):'↕'}</span></th>
+              <th class="sortable ${sortKey==='systems'?'sorted':''}" onclick="setSort('systems')" style="text-align:center">Системы <span class="sort-ind">${sortKey==='systems'?(dir>0?'↑':'↓'):'↕'}</span></th>
+              <th class="sortable ${sortKey==='ecps'?'sorted':''}" onclick="setSort('ecps')" style="text-align:center">ЭЦП <span class="sort-ind">${sortKey==='ecps'?(dir>0?'↑':'↓'):'↕'}</span></th>
+              <th style="text-align:center">КриптоПро</th>
+              <th style="text-align:center">Загрузка</th>
+              <th class="actions"></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${list.map(e => {
+              const sys = e.systems?.length || 0;
+              const load = loadLevel(sys);
+              const cp = CRYPTO_STATUS[e.cryptoStatus] || CRYPTO_STATUS.not_installed;
+              return `
+                <tr onclick="editEmployee('${e.id}')" style="cursor:pointer">
+                  <td class="name">${esc(e.fullName)}</td>
+                  <td>${esc(e.position)}</td>
+                  <td class="muted">${esc(e.department || '—')}</td>
+                  <td style="text-align:center"><span class="badge b-neutral num">${sys}</span></td>
+                  <td style="text-align:center"><span class="badge b-neutral num">${e.ecps?.length || 0}</span></td>
+                  <td style="text-align:center"><span class="badge b-${cp.tone}">${cp.label}</span></td>
+                  <td style="text-align:center"><span class="badge b-${load.tone}">${load.label}</span></td>
+                  <td class="actions" onclick="event.stopPropagation()">
+                    <button class="btn btn-ghost btn-icon" onclick="editEmployee('${e.id}')" title="Редактировать">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    </button>
+                    <button class="btn btn-ghost btn-icon btn-danger" onclick="deleteEmployee('${e.id}')" title="Удалить">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                    </button>
+                  </td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+      `}
+    </div>
+  `;
+}
+
+function setSort(key) {
+  if (ui.sortBy === key) ui.sortDir = ui.sortDir === 'asc' ? 'desc' : 'asc';
+  else { ui.sortBy = key; ui.sortDir = 'asc'; }
+  goto(ui.currentPage);
+}
+
+function editEmployee(id) {
+  ui.editingEmployeeId = id;
+  goto('survey');
+}
+
+function loadLevel(sysCount) {
+  if (sysCount >= 7) return { label: 'Высокая', tone: 'bad' };
+  if (sysCount >= 4) return { label: 'Средняя', tone: 'warn' };
+  if (sysCount >= 1) return { label: 'Низкая',  tone: 'ok' };
+  return { label: '—', tone: 'neutral' };
+}
+
+/* ============================================================================
+   ============================== PAGE: SYSTEMS ===============================
+   ============================================================================ */
+function renderSystemsPage(root) {
+  const query = (ui.search.sys || '').toLowerCase();
+  const list = state.systems
+    .map(s => {
+      const users = state.employees.filter(e =>
+        e.systems?.some(x => systemKey(x.name) === systemKey(s.name))
+      );
+      return { ...s, users };
+    })
+    .filter(s => !query || s.name.toLowerCase().includes(query))
+    .sort((a, b) => b.users.length - a.users.length);
+
+  root.innerHTML = `
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <h2>Картотека <em>систем</em></h2>
+          <div class="sub mt-1">Каждая система привязана к чек-листу восстановления и пользователям</div>
+        </div>
+        <div class="row gap-2">
+          <div class="search" style="width:240px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input class="input" placeholder="Найти систему…" value="${esc(query)}" oninput="ui.search.sys=this.value; renderSystemsPage(document.querySelector('#page-systems'))">
+          </div>
+          <button class="btn btn-accent" onclick="editSystem(null)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Новая система
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        ${list.length === 0
+          ? emptyState('Нет систем', 'Добавьте систему вручную или заполните анкеты сотрудников — системы подтянутся автоматически.', 'box')
+          : `<div class="tile-grid">
+              ${list.map(s => {
+                const prio = PRIORITY[s.priority] || PRIORITY.important;
+                return `
+                  <div class="tile">
+                    <div class="tile-priority ${s.priority}"></div>
+                    <div class="tile-top">
+                      <div>
+                        <div class="tile-name">${esc(s.name)}</div>
+                        <div class="tile-meta">
+                          <span>${esc(s.type)}</span>
+                          <span>·</span>
+                          <span class="badge b-${prio.tone} plain" style="padding:1px 7px;font-size:10.5px">${prio.label}</span>
+                          ${s.requiresEcp ? '<span>·</span><span class="badge b-accent plain" style="padding:1px 7px;font-size:10.5px">ЭЦП</span>' : ''}
+                        </div>
+                      </div>
+                      <div class="row gap-2">
+                        <button class="btn btn-ghost btn-icon" onclick="event.stopPropagation(); editSystem('${s.id}')" title="Редактировать">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </button>
+                        <button class="btn btn-ghost btn-icon btn-danger" onclick="event.stopPropagation(); deleteSystem('${s.id}')" title="Удалить">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14"><polyline points="3 6 5 6 21 6"/></svg>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="tile-users">
+                      <div class="tile-users-label">
+                        ${s.users.length ? `${s.users.length} ${plural(s.users.length,'пользователь','пользователя','пользователей')}` : 'Нет пользователей'}
+                      </div>
+                      <div class="tile-chips">
+                        ${s.users.length === 0 ? `<span class="tile-chip orphan">Бесхозная система</span>` :
+                          s.users.slice(0, 5).map(u => {
+                            const uSys = u.systems.find(x => systemKey(x.name) === systemKey(s.name));
+                            const isMain = uSys?.frequency === 'main';
+                            return `<span class="tile-chip ${isMain?'main':''}">${esc(shortName(u.fullName))}</span>`;
+                          }).join('')
+                        }
+                        ${s.users.length > 5 ? `<span class="tile-chip">+${s.users.length - 5}</span>` : ''}
+                      </div>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+          </div>`
+        }
+      </div>
+    </div>
+  `;
+}
+
+function shortName(fullName) {
+  const parts = (fullName || '').trim().split(/\s+/);
+  if (parts.length < 2) return fullName;
+  return parts[0] + ' ' + parts[1].charAt(0) + '.' + (parts[2] ? parts[2].charAt(0)+'.' : '');
+}
+
+function editSystem(id) {
+  const s = id ? state.systems.find(x => x.id === id) : null;
+  openModal({
+    title: s ? 'Редактировать систему' : 'Новая система',
+    sub: s ? s.name : 'Заполните данные о новой системе в картотеке',
+    body: `
+      <div class="grid" style="gap:14px;grid-template-columns:1fr 1fr">
+        <div class="field" style="grid-column:1/-1">
+          <label class="label">Название <span style="color:var(--bad)">*</span></label>
+          <input class="input" id="mName" placeholder="Например: СБИС" value="${esc(s?.name || '')}">
+        </div>
+        <div class="field">
+          <label class="label">Тип</label>
+          <select class="select" id="mType">
+            <option ${s?.type==='WEB'?'selected':''} value="WEB">WEB</option>
+            <option ${s?.type==='Desktop'?'selected':''} value="Desktop">Desktop</option>
+            <option ${s?.type==='Mobile'?'selected':''} value="Mobile">Mobile</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="label">Приоритет</label>
+          <select class="select" id="mPriority">
+            ${Object.entries(PRIORITY).map(([k,v]) => `<option value="${k}" ${s?.priority===k?'selected':''}>${v.label}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field" style="grid-column:1/-1">
+          <label class="label" style="display:flex;gap:8px;align-items:center;cursor:pointer;text-transform:none;letter-spacing:0;font-size:13px;color:var(--ink)">
+            <input type="checkbox" id="mRequiresEcp" ${s?.requiresEcp?'checked':''} style="width:16px;height:16px;accent-color:var(--accent)">
+            Требуется ЭЦП
+          </label>
+        </div>
+        <div class="field" style="grid-column:1/-1">
+          <label class="label">Заметки</label>
+          <textarea class="textarea" id="mNotes" rows="2" placeholder="Особенности эксплуатации…">${esc(s?.notes || '')}</textarea>
+        </div>
+      </div>
+    `,
+    footer: `
+      <button class="btn" onclick="closeModal()">Отмена</button>
+      <button class="btn btn-primary" onclick="saveSystemModal('${s?.id || ''}')">Сохранить</button>
+    `
+  });
+}
+
+function saveSystemModal(id) {
+  const name = $('#mName').value.trim();
+  if (!name) { toast('Укажите название', 'bad'); return; }
+  const data = {
+    name,
+    type: $('#mType').value,
+    priority: $('#mPriority').value,
+    requiresEcp: $('#mRequiresEcp').checked,
+    notes: $('#mNotes').value.trim()
+  };
+  if (id) {
+    const idx = state.systems.findIndex(x => x.id === id);
+    state.systems[idx] = { ...state.systems[idx], ...data };
+    toast('Система обновлена');
+  } else {
+    state.systems.push({
+      id: uid(),
+      ...data,
+      recoverySteps: DEFAULT_RECOVERY_STEPS.map(x => ({...x}))
+    });
+    toast('Система добавлена');
+  }
+  save();
+  closeModal();
+  refreshSidebarCounts();
+  goto('systems');
+}
+
+function deleteSystem(id) {
+  const s = state.systems.find(x => x.id === id);
+  if (!s) return;
+  confirmAction('Удалить систему?', `Система «${s.name}» будет удалена из картотеки. Связи с сотрудниками останутся в анкетах.`, () => {
+    state.systems = state.systems.filter(x => x.id !== id);
+    delete checklists[id];
+    save();
+    refreshSidebarCounts();
+    toast('Система удалена');
+    goto('systems');
+  });
+}
+
+/* ============================================================================
+   ======================= PAGE: DASHBOARD ====================================
+   ============================================================================ */
+function renderDashboardPage(root) {
+  const emp = state.employees;
+  const sysCount = state.systems.length;
+  const totalLinks = emp.reduce((n, e) => n + (e.systems?.length || 0), 0);
+  const avg = emp.length ? (totalLinks / emp.length).toFixed(1) : '0';
+  const depts = new Set(emp.map(e => e.department).filter(Boolean));
+
+  // ECP alerts — count items expiring within 90 days or already expired
+  const alertCount = countEcpAlerts();
+
+  // Top systems by usage
+  const sysUsage = {};
+  emp.forEach(e => (e.systems || []).forEach(s => {
+    const key = systemKey(s.name);
+    if (!key) return;
+    sysUsage[key] = sysUsage[key] || { name: s.name, count: 0, main: 0 };
+    sysUsage[key].count++;
+    if (s.frequency === 'main') sysUsage[key].main++;
+  }));
+  const topSys = Object.values(sysUsage).sort((a,b) => b.count - a.count).slice(0, 8);
+
+  // Load histogram (how many systems each employee has)
+  const loadBuckets = { '0': 0, '1-2': 0, '3-5': 0, '6-9': 0, '10+': 0 };
+  emp.forEach(e => {
+    const n = e.systems?.length || 0;
+    if (n === 0) loadBuckets['0']++;
+    else if (n <= 2) loadBuckets['1-2']++;
+    else if (n <= 5) loadBuckets['3-5']++;
+    else if (n <= 9) loadBuckets['6-9']++;
+    else loadBuckets['10+']++;
+  });
+
+  // Dept distribution
+  const deptDist = {};
+  emp.forEach(e => {
+    const d = e.department || '— без отдела —';
+    deptDist[d] = (deptDist[d] || 0) + 1;
+  });
+
+  // ECP status doughnut
+  const ecpStats = ecpBreakdown();
+
+  // Ranking by load
+  const loadRanking = emp
+    .map(e => ({ e, n: e.systems?.length || 0 }))
+    .sort((a,b) => b.n - a.n)
+    .slice(0, 6);
+  const maxLoad = Math.max(1, ...loadRanking.map(x => x.n));
+
+  root.innerHTML = `
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-label">Сотрудников</div>
+        <div class="hero-stat-num num">${emp.length}</div>
+        <div class="hero-stat-hint">${depts.size} ${plural(depts.size,'отдел','отдела','отделов')}</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-label">Систем в картотеке</div>
+        <div class="hero-stat-num num">${sysCount}</div>
+        <div class="hero-stat-hint">${totalLinks} ${plural(totalLinks,'связь','связи','связей')} «сотрудник → система»</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-label">Средняя загрузка</div>
+        <div class="hero-stat-num num">${avg}<span class="suffix">сист.</span></div>
+        <div class="hero-stat-hint">На одного сотрудника</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-label">Требует внимания</div>
+        <div class="hero-stat-num num" style="color:${alertCount > 0 ? 'var(--bad)' : 'var(--ok)'}">${alertCount}</div>
+        <div class="hero-stat-hint">Истекающих ЭЦП и лицензий</div>
+      </div>
+    </div>
+
+    ${emp.length === 0 ? emptyState({
+      title: 'Данных пока нет',
+      text: 'Заполните первую анкету, чтобы увидеть аналитику',
+      action: '<button class="btn btn-primary" onclick="goto(\'survey\')">Заполнить анкету</button>'
+    }) : `
+    <div class="grid grid-2" style="gap:16px">
+      <div class="card">
+        <div class="card-head"><h3>Загрузка <em>сотрудников</em></h3><div class="card-sub">Распределение по количеству систем</div></div>
+        <div class="card-body"><div class="chart-box"><canvas id="chartLoad"></canvas></div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Топ <em>систем</em></h3><div class="card-sub">По числу пользователей</div></div>
+        <div class="card-body"><div class="chart-box"><canvas id="chartTop"></canvas></div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Статусы <em>ЭЦП</em></h3><div class="card-sub">По срокам действия</div></div>
+        <div class="card-body"><div class="chart-box"><canvas id="chartEcp"></canvas></div></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>По <em>отделам</em></h3><div class="card-sub">Число сотрудников</div></div>
+        <div class="card-body"><div class="chart-box"><canvas id="chartDept"></canvas></div></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="card-head">
+        <h3>Топ-6 по <em>загрузке</em></h3>
+        <div class="card-sub">Сотрудники с наибольшим числом систем</div>
+      </div>
+      <div class="card-body">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          ${loadRanking.map(({e, n}) => `
+            <div>
+              <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+                <div>
+                  <span style="font-weight:500">${esc(shortName(e.fullName))}</span>
+                  <span style="color:var(--ink-3);font-size:12px;margin-left:6px">${esc(e.position || '')}${e.department ? ' · ' + esc(e.department) : ''}</span>
+                </div>
+                <span class="num" style="font-weight:600;color:var(--ink)">${n} ${plural(n,'система','системы','систем')}</span>
+              </div>
+              <div class="progress ${n >= 8 ? 'bad' : n >= 5 ? 'warn' : 'ok'}">
+                <div class="progress-bar" style="width:${(n / maxLoad * 100).toFixed(0)}%"></div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+    `}
+  `;
+
+  if (emp.length === 0) return;
+
+  // Build Chart.js charts
+  // Destroy previous charts to avoid canvas conflicts
+  Object.values(ui.charts).forEach(c => { try { c.destroy(); } catch {} });
+  ui.charts = {};
+
+  const paper = getCSS('--paper');
+  const card = getCSS('--card');
+  const ink = getCSS('--ink');
+  const ink3 = getCSS('--ink-3');
+  const paper3 = getCSS('--paper-3');
+  const accent = getCSS('--accent');
+  const ok = getCSS('--ok');
+  const warn = getCSS('--warn');
+  const bad = getCSS('--bad');
+  const info = getCSS('--info');
+
+  Chart.defaults.font.family = "'Inter Tight', system-ui, sans-serif";
+  Chart.defaults.font.size = 11.5;
+  Chart.defaults.color = ink3;
+
+  // Load histogram
+  ui.charts.load = new Chart($('#chartLoad'), {
+    type: 'bar',
+    data: {
+      labels: Object.keys(loadBuckets),
+      datasets: [{
+        data: Object.values(loadBuckets),
+        backgroundColor: accent,
+        borderRadius: 3,
+        barPercentage: .7,
+        categoryPercentage: .7
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { displayColors: false } },
+      scales: {
+        y: { beginAtZero: true, grid: { color: paper3 }, ticks: { precision: 0 } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+
+  // Top systems — horizontal bar
+  ui.charts.top = new Chart($('#chartTop'), {
+    type: 'bar',
+    data: {
+      labels: topSys.map(x => x.name),
+      datasets: [{
+        data: topSys.map(x => x.count),
+        backgroundColor: ink,
+        borderRadius: 3,
+        barPercentage: .65
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { displayColors: false } },
+      scales: {
+        x: { beginAtZero: true, grid: { color: paper3 }, ticks: { precision: 0 } },
+        y: { grid: { display: false } }
+      }
+    }
+  });
+
+  // ECP status doughnut
+  ui.charts.ecp = new Chart($('#chartEcp'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Активны', 'Истекают', 'Истекли', 'Не установлены'],
+      datasets: [{
+        data: [ecpStats.active, ecpStats.expiring, ecpStats.expired, ecpStats.none],
+        backgroundColor: [ok, warn, bad, getCSS('--ink-4')],
+        borderColor: card,
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      cutout: '62%',
+      plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, boxHeight: 10, padding: 12 } } }
+    }
+  });
+
+  // Department distribution
+  const deptEntries = Object.entries(deptDist).sort((a,b) => b[1] - a[1]);
+  ui.charts.dept = new Chart($('#chartDept'), {
+    type: 'bar',
+    data: {
+      labels: deptEntries.map(x => x[0]),
+      datasets: [{
+        data: deptEntries.map(x => x[1]),
+        backgroundColor: info,
+        borderRadius: 3,
+        barPercentage: .65
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { displayColors: false } },
+      scales: {
+        y: { beginAtZero: true, grid: { color: paper3 }, ticks: { precision: 0 } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+}
+
+function getCSS(varName) {
+  return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+}
+
+function countEcpAlerts() {
+  let n = 0;
+  state.employees.forEach(e => {
+    (e.ecps || []).forEach(c => {
+      const d = daysLeft(c.expiry);
+      if (d != null && d <= 90) n++;
+    });
+    if (e.cryptoExpiry) {
+      const d = daysLeft(e.cryptoExpiry);
+      if (d != null && d <= 90) n++;
+    }
+  });
+  return n;
+}
+
+function ecpBreakdown() {
+  let active = 0, expiring = 0, expired = 0, none = 0;
+  state.employees.forEach(e => {
+    if (!e.ecps || e.ecps.length === 0) { none++; return; }
+    e.ecps.forEach(c => {
+      const d = daysLeft(c.expiry);
+      if (d == null) none++;
+      else if (d < 0) expired++;
+      else if (d <= 90) expiring++;
+      else active++;
+    });
+  });
+  return { active, expiring, expired, none };
+}
+
+/* ============================================================================
+   ========================= PAGE: MATRIX =====================================
+   ============================================================================ */
+function renderMatrixPage(root) {
+  const emp = state.employees;
+  // Collect all systems referenced anywhere (either in state.systems or in any employee's list)
+  const allSysNames = new Set(state.systems.map(s => s.name));
+  emp.forEach(e => (e.systems || []).forEach(s => s.name && allSysNames.add(s.name)));
+  const sysList = [...allSysNames].sort((a,b) => a.localeCompare(b, 'ru'));
+
+  if (emp.length === 0 || sysList.length === 0) {
+    root.innerHTML = emptyState({
+      title: 'Матрица пуста',
+      text: 'Добавьте сотрудников и системы, чтобы увидеть матрицу доступов',
+      action: '<button class="btn btn-primary" onclick="goto(\'survey\')">Заполнить анкету</button>'
+    });
+    return;
+  }
+
+  // Stats
+  let orphanSys = [];
+  sysList.forEach(name => {
+    const users = emp.filter(e => (e.systems || []).some(s => systemKey(s.name) === systemKey(name)));
+    if (users.length === 0) orphanSys.push(name);
+  });
+
+  const soleOwnerSys = sysList.filter(name => {
+    const users = emp.filter(e => (e.systems || []).some(s => systemKey(s.name) === systemKey(name)));
+    return users.length === 1;
+  });
+
+  root.innerHTML = `
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-head">
+        <div>
+          <h3>Матрица <em>доступов</em></h3>
+          <div class="card-sub">Нажмите на ячейку, чтобы изменить уровень доступа · ● основная · ◐ периодическая · ○ редкая</div>
+        </div>
+        <div class="matrix-legend">
+          <div class="matrix-legend-item"><span class="matrix-legend-dot" style="background:var(--ok)"></span>Основная</div>
+          <div class="matrix-legend-item"><span class="matrix-legend-dot" style="background:var(--warn)"></span>Периодическая</div>
+          <div class="matrix-legend-item"><span class="matrix-legend-dot" style="background:var(--info);opacity:.7"></span>Редкая</div>
+          <div class="matrix-legend-item"><span class="matrix-legend-dot" style="background:var(--paper-2);border:1px solid var(--paper-3)"></span>Нет доступа</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="tbl-wrap">
+          <table class="matrix">
+            <thead>
+              <tr>
+                <th class="corner">Сотрудник</th>
+                ${sysList.map(n => `<th class="rotate">${esc(n)}</th>`).join('')}
+                <th style="text-align:right;padding-right:14px">Итого</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${emp.map(e => `
+                <tr>
+                  <th>${esc(shortName(e.fullName))}<span class="sub">${esc(e.position || '')}</span></th>
+                  ${sysList.map(name => {
+                    const link = (e.systems || []).find(s => systemKey(s.name) === systemKey(name));
+                    const f = link?.frequency;
+                    const cfg = f ? FREQ[f] : null;
+                    return `<td style="padding:4px;text-align:center"><button class="matrix-cell ${cfg ? cfg.cls : 'mc-none'}" onclick="cycleMatrix('${e.id}','${esc(name).replace(/'/g,"\\'")}')" title="${cfg ? cfg.label : 'Нет доступа'}">${cfg ? cfg.symbol : '·'}</button></td>`;
+                  }).join('')}
+                  <td style="text-align:right;padding-right:14px;font-weight:600" class="num">${e.systems?.length || 0}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+            <tfoot>
+              <tr>
+                <th class="corner">Пользователей</th>
+                ${sysList.map(name => {
+                  const n = emp.filter(e => (e.systems || []).some(s => systemKey(s.name) === systemKey(name))).length;
+                  return `<td class="num">${n}</td>`;
+                }).join('')}
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-2" style="gap:16px">
+      <div class="card">
+        <div class="card-head">
+          <h3>Единственные <em>носители</em></h3>
+          <div class="card-sub">Системы с одним пользователем — критичная зона риска</div>
+        </div>
+        <div class="card-body">
+          ${soleOwnerSys.length === 0
+            ? `<div style="color:var(--ink-3);font-size:13px;padding:8px 0">Нет систем с единственным пользователем — хорошее покрытие.</div>`
+            : soleOwnerSys.map(name => {
+                const user = emp.find(e => (e.systems || []).some(s => systemKey(s.name) === systemKey(name)));
+                return `<div class="alert-row bad">
+                  <span class="alert-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></span>
+                  <div>
+                    <div class="alert-name">${esc(name)}</div>
+                    <div class="alert-sub">Только ${esc(shortName(user.fullName))} · ${esc(user.department || '—')}</div>
+                  </div>
+                  <span class="badge b-bad">1 польз.</span>
+                  <span></span>
+                </div>`;
+              }).join('')
+          }
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <h3>Бесхозные <em>системы</em></h3>
+          <div class="card-sub">В картотеке есть, но никто не указал при заполнении</div>
+        </div>
+        <div class="card-body">
+          ${orphanSys.length === 0
+            ? `<div style="color:var(--ink-3);font-size:13px;padding:8px 0">Все системы имеют хотя бы одного пользователя.</div>`
+            : orphanSys.map(name => `<div class="alert-row info">
+                <span class="alert-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span>
+                <div><div class="alert-name">${esc(name)}</div><div class="alert-sub">Никем не используется</div></div>
+                <span class="badge b-info">0 польз.</span>
+                <span></span>
+              </div>`).join('')
+          }
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function cycleMatrix(empId, sysName) {
+  const e = state.employees.find(x => x.id === empId);
+  if (!e) return;
+  e.systems ||= [];
+  const idx = e.systems.findIndex(s => systemKey(s.name) === systemKey(sysName));
+  if (idx < 0) {
+    // none -> main
+    e.systems.push({ name: sysName, purpose: '', frequency: 'main' });
+    // auto-register system
+    if (!state.systems.some(s => systemKey(s.name) === systemKey(sysName))) {
+      state.systems.push({
+        id: uid(), name: sysName, type: 'WEB', priority: 'important',
+        requiresEcp: false, notes: '',
+        recoverySteps: DEFAULT_RECOVERY_STEPS.map(x => ({...x}))
+      });
+    }
+  } else {
+    const cur = e.systems[idx].frequency;
+    // main -> periodic -> rare -> none
+    if (cur === 'main') e.systems[idx].frequency = 'periodic';
+    else if (cur === 'periodic') e.systems[idx].frequency = 'rare';
+    else e.systems.splice(idx, 1);
+  }
+  save();
+  refreshSidebarCounts();
+  renderMatrixPage($('#page-matrix'));
+}
+
+/* ============================================================================
+   ====================== PAGE: DEPARTMENTS ===================================
+   ============================================================================ */
+function renderDepartmentsPage(root) {
+  const groups = {};
+  state.employees.forEach(e => {
+    const d = e.department || '— Без отдела —';
+    groups[d] ||= { name: d, people: [], sysSet: new Set() };
+    groups[d].people.push(e);
+    (e.systems || []).forEach(s => s.name && groups[d].sysSet.add(s.name));
+  });
+  const list = Object.values(groups).sort((a,b) => b.people.length - a.people.length);
+
+  if (list.length === 0) {
+    root.innerHTML = emptyState({
+      title: 'Нет данных по отделам',
+      text: 'Заполните анкеты, указывая отдел сотрудника',
+      action: '<button class="btn btn-primary" onclick="goto(\'survey\')">К анкете</button>'
+    });
+    return;
+  }
+
+  root.innerHTML = `
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-label">Отделов</div>
+        <div class="hero-stat-num num">${list.length}</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-label">Крупнейший</div>
+        <div class="hero-stat-num" style="font-size:28px">${esc(list[0].name)}</div>
+        <div class="hero-stat-hint">${list[0].people.length} ${plural(list[0].people.length,'человек','человека','человек')}</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-label">Разнообразие</div>
+        <div class="hero-stat-num num">${Math.max(...list.map(g => g.sysSet.size))}</div>
+        <div class="hero-stat-hint">Макс. систем в отделе</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-label">Средний размер</div>
+        <div class="hero-stat-num num">${(state.employees.length / list.length).toFixed(1)}</div>
+        <div class="hero-stat-hint">Сотрудников на отдел</div>
+      </div>
+    </div>
+
+    <div class="dept-grid">
+      ${list.map(g => {
+        const totalSys = g.people.reduce((n, p) => n + (p.systems?.length || 0), 0);
+        return `
+        <div class="dept-card">
+          <div class="dept-card-head">
+            <div class="dept-name">${esc(g.name).replace(/(\S+)$/, '<em>$1</em>')}</div>
+            <div class="dept-sub">${g.people.length} ${plural(g.people.length,'сотрудник','сотрудника','сотрудников')} · ${g.sysSet.size} ${plural(g.sysSet.size,'система','системы','систем')} · ${totalSys} ${plural(totalSys,'связь','связи','связей')}</div>
+          </div>
+          <div>
+            <div class="dept-section-label">Сотрудники</div>
+            <div class="dept-people">
+              ${g.people.map(p => `
+                <div class="dept-person" onclick="editEmployee('${p.id}')" style="cursor:pointer">
+                  <div>
+                    <div class="dept-person-name">${esc(shortName(p.fullName))}</div>
+                    <div class="dept-person-pos">${esc(p.position || '—')}</div>
+                  </div>
+                  <span class="dept-person-count">${p.systems?.length || 0} сист.</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          <div>
+            <div class="dept-section-label">Используемые системы</div>
+            <div class="dept-chips">
+              ${g.sysSet.size === 0 ? '<span style="color:var(--ink-3);font-size:12px">Не указаны</span>' :
+                [...g.sysSet].sort((a,b) => a.localeCompare(b,'ru')).map(n => `<span class="dept-chip">${esc(n)}</span>`).join('')}
+            </div>
+          </div>
+        </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+/* ============================================================================
+   ============================ PAGE: ECP =====================================
+   ============================================================================ */
+function renderEcpPage(root) {
+  // Build flat list of all ECP records + CryptoPro licenses
+  const records = [];
+  state.employees.forEach(e => {
+    (e.ecps || []).forEach(c => {
+      records.push({ kind: 'ecp', emp: e, type: c.type, expiry: c.expiry });
+    });
+    if (e.cryptoExpiry || e.cryptoVersion) {
+      records.push({ kind: 'crypto', emp: e, type: `КриптоПро CSP ${e.cryptoVersion || ''}`, expiry: e.cryptoExpiry, status: e.cryptoStatus });
+    }
+  });
+
+  // Categorize
+  const expired = [], soon = [], warn = [], ok = [];
+  records.forEach(r => {
+    const d = daysLeft(r.expiry);
+    r.days = d;
+    if (d == null) ok.push(r);
+    else if (d < 0) expired.push(r);
+    else if (d <= 30) soon.push(r);
+    else if (d <= 90) warn.push(r);
+    else ok.push(r);
+  });
+  expired.sort((a,b) => (a.days || 0) - (b.days || 0));
+  soon.sort((a,b) => a.days - b.days);
+  warn.sort((a,b) => a.days - b.days);
+
+  const tone = (r) => r.days == null ? 'info' : r.days < 0 ? 'bad' : r.days <= 30 ? 'bad' : r.days <= 90 ? 'warn' : 'ok';
+  const icon = {
+    bad:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>',
+    warn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+    ok:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>',
+    info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
+  };
+  const rowHtml = (r) => {
+    const t = tone(r);
+    const daysText = r.days == null ? 'без срока' :
+      r.days < 0 ? `просрочено на ${Math.abs(r.days)} ${plural(Math.abs(r.days),'день','дня','дней')}` :
+      r.days === 0 ? 'сегодня' :
+      `осталось ${r.days} ${plural(r.days,'день','дня','дней')}`;
+    return `
+      <div class="alert-row ${t}">
+        <span class="alert-icon">${icon[t]}</span>
+        <div>
+          <div class="alert-name">${esc(r.type || '—')} ${r.kind === 'crypto' ? '<span class="badge b-accent plain" style="margin-left:6px;padding:1px 6px;font-size:10px">лицензия</span>' : ''}</div>
+          <div class="alert-sub">${esc(shortName(r.emp.fullName))} · ${esc(r.emp.department || '—')}</div>
+        </div>
+        <span class="alert-meta num">${fmtDate(r.expiry)}</span>
+        <span class="badge b-${t === 'info' ? 'neutral' : t}">${daysText}</span>
+      </div>`;
+  };
+
+  root.innerHTML = `
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-label">Просрочено</div>
+        <div class="hero-stat-num num" style="color:${expired.length?'var(--bad)':'var(--ink-3)'}">${expired.length}</div>
+        <div class="hero-stat-hint">Требует немедленных действий</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-label">Истекает ≤ 30 дней</div>
+        <div class="hero-stat-num num" style="color:${soon.length?'var(--bad)':'var(--ink-3)'}">${soon.length}</div>
+        <div class="hero-stat-hint">Критичная зона</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-label">Истекает ≤ 90 дней</div>
+        <div class="hero-stat-num num" style="color:${warn.length?'var(--warn)':'var(--ink-3)'}">${warn.length}</div>
+        <div class="hero-stat-hint">Стоит запланировать</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-label">Активных</div>
+        <div class="hero-stat-num num" style="color:var(--ok)">${ok.length}</div>
+        <div class="hero-stat-hint">Из ${records.length} записей</div>
+      </div>
+    </div>
+
+    ${records.length === 0 ? emptyState({
+      title: 'Данные об ЭЦП отсутствуют',
+      text: 'В анкетах сотрудников не указаны ключи и лицензии',
+      action: '<button class="btn btn-primary" onclick="goto(\'survey\')">К анкете</button>'
+    }) : `
+
+    ${expired.length > 0 ? `
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-head"><h3>Просроченные <em>записи</em></h3><div class="card-sub">Немедленно обновить — использовать систему нельзя</div></div>
+        <div class="card-body">${expired.map(rowHtml).join('')}</div>
+      </div>` : ''}
+
+    ${soon.length > 0 ? `
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-head"><h3>Истекают в течение <em>месяца</em></h3><div class="card-sub">Начать процедуру выпуска/продления сейчас</div></div>
+        <div class="card-body">${soon.map(rowHtml).join('')}</div>
+      </div>` : ''}
+
+    ${warn.length > 0 ? `
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-head"><h3>Истекают в течение <em>квартала</em></h3><div class="card-sub">Запланировать обновление</div></div>
+        <div class="card-body">${warn.map(rowHtml).join('')}</div>
+      </div>` : ''}
+
+    ${ok.length > 0 ? `
+      <div class="card">
+        <div class="card-head"><h3>Активные <em>записи</em></h3><div class="card-sub">${ok.length} ${plural(ok.length,'запись','записи','записей')} без риска</div></div>
+        <div class="card-body">${ok.map(rowHtml).join('')}</div>
+      </div>` : ''}
+    `}
+  `;
+}
+
+/* ============================================================================
+   ========================== PAGE: RISKS =====================================
+   ============================================================================ */
+function renderRisksPage(root) {
+  // Bus-factor per system
+  const sysRisk = [];
+  const allSysNames = new Set(state.systems.map(s => s.name));
+  state.employees.forEach(e => (e.systems || []).forEach(s => s.name && allSysNames.add(s.name)));
+
+  allSysNames.forEach(name => {
+    const users = state.employees.filter(e => (e.systems || []).some(s => systemKey(s.name) === systemKey(name)));
+    const mainUsers = users.filter(e => (e.systems || []).some(s => systemKey(s.name) === systemKey(name) && s.frequency === 'main'));
+    const sysMeta = state.systems.find(s => systemKey(s.name) === systemKey(name));
+    sysRisk.push({ name, users, mainUsers, priority: sysMeta?.priority || 'important', requiresEcp: sysMeta?.requiresEcp });
+  });
+
+  const critical = sysRisk.filter(r => r.users.length === 1);
+  const warning = sysRisk.filter(r => r.users.length === 2);
+  const orphan = sysRisk.filter(r => r.users.length === 0);
+  const safe = sysRisk.filter(r => r.users.length >= 3);
+
+  // Vulnerable employees — employees who are sole owners of ≥1 critical system
+  const vulnerableMap = {};
+  critical.forEach(r => {
+    const ownerId = r.users[0].id;
+    vulnerableMap[ownerId] ||= { emp: r.users[0], systems: [] };
+    vulnerableMap[ownerId].systems.push(r);
+  });
+  const vulnerable = Object.values(vulnerableMap)
+    .sort((a,b) => b.systems.length - a.systems.length);
+
+  if (state.employees.length === 0) {
+    root.innerHTML = emptyState({
+      title: 'Недостаточно данных',
+      text: 'Анализ автобусного фактора требует заполненных анкет',
+      action: '<button class="btn btn-primary" onclick="goto(\'survey\')">К анкете</button>'
+    });
+    return;
+  }
+
+  root.innerHTML = `
+    <div class="card" style="margin-bottom:16px;background:var(--accent-bg);border-color:transparent">
+      <div class="card-body" style="padding:18px 22px">
+        <div style="display:flex;gap:14px;align-items:flex-start">
+          <div style="flex-shrink:0;margin-top:2px">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--accent-ink)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div style="color:var(--accent-ink);font-size:13px;line-height:1.55">
+            <strong style="font-family:var(--font-display);font-size:15px;display:block;margin-bottom:2px">Автобусный <em style="color:var(--accent)">фактор</em></strong>
+            Сколько сотрудников организации должны одновременно «попасть под автобус» (уволиться, уйти в отпуск, заболеть), чтобы работа с системой остановилась. Чем меньше — тем выше риск.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-label">Критично</div>
+        <div class="hero-stat-num num" style="color:${critical.length?'var(--bad)':'var(--ok)'}">${critical.length}</div>
+        <div class="hero-stat-hint">1 носитель знаний</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-label">Уязвимо</div>
+        <div class="hero-stat-num num" style="color:${warning.length?'var(--warn)':'var(--ok)'}">${warning.length}</div>
+        <div class="hero-stat-hint">2 носителя</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-label">Устойчиво</div>
+        <div class="hero-stat-num num" style="color:var(--ok)">${safe.length}</div>
+        <div class="hero-stat-hint">3+ носителя</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-label">Бесхозные</div>
+        <div class="hero-stat-num num" style="color:${orphan.length?'var(--info)':'var(--ink-3)'}">${orphan.length}</div>
+        <div class="hero-stat-hint">Нет пользователей</div>
+      </div>
+    </div>
+
+    ${critical.length > 0 ? `
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-head">
+        <h3>Критическая <em>зона</em></h3>
+        <div class="card-sub">Системы с единственным пользователем — спланировать передачу знаний и резервного исполнителя</div>
+      </div>
+      <div class="card-body">
+        ${critical.sort((a,b) => (a.priority==='critical'?-1:1) - (b.priority==='critical'?-1:1)).map(r => {
+          const u = r.users[0];
+          return `<div class="alert-row bad">
+            <span class="alert-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></span>
+            <div>
+              <div class="alert-name">${esc(r.name)} ${r.priority === 'critical' ? '<span class="badge b-bad plain" style="padding:1px 6px;font-size:10px;margin-left:4px">критичная</span>' : ''}</div>
+              <div class="alert-sub">Единственный носитель: <strong>${esc(shortName(u.fullName))}</strong> · ${esc(u.department || '—')} · ${esc(u.position || '—')}</div>
+            </div>
+            <span class="badge b-bad">фактор = 1</span>
+            <span></span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>` : ''}
+
+    ${vulnerable.length > 0 ? `
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-head">
+        <h3>Уязвимые <em>сотрудники</em></h3>
+        <div class="card-sub">Единственные носители знаний по нескольким системам — потеря такого сотрудника остановит эти процессы</div>
+      </div>
+      <div class="card-body">
+        ${vulnerable.map(v => `
+          <div class="alert-row ${v.systems.length >= 3 ? 'bad' : 'warn'}">
+            <span class="alert-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+            <div>
+              <div class="alert-name">${esc(shortName(v.emp.fullName))}</div>
+              <div class="alert-sub">${esc(v.emp.position || '—')} · ${esc(v.emp.department || '—')} · единственный носитель по: ${v.systems.map(s => esc(s.name)).join(', ')}</div>
+            </div>
+            <span class="badge b-${v.systems.length >= 3 ? 'bad' : 'warn'}">${v.systems.length} ${plural(v.systems.length,'система','системы','систем')}</span>
+            <button class="btn btn-sm" onclick="ui.recoveryEmpId='${v.emp.id}'; goto('recovery')">Чек-лист</button>
+          </div>
+        `).join('')}
+      </div>
+    </div>` : ''}
+
+    ${warning.length > 0 ? `
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-head">
+        <h3>Зона <em>внимания</em></h3>
+        <div class="card-sub">Системы всего с 2 пользователями — желательно расширить круг</div>
+      </div>
+      <div class="card-body">
+        ${warning.map(r => `<div class="alert-row warn">
+          <span class="alert-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+          <div>
+            <div class="alert-name">${esc(r.name)}</div>
+            <div class="alert-sub">${r.users.map(u => esc(shortName(u.fullName))).join(', ')}</div>
+          </div>
+          <span class="badge b-warn">фактор = 2</span>
+          <span></span>
+        </div>`).join('')}
+      </div>
+    </div>` : ''}
+
+    ${safe.length > 0 ? `
+    <div class="card">
+      <div class="card-head">
+        <h3>Устойчивые <em>системы</em></h3>
+        <div class="card-sub">3 и более носителей — низкий риск прекращения работы</div>
+      </div>
+      <div class="card-body">
+        <div class="tbl-wrap">
+          <table class="tbl">
+            <thead><tr><th>Система</th><th style="text-align:center">Пользователей</th><th style="text-align:center">Основных</th><th>Кто</th></tr></thead>
+            <tbody>
+              ${safe.sort((a,b) => b.users.length - a.users.length).map(r => `
+                <tr>
+                  <td style="font-weight:500">${esc(r.name)}</td>
+                  <td style="text-align:center"><span class="badge b-ok num">${r.users.length}</span></td>
+                  <td style="text-align:center" class="num">${r.mainUsers.length}</td>
+                  <td style="color:var(--ink-3);font-size:12.5px">${r.users.map(u => esc(shortName(u.fullName))).join(', ')}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>` : ''}
+  `;
+}
+
+/* ============================================================================
+   ========================= PAGE: RECOVERY ===================================
+   ============================================================================ */
+function renderRecoveryPage(root) {
+  const emp = state.employees;
+
+  if (emp.length === 0) {
+    root.innerHTML = emptyState({
+      title: 'Нет сотрудников для восстановления',
+      text: 'Заполните анкеты, чтобы сформировать персональные чек-листы',
+      action: '<button class="btn btn-primary" onclick="goto(\'survey\')">К анкете</button>'
+    });
+    return;
+  }
+
+  // Pick first employee by default
+  ui.recoveryEmpId ||= emp[0].id;
+  let current = emp.find(e => e.id === ui.recoveryEmpId);
+  if (!current) { ui.recoveryEmpId = emp[0].id; current = emp[0]; }
+
+  // Build checklist for this employee — merged steps
+  const ckey = 'emp_' + current.id;
+  checklists[ckey] ||= {};
+
+  // Step groups:
+  // 1. Base AРМ
+  const baseSteps = DEFAULT_RECOVERY_STEPS.map(s => ({...s, group: 'base', key: 'base_' + s.id}));
+  // 2. ECP per record
+  const ecpSteps = (current.ecps || []).map((c, i) => ({
+    group: 'ecp',
+    key: 'ecp_' + i,
+    label: `Восстановить ЭЦП: ${c.type}`,
+    hint: c.expiry ? `Срок действия до ${fmtDate(c.expiry)}` : 'Срок не указан'
+  }));
+  if (current.cryptoVersion || current.cryptoExpiry) {
+    ecpSteps.unshift({
+      group: 'ecp',
+      key: 'crypto_lic',
+      label: `Лицензия КриптоПро CSP ${current.cryptoVersion || ''}`,
+      hint: current.cryptoExpiry ? `Срок лицензии до ${fmtDate(current.cryptoExpiry)}` : 'Срок не указан'
+    });
+  }
+  // 3. Systems specific to this employee
+  const sysSteps = (current.systems || []).map(s => {
+    const meta = state.systems.find(x => systemKey(x.name) === systemKey(s.name));
+    return {
+      group: 'sys',
+      key: 'sys_' + systemKey(s.name).replace(/\W/g,'_'),
+      label: s.name,
+      hint: [
+        meta?.type || '',
+        s.frequency ? FREQ[s.frequency]?.label : '',
+        meta?.priority ? PRIORITY[meta.priority]?.label : '',
+        s.purpose || ''
+      ].filter(Boolean).join(' · ')
+    };
+  });
+
+  const allSteps = [...baseSteps, ...ecpSteps, ...sysSteps];
+  const doneCount = allSteps.filter(s => checklists[ckey][s.key]).length;
+  const totalCount = allSteps.length;
+  const pct = totalCount ? Math.round(doneCount / totalCount * 100) : 0;
+
+  const stepRow = (s) => {
+    const done = !!checklists[ckey][s.key];
+    return `
+      <div class="check-item ${done ? 'done' : ''}" onclick="toggleCheck('${ckey}','${s.key}')">
+        <span class="check-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>
+        <div style="flex:1;min-width:0">
+          <div class="check-label">${esc(s.label)}</div>
+          ${s.hint ? `<div class="check-hint">${esc(s.hint)}</div>` : ''}
+        </div>
+      </div>`;
+  };
+
+  root.innerHTML = `
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-head">
+        <div>
+          <h3>Выберите <em>сотрудника</em></h3>
+          <div class="card-sub">Чек-лист для восстановления его АРМ или ввода замещающего сотрудника в курс дела</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="emp-picker">
+          ${emp.map(e => `
+            <button class="emp-pick-btn ${e.id === current.id ? 'active' : ''}" onclick="selectRecoveryEmp('${e.id}')">
+              ${esc(shortName(e.fullName))}
+              <span style="opacity:.7;margin-left:6px;font-size:11px">${esc(e.department || '—')}</span>
+            </button>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-2" style="gap:16px">
+      <div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-head">
+            <h3>${esc(shortName(current.fullName))} · <em>профиль</em></h3>
+            <div class="card-sub">Данные из анкеты</div>
+          </div>
+          <div class="card-body">
+            <dl class="kv">
+              <div class="kv-row"><dt>ФИО</dt><dd>${esc(current.fullName)}</dd></div>
+              <div class="kv-row"><dt>Должность</dt><dd>${esc(current.position || '—')}</dd></div>
+              <div class="kv-row"><dt>Отдел</dt><dd>${esc(current.department || '—')}</dd></div>
+              <div class="kv-row"><dt>Идентификатор АРМ</dt><dd>${esc(current.armId || '—')}</dd></div>
+              <div class="kv-row"><dt>КриптоПро CSP</dt><dd>${esc(current.cryptoVersion || '—')}</dd></div>
+              <div class="kv-row"><dt>Лицензия до</dt><dd>${fmtDate(current.cryptoExpiry)}</dd></div>
+              <div class="kv-row"><dt>ЭЦП</dt><dd>${current.ecps?.length || 0}</dd></div>
+              <div class="kv-row"><dt>Систем</dt><dd>${current.systems?.length || 0}</dd></div>
+            </dl>
+            ${current.notes ? `<div style="margin-top:14px;padding:10px 12px;background:var(--paper-2);border-radius:var(--radius);font-size:12.5px;color:var(--ink-2);line-height:1.5"><strong style="color:var(--ink);font-size:11px;text-transform:uppercase;letter-spacing:.1em;display:block;margin-bottom:4px">Заметки</strong>${esc(current.notes)}</div>` : ''}
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h3>Прогресс <em>восстановления</em></h3>
+            <div class="card-sub">${doneCount} из ${totalCount} · ${pct}%</div>
+          </div>
+          <div class="card-body">
+            <div class="progress ${pct >= 80 ? 'ok' : pct >= 40 ? 'warn' : ''}" style="height:8px;margin-bottom:10px">
+              <div class="progress-bar" style="width:${pct}%"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--ink-3)">
+              <span>Начало</span>
+              <span style="font-weight:600;color:var(--ink);font-size:18px;font-family:var(--font-display)" class="num">${pct}%</span>
+              <span>Готово</span>
+            </div>
+            <div style="display:flex;gap:6px;margin-top:14px">
+              <button class="btn btn-ghost btn-sm" onclick="resetRecovery('${ckey}')">Сбросить</button>
+              <button class="btn btn-sm" onclick="markAllRecovery('${ckey}', ${JSON.stringify(allSteps.map(s=>s.key)).replace(/"/g,'&quot;')})">Отметить всё</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3>Чек-<em>лист</em></h3>
+          <div class="card-sub">Пошаговая инструкция по восстановлению</div>
+        </div>
+        <div class="card-body" style="padding:16px 12px">
+          <div class="check-group">
+            <div class="check-group-label">Базовое АРМ · ${baseSteps.filter(s => checklists[ckey][s.key]).length}/${baseSteps.length}</div>
+            <div class="check-list">${baseSteps.map(stepRow).join('')}</div>
+          </div>
+          ${ecpSteps.length > 0 ? `
+          <div class="check-group">
+            <div class="check-group-label">ЭЦП и КриптоПро · ${ecpSteps.filter(s => checklists[ckey][s.key]).length}/${ecpSteps.length}</div>
+            <div class="check-list">${ecpSteps.map(stepRow).join('')}</div>
+          </div>` : ''}
+          ${sysSteps.length > 0 ? `
+          <div class="check-group">
+            <div class="check-group-label">Системы сотрудника · ${sysSteps.filter(s => checklists[ckey][s.key]).length}/${sysSteps.length}</div>
+            <div class="check-list">${sysSteps.map(stepRow).join('')}</div>
+          </div>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function selectRecoveryEmp(id) {
+  ui.recoveryEmpId = id;
+  if (ui.currentPage !== 'recovery') { goto('recovery'); return; }
+  renderRecoveryPage($('#page-recovery'));
+}
+
+function toggleCheck(ckey, stepKey) {
+  checklists[ckey] ||= {};
+  checklists[ckey][stepKey] = !checklists[ckey][stepKey];
+  save();
+  renderRecoveryPage($('#page-recovery'));
+}
+
+function resetRecovery(ckey) {
+  confirmAction('Сбросить прогресс?', 'Все отметки чек-листа будут сняты.', () => {
+    checklists[ckey] = {};
+    save();
+    renderRecoveryPage($('#page-recovery'));
+    toast('Прогресс сброшен');
+  });
+}
+
+function markAllRecovery(ckey, keys) {
+  checklists[ckey] = {};
+  (Array.isArray(keys) ? keys : JSON.parse(keys)).forEach(k => checklists[ckey][k] = true);
+  save();
+  renderRecoveryPage($('#page-recovery'));
+  toast('Все шаги отмечены');
+}
+
+/* ============================================================================
+   ========================== HELPERS =========================================
+   ============================================================================ */
+function emptyState({ title, text, action }) {
+  return `
+    <div class="card">
+      <div class="card-body">
+        <div class="empty">
+          <div class="empty-mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div class="empty-title">${esc(title)}</div>
+          <div class="empty-text">${esc(text)}</div>
+          ${action || ''}
+        </div>
+      </div>
+    </div>`;
+}
+
+function refreshSidebarCounts() {
+  const empC = $('#nav-count-emp');
+  if (empC) empC.textContent = state.employees.length;
+  const sysC = $('#nav-count-sys');
+  if (sysC) sysC.textContent = state.systems.length;
+  const alertC = $('#nav-count-alerts');
+  if (alertC) {
+    const n = countEcpAlerts();
+    alertC.textContent = n;
+    alertC.style.background = n > 0 ? 'var(--bad)' : '';
+    alertC.style.color = n > 0 ? '#fff' : '';
+  }
+  const riskC = $('#nav-count-risks');
+  if (riskC) {
+    const allSysNames = new Set(state.systems.map(s => s.name));
+    state.employees.forEach(e => (e.systems || []).forEach(s => s.name && allSysNames.add(s.name)));
+    let n = 0;
+    allSysNames.forEach(name => {
+      const users = state.employees.filter(e => (e.systems || []).some(s => systemKey(s.name) === systemKey(name)));
+      if (users.length === 1) n++;
+    });
+    riskC.textContent = n;
+    riskC.style.background = n > 0 ? 'var(--warn)' : '';
+    riskC.style.color = n > 0 ? '#fff' : '';
+  }
+}
+
+/* ============================================================================
+   ========================== EXPORT / IMPORT =================================
+   ============================================================================ */
+function download(filename, content, mime = 'text/plain') {
+  const blob = new Blob([content], { type: mime + ';charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => {
+    URL.revokeObjectURL(a.href);
+    a.remove();
+  }, 200);
+}
+
+function csvEscape(v) {
+  if (v == null) return '';
+  const s = String(v);
+  if (/[",;\n\r]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+  return s;
+}
+
+function exportCSV(mode) {
+  closeDDs();
+  const stamp = new Date().toISOString().slice(0,10);
+  if (mode === 'employees') {
+    const rows = [['ФИО','Должность','Отдел','АРМ','Систем','ЭЦП','КриптоПро версия','Лицензия КриптоПро до','Статус','Заметки']];
+    state.employees.forEach(e => {
+      rows.push([
+        e.fullName, e.position, e.department, e.armId,
+        e.systems?.length || 0, e.ecps?.length || 0,
+        e.cryptoVersion, fmtDate(e.cryptoExpiry),
+        CRYPTO_STATUS[e.cryptoStatus]?.label || '', e.notes
+      ]);
+    });
+    const csv = '\uFEFF' + rows.map(r => r.map(csvEscape).join(';')).join('\r\n');
+    download(`сотрудники_${stamp}.csv`, csv, 'text/csv');
+    toast('CSV экспортирован');
+  } else if (mode === 'full') {
+    const rows = [['ФИО','Отдел','Должность','Система','Назначение','Частота','Приоритет','Требует ЭЦП']];
+    state.employees.forEach(e => {
+      if (!(e.systems || []).length) {
+        rows.push([e.fullName, e.department, e.position, '', '', '', '', '']);
+      }
+      (e.systems || []).forEach(s => {
+        const meta = state.systems.find(x => systemKey(x.name) === systemKey(s.name));
+        rows.push([
+          e.fullName, e.department, e.position,
+          s.name, s.purpose, FREQ[s.frequency]?.label || '',
+          PRIORITY[meta?.priority]?.label || '',
+          meta?.requiresEcp ? 'да' : ''
+        ]);
+      });
+    });
+    const csv = '\uFEFF' + rows.map(r => r.map(csvEscape).join(';')).join('\r\n');
+    download(`реестр_полный_${stamp}.csv`, csv, 'text/csv');
+    toast('Полный CSV экспортирован');
+  }
+}
+
+function exportJSON() {
+  closeDDs();
+  const payload = {
+    version: 3,
+    exportedAt: new Date().toISOString(),
+    state,
+    checklists
+  };
+  const stamp = new Date().toISOString().slice(0,10);
+  download(`реестр_ЭИС_${stamp}.json`, JSON.stringify(payload, null, 2), 'application/json');
+  toast('JSON экспортирован');
+}
+
+function importJSON(ev) {
+  closeDDs();
+  const file = ev.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      if (!data.state) throw new Error('Некорректный формат');
+      confirmAction('Импорт данных', `Текущие данные (${state.employees.length} сотр., ${state.systems.length} сист.) будут заменены данными из файла (${data.state.employees?.length || 0} сотр., ${data.state.systems?.length || 0} сист.).`, () => {
+        state = data.state;
+        checklists = data.checklists || {};
+        save();
+        refreshSidebarCounts();
+        goto(ui.currentPage);
+        toast('Данные импортированы');
+      });
+    } catch (err) {
+      toast('Ошибка: ' + err.message, 'bad');
+    }
+  };
+  reader.readAsText(file);
+  ev.target.value = '';
+}
+
+function clearAll() {
+  confirmAction('Очистить все данные?', 'Будут удалены все сотрудники, системы и чек-листы. Операция необратима. Рекомендуется сначала экспортировать резервную копию.', () => {
+    state = { employees: [], systems: [] };
+    checklists = {};
+    save();
+    seedDemo();
+    save();
+    refreshSidebarCounts();
+    goto('survey');
+    toast('Данные очищены, загружен демо-набор');
+  });
+}
+
+function closeDDs() {
+  $$('.dd-menu.open').forEach(el => el.classList.remove('open'));
+}
+
+/* ============================================================================
+   ========================== BOOTSTRAP =======================================
+   ============================================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+  load();
+
+  // Sidebar navigation
+  $$('.nav-item').forEach(btn => {
+    btn.addEventListener('click', () => goto(btn.dataset.page));
+  });
+
+  // Burger menu
+  $('#burgerBtn')?.addEventListener('click', () => {
+    $('#nav').classList.toggle('open');
+  });
+
+  // Close dropdowns on outside click
+  document.addEventListener('click', (ev) => {
+    if (!ev.target.closest('.dd')) closeDDs();
+  });
+
+  // Keyboard: Esc closes modal
+  document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Escape') {
+      closeModal();
+      closeDDs();
+    }
+    // Ctrl+S on survey page — save
+    if ((ev.ctrlKey || ev.metaKey) && ev.key === 's' && ui.currentPage === 'survey') {
+      ev.preventDefault();
+      const form = $('#surveyForm');
+      if (form) form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+    }
+  });
+
+  // Initial render
+  refreshSidebarCounts();
+  goto('survey');
+
+  // Update last-save indicator with current time if data existed
+  if (state.employees.length || state.systems.length) {
+    $('#last-save').textContent = fmtTime(new Date().toISOString());
+  }
+});
+</script>
+</body>
+</html>
