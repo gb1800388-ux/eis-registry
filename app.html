@@ -2,7 +2,8 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#F5F1E8">
 <title>Реестр электронных систем · Загрузка и преемственность</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -182,11 +183,15 @@ a { color: inherit; text-decoration: none; }
 .nav-item.active .count { background: var(--paper-2); color: var(--ink-2); }
 
 .nav-foot {
-  padding: 14px 20px 18px;
+  padding: 12px 20px 16px;
   border-top: 1px solid var(--nav-bg-2);
   font-size: 11px;
   color: var(--nav-ink-2);
+  display: flex; flex-direction: column; gap: 6px;
+}
+.nav-foot-row {
   display: flex; justify-content: space-between; align-items: center;
+  gap: 8px;
 }
 .nav-foot-dot {
   display: inline-block;
@@ -196,6 +201,20 @@ a { color: inherit; text-decoration: none; }
   vertical-align: 1px;
   box-shadow: 0 0 0 3px rgba(63,107,63,.15);
 }
+.nav-foot-dot.saving { animation: savePulse .6s var(--ease); }
+@keyframes savePulse {
+  0%   { transform: scale(1);    box-shadow: 0 0 0 0 rgba(63,107,63,.5); }
+  60%  { transform: scale(1.6);  box-shadow: 0 0 0 8px rgba(63,107,63,0); }
+  100% { transform: scale(1);    box-shadow: 0 0 0 3px rgba(63,107,63,.15); }
+}
+.nav-foot-privacy {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 10px;
+  color: var(--nav-ink-2);
+  opacity: .7;
+  letter-spacing: .02em;
+}
+.nav-foot-privacy svg { width: 10px; height: 10px; }
 
 /* ---- Main ---- */
 .main {
@@ -646,76 +665,341 @@ a { color: inherit; text-decoration: none; }
 .matrix-legend-dot { width: 14px; height: 14px; border-radius: 3px; }
 
 /* ========================================================================
-   CARDS GRID — systems, risk items
+   SYSTEMS CATALOG — cozy index-card layout with avatar stack
    ======================================================================== */
-.tile-grid {
+
+/* Quick-stat strip above the grid */
+.sys-strip {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 18px;
 }
-.tile {
+.sys-strip-cell {
   background: var(--card);
   border: 1px solid var(--paper-3);
   border-radius: var(--radius);
-  padding: 18px;
-  transition: border-color .15s, transform .15s var(--ease);
-  position: relative;
-  overflow: hidden;
+  padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 2px;
+  min-width: 0;
 }
-.tile:hover { border-color: var(--ink-4); }
-.tile-top {
-  display: flex; justify-content: space-between; align-items: flex-start;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-.tile-name {
+.sys-strip-cell .n {
   font-family: var(--font-display);
-  font-size: 18px;
+  font-size: 26px; line-height: 1;
   font-weight: 500;
-  letter-spacing: -.015em;
-  line-height: 1.15;
+  letter-spacing: -.02em;
 }
-.tile-meta {
-  display: flex; gap: 6px; flex-wrap: wrap;
-  margin-bottom: 12px;
+.sys-strip-cell .l {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--ink-3);
+  font-weight: 600;
+}
+.sys-strip-cell.bad .n { color: var(--bad); }
+.sys-strip-cell.warn .n { color: var(--warn); }
+.sys-strip-cell.accent .n { color: var(--accent); }
+
+/* Filter + sort toolbar */
+.sys-toolbar {
+  display: flex; align-items: center; gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.sys-pills {
+  display: flex; gap: 6px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.sys-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px;
+  font-size: 12.5px;
+  border-radius: 99px;
+  border: 1px solid var(--paper-3);
+  background: var(--card);
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+  white-space: nowrap;
+}
+.sys-pill:hover { background: var(--card-hover); }
+.sys-pill.active {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+.sys-pill .dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: currentColor; opacity: .7;
+}
+.sys-pill-count {
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  opacity: .75;
+  padding-left: 2px;
+}
+.sys-sort {
+  margin-left: auto;
+  display: flex; align-items: center; gap: 6px;
   font-size: 12px;
   color: var(--ink-3);
 }
-.tile-users {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid var(--paper-3);
+.sys-sort select {
+  background: transparent;
+  border: 1px solid var(--paper-3);
+  border-radius: var(--radius-sm);
+  padding: 5px 8px;
+  font-size: 12px;
+  color: var(--ink-2);
+  cursor: pointer;
 }
-.tile-users-label {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: .1em;
-  color: var(--ink-3);
-  margin-bottom: 8px;
-  font-weight: 600;
+
+/* Card grid */
+.sys-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 14px;
 }
-.tile-chips { display: flex; flex-wrap: wrap; gap: 4px; }
-.tile-chip {
-  font-size: 11.5px;
+
+/* The card */
+.sys-card {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--paper-3);
+  border-radius: var(--radius-lg);
+  padding: 18px 18px 16px;
+  display: flex; flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+  cursor: pointer;
+  transition: border-color .18s var(--ease), transform .18s var(--ease),
+              box-shadow .18s var(--ease), background .18s var(--ease);
+  overflow: hidden;
+  isolation: isolate;
+}
+.sys-card::before {
+  /* subtle paper-grain / warm tint */
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, transparent 0%, rgba(138,79,28,.02) 100%);
+  pointer-events: none;
+  z-index: -1;
+}
+.sys-card:hover {
+  border-color: var(--ink-4);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px -8px rgba(26,23,20,.12);
+  background: var(--card);
+}
+
+/* Priority accent — a thin colored band at the card top, like a file-card tab */
+.sys-card__flag {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  pointer-events: none;
+  z-index: 1;
+  border-top-left-radius: var(--radius-lg);
+  border-top-right-radius: var(--radius-lg);
+}
+.sys-card[data-priority="critical"]  .sys-card__flag { background: var(--bad); }
+.sys-card[data-priority="important"] .sys-card__flag { background: var(--warn); }
+.sys-card[data-priority="nice"]      .sys-card__flag { background: var(--ok); }
+
+/* Top section: title + actions */
+.sys-card__top {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+}
+.sys-card__title-wrap { min-width: 0; flex: 1; }
+.sys-card__title {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 500;
+  letter-spacing: -.02em;
+  line-height: 1.15;
+  color: var(--ink);
+  font-variation-settings: "opsz" 20;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+.sys-card__meta {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  margin-top: 8px;
+  align-items: center;
+}
+.sys-tag {
+  font-size: 11px;
+  letter-spacing: .02em;
   padding: 2px 8px;
   border-radius: 99px;
   background: var(--paper-2);
   color: var(--ink-2);
   border: 1px solid var(--paper-3);
+  white-space: nowrap;
+  font-weight: 500;
 }
-.tile-chip.main { background: var(--ok-bg); color: var(--ok-ink); border-color: transparent; }
-.tile-chip.orphan {
+.sys-tag--type {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  background: transparent;
+}
+.sys-tag--critical { background: var(--bad-bg);  color: var(--bad-ink);  border-color: transparent; }
+.sys-tag--important{ background: var(--warn-bg); color: var(--warn-ink); border-color: transparent; }
+.sys-tag--nice     { background: var(--ok-bg);   color: var(--ok-ink);   border-color: transparent; }
+.sys-tag--ecp      { background: var(--accent-bg); color: var(--accent-ink); border-color: transparent; font-weight: 600; }
+
+.sys-card__actions {
+  display: flex; gap: 2px;
+  opacity: 0;
+  transition: opacity .15s;
+  flex-shrink: 0;
+}
+.sys-card:hover .sys-card__actions,
+.sys-card:focus-within .sys-card__actions { opacity: 1; }
+.sys-card__action {
+  width: 28px; height: 28px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-sm);
+  color: var(--ink-3);
+  background: transparent;
+}
+.sys-card__action:hover { background: var(--paper-2); color: var(--ink); }
+.sys-card__action.danger:hover { background: var(--bad-bg); color: var(--bad-ink); }
+.sys-card__action svg { width: 14px; height: 14px; }
+
+/* Bottom: users block */
+.sys-card__users {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px dashed var(--paper-3);
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+}
+.sys-card__users-label {
+  display: flex; flex-direction: column; gap: 1px;
+  min-width: 0;
+}
+.sys-card__users-count {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.1;
+  color: var(--ink);
+}
+.sys-card__users-count.orphan { color: var(--bad); }
+.sys-card__users-hint {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--ink-3);
+  font-weight: 600;
+}
+
+/* Avatar stack (fixed-size, always fits) */
+.avatar-stack {
+  display: flex;
+  flex-shrink: 0;
+}
+.avatar-stack > * + * { margin-left: -8px; }
+.avatar {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: var(--paper-2);
+  color: var(--ink-2);
+  border: 2px solid var(--card);
+  display: inline-flex;
+  align-items: center; justify-content: center;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  font-family: var(--font-body);
+  text-transform: uppercase;
+  position: relative;
+  box-shadow: 0 1px 2px rgba(26,23,20,.06);
+  transition: transform .15s var(--ease), z-index .15s;
+  cursor: default;
+}
+.avatar.main {
+  background: var(--accent-bg);
+  color: var(--accent-ink);
+  box-shadow: 0 0 0 1px var(--accent) inset;
+}
+.avatar.more {
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 10px;
+}
+.avatar:hover {
+  transform: translateY(-2px);
+  z-index: 2;
+}
+.sys-card__users .orphan-badge {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 99px;
   background: var(--bad-bg);
   color: var(--bad-ink);
   font-weight: 600;
+  white-space: nowrap;
 }
-.tile-priority {
-  position: absolute; top: 0; left: 0; bottom: 0;
-  width: 3px;
+
+/* Responsive: tablet */
+@media (max-width: 960px) {
+  .sys-strip { grid-template-columns: repeat(2, 1fr); }
+  .sys-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
 }
-.tile-priority.critical { background: var(--bad); }
-.tile-priority.important { background: var(--warn); }
-.tile-priority.nice { background: var(--ok); }
+
+/* Responsive: phone (incl. iPhone 15 Pro Max @ 430px) */
+@media (max-width: 600px) {
+  .sys-strip { gap: 8px; margin-bottom: 14px; }
+  .sys-strip-cell { padding: 10px 12px; }
+  .sys-strip-cell .n { font-size: 22px; }
+  .sys-strip-cell .l { font-size: 10px; }
+
+  .sys-toolbar { gap: 8px; }
+  .sys-pills {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    margin: 0 calc(-1 * var(--pad-x));
+    padding: 0 var(--pad-x) 2px;
+  }
+  .sys-pills::-webkit-scrollbar { display: none; }
+  .sys-sort { margin-left: 0; width: 100%; justify-content: flex-end; }
+
+  .sys-grid { grid-template-columns: 1fr; gap: 12px; }
+  .sys-card { padding: 16px; gap: 12px; }
+  .sys-card__title { font-size: 18px; }
+
+  /* On touch there is no hover — show actions always */
+  .sys-card__actions { opacity: 1; }
+  .sys-card__action { width: 36px; height: 36px; }
+  .sys-card__action svg { width: 16px; height: 16px; }
+  .avatar { width: 32px; height: 32px; font-size: 11px; }
+}
+
+/* Extra-small phones */
+@media (max-width: 380px) {
+  .sys-strip { grid-template-columns: repeat(2, 1fr); }
+  .sys-card__title { font-size: 17px; }
+}
+
+/* iOS safe-area insets (notch / home indicator) */
+@supports (padding: max(0px)) {
+  .main {
+    padding-left: env(safe-area-inset-left, 0);
+    padding-right: env(safe-area-inset-right, 0);
+  }
+  .page { padding-bottom: max(60px, env(safe-area-inset-bottom, 60px)); }
+}
 
 /* ========================================================================
    FORM LAYOUTS
@@ -1303,8 +1587,14 @@ a { color: inherit; text-decoration: none; }
       </button>
     </nav>
     <div class="nav-foot">
-      <span><span class="nav-foot-dot"></span>Данные сохранены</span>
-      <span class="num" id="last-save">—</span>
+      <div class="nav-foot-row">
+        <span><span class="nav-foot-dot" id="saveDot"></span>Автосохранение</span>
+        <span class="num" id="last-save">—</span>
+      </div>
+      <div class="nav-foot-privacy" title="Данные никуда не отправляются. Весь реестр хранится в вашем браузере, на этом устройстве.">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Только на этом устройстве
+      </div>
     </div>
   </aside>
 
@@ -1486,7 +1776,15 @@ const systemKey = (name) => (name || '').trim().toLowerCase();
 function save() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   localStorage.setItem(CHECKLIST_KEY, JSON.stringify(checklists));
-  $('#last-save').textContent = fmtTime(new Date().toISOString());
+  const ls = $('#last-save');
+  if (ls) ls.textContent = fmtTime(new Date().toISOString());
+  const dot = $('#saveDot');
+  if (dot) {
+    dot.classList.remove('saving');
+    // force reflow so the animation restarts on every save
+    void dot.offsetWidth;
+    dot.classList.add('saving');
+  }
 }
 
 function load() {
@@ -2146,26 +2444,68 @@ function loadLevel(sysCount) {
    ============================== PAGE: SYSTEMS ===============================
    ============================================================================ */
 function renderSystemsPage(root) {
-  const query = (ui.search.sys || '').toLowerCase();
-  const list = state.systems
-    .map(s => {
-      const users = state.employees.filter(e =>
-        e.systems?.some(x => systemKey(x.name) === systemKey(s.name))
-      );
-      return { ...s, users };
-    })
-    .filter(s => !query || s.name.toLowerCase().includes(query))
-    .sort((a, b) => b.users.length - a.users.length);
+  const query  = (ui.search.sys || '').toLowerCase();
+  const filter = ui.sysFilter || 'all';
+  const sortBy = ui.sysSort   || 'users';
+
+  const enriched = state.systems.map(s => {
+    const users = state.employees.filter(e =>
+      e.systems?.some(x => systemKey(x.name) === systemKey(s.name))
+    );
+    return { ...s, users };
+  });
+
+  const counts = {
+    all:      enriched.length,
+    critical: enriched.filter(s => s.priority === 'critical').length,
+    ecp:      enriched.filter(s => s.requiresEcp).length,
+    orphan:   enriched.filter(s => s.users.length === 0).length
+  };
+
+  const filtered = enriched.filter(s => {
+    if (query && !s.name.toLowerCase().includes(query)) return false;
+    if (filter === 'critical') return s.priority === 'critical';
+    if (filter === 'ecp')      return s.requiresEcp;
+    if (filter === 'orphan')   return s.users.length === 0;
+    return true;
+  });
+
+  const prioOrder = { critical: 0, important: 1, nice: 2 };
+  const list = filtered.sort((a, b) => {
+    if (sortBy === 'name')     return a.name.localeCompare(b.name, 'ru');
+    if (sortBy === 'priority') return (prioOrder[a.priority] ?? 3) - (prioOrder[b.priority] ?? 3)
+                                       || b.users.length - a.users.length;
+    return b.users.length - a.users.length; // default: by load
+  });
 
   root.innerHTML = `
+    <div class="sys-strip">
+      <div class="sys-strip-cell">
+        <div class="n num">${counts.all}</div>
+        <div class="l">Всего систем</div>
+      </div>
+      <div class="sys-strip-cell bad">
+        <div class="n num">${counts.critical}</div>
+        <div class="l">Критичных</div>
+      </div>
+      <div class="sys-strip-cell accent">
+        <div class="n num">${counts.ecp}</div>
+        <div class="l">Требуют ЭЦП</div>
+      </div>
+      <div class="sys-strip-cell warn">
+        <div class="n num">${counts.orphan}</div>
+        <div class="l">Без пользователей</div>
+      </div>
+    </div>
+
     <div class="card">
       <div class="card-head">
         <div>
           <h2>Картотека <em>систем</em></h2>
           <div class="sub mt-1">Каждая система привязана к чек-листу восстановления и пользователям</div>
         </div>
-        <div class="row gap-2">
-          <div class="search" style="width:240px">
+        <div class="row gap-2" style="flex-wrap:wrap">
+          <div class="search" style="width:240px;max-width:100%">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input class="input" placeholder="Найти систему…" value="${esc(query)}" oninput="ui.search.sys=this.value; renderSystemsPage(document.querySelector('#page-systems'))">
           </div>
@@ -2176,56 +2516,119 @@ function renderSystemsPage(root) {
         </div>
       </div>
       <div class="card-body">
+        <div class="sys-toolbar">
+          <div class="sys-pills" role="tablist">
+            ${sysPill('all',      'Все',          counts.all,      filter)}
+            ${sysPill('critical', 'Критичные',    counts.critical, filter)}
+            ${sysPill('ecp',      'Требуют ЭЦП',  counts.ecp,      filter)}
+            ${sysPill('orphan',   'Бесхозные',    counts.orphan,   filter)}
+          </div>
+          <label class="sys-sort">
+            <span>Сортировка</span>
+            <select onchange="ui.sysSort=this.value; renderSystemsPage(document.querySelector('#page-systems'))">
+              <option value="users"    ${sortBy==='users'    ?'selected':''}>по загрузке</option>
+              <option value="priority" ${sortBy==='priority' ?'selected':''}>по приоритету</option>
+              <option value="name"     ${sortBy==='name'     ?'selected':''}>по названию</option>
+            </select>
+          </label>
+        </div>
+
         ${list.length === 0
-          ? emptyState('Нет систем', 'Добавьте систему вручную или заполните анкеты сотрудников — системы подтянутся автоматически.', 'box')
-          : `<div class="tile-grid">
-              ${list.map(s => {
-                const prio = PRIORITY[s.priority] || PRIORITY.important;
-                return `
-                  <div class="tile">
-                    <div class="tile-priority ${s.priority}"></div>
-                    <div class="tile-top">
-                      <div>
-                        <div class="tile-name">${esc(s.name)}</div>
-                        <div class="tile-meta">
-                          <span>${esc(s.type)}</span>
-                          <span>·</span>
-                          <span class="badge b-${prio.tone} plain" style="padding:1px 7px;font-size:10.5px">${prio.label}</span>
-                          ${s.requiresEcp ? '<span>·</span><span class="badge b-accent plain" style="padding:1px 7px;font-size:10.5px">ЭЦП</span>' : ''}
-                        </div>
-                      </div>
-                      <div class="row gap-2">
-                        <button class="btn btn-ghost btn-icon" onclick="event.stopPropagation(); editSystem('${s.id}')" title="Редактировать">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                        </button>
-                        <button class="btn btn-ghost btn-icon btn-danger" onclick="event.stopPropagation(); deleteSystem('${s.id}')" title="Удалить">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14"><polyline points="3 6 5 6 21 6"/></svg>
-                        </button>
-                      </div>
-                    </div>
-                    <div class="tile-users">
-                      <div class="tile-users-label">
-                        ${s.users.length ? `${s.users.length} ${plural(s.users.length,'пользователь','пользователя','пользователей')}` : 'Нет пользователей'}
-                      </div>
-                      <div class="tile-chips">
-                        ${s.users.length === 0 ? `<span class="tile-chip orphan">Бесхозная система</span>` :
-                          s.users.slice(0, 5).map(u => {
-                            const uSys = u.systems.find(x => systemKey(x.name) === systemKey(s.name));
-                            const isMain = uSys?.frequency === 'main';
-                            return `<span class="tile-chip ${isMain?'main':''}">${esc(shortName(u.fullName))}</span>`;
-                          }).join('')
-                        }
-                        ${s.users.length > 5 ? `<span class="tile-chip">+${s.users.length - 5}</span>` : ''}
-                      </div>
-                    </div>
-                  </div>
-                `;
-              }).join('')}
+          ? emptyState({
+              title: counts.all === 0 ? 'Нет систем' : 'Ничего не найдено',
+              text:  counts.all === 0
+                ? 'Добавьте систему вручную или заполните анкеты сотрудников — системы подтянутся автоматически.'
+                : 'Попробуйте изменить запрос или снять фильтр.',
+              action: counts.all === 0
+                ? '<button class="btn btn-accent mt-3" onclick="editSystem(null)">Добавить систему</button>'
+                : `<button class="btn mt-3" onclick="ui.sysFilter='all'; ui.search.sys=''; renderSystemsPage(document.querySelector('#page-systems'))">Сбросить фильтр</button>`
+            })
+          : `<div class="sys-grid">
+              ${list.map(renderSystemCard).join('')}
           </div>`
         }
       </div>
     </div>
   `;
+}
+
+function sysPill(key, label, count, active) {
+  return `<button type="button" class="sys-pill ${active===key?'active':''}"
+            onclick="ui.sysFilter='${key}'; renderSystemsPage(document.querySelector('#page-systems'))">
+            ${esc(label)}<span class="sys-pill-count num">${count}</span>
+          </button>`;
+}
+
+function renderSystemCard(s) {
+  const prio = PRIORITY[s.priority] || PRIORITY.important;
+
+  // Up to 4 avatars, then a "+N" bubble
+  const MAX = 4;
+  const shown = s.users.slice(0, MAX);
+  const extra = s.users.length - shown.length;
+
+  const avatars = shown.map(u => {
+    const uSys = u.systems.find(x => systemKey(x.name) === systemKey(s.name));
+    const isMain = uSys?.frequency === 'main';
+    const freqLabel = FREQ[uSys?.frequency]?.label || '';
+    return `<span class="avatar ${isMain?'main':''}" title="${esc(u.fullName)}${freqLabel?` · ${esc(freqLabel)}`:''}">${esc(initials(u.fullName))}</span>`;
+  }).join('');
+
+  const usersBlock = s.users.length === 0
+    ? `<span class="orphan-badge" title="Систему никто не использует">Бесхозная</span>`
+    : `<div class="avatar-stack" aria-label="Пользователи системы">
+         ${avatars}
+         ${extra > 0 ? `<span class="avatar more" title="Ещё ${extra}">+${extra}</span>` : ''}
+       </div>`;
+
+  const usersCountText = s.users.length
+    ? `${s.users.length} ${plural(s.users.length,'пользователь','пользователя','пользователей')}`
+    : 'Нет пользователей';
+
+  return `
+    <article class="sys-card" data-priority="${esc(s.priority)}" onclick="editSystem('${s.id}')" tabindex="0"
+             onkeydown="if(event.key==='Enter'){editSystem('${s.id}')}">
+      <div class="sys-card__flag" aria-hidden="true"></div>
+
+      <div class="sys-card__top">
+        <div class="sys-card__title-wrap">
+          <h3 class="sys-card__title">${esc(s.name)}</h3>
+          <div class="sys-card__meta">
+            <span class="sys-tag sys-tag--type">${esc(s.type)}</span>
+            <span class="sys-tag sys-tag--${s.priority}">${esc(prio.label)}</span>
+            ${s.requiresEcp ? `<span class="sys-tag sys-tag--ecp">ЭЦП</span>` : ''}
+          </div>
+        </div>
+        <div class="sys-card__actions" onclick="event.stopPropagation()">
+          <button class="sys-card__action" onclick="editSystem('${s.id}')" aria-label="Редактировать" title="Редактировать">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="sys-card__action danger" onclick="deleteSystem('${s.id}')" aria-label="Удалить" title="Удалить">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="sys-card__users">
+        <div class="sys-card__users-label">
+          <div class="sys-card__users-count ${s.users.length===0?'orphan':''} num">${usersCountText}</div>
+          ${s.users.length ? `<div class="sys-card__users-hint">${
+            s.users.some(u => u.systems.find(x => systemKey(x.name)===systemKey(s.name))?.frequency === 'main')
+              ? 'Есть основной владелец'
+              : 'Нет основного владельца'
+          }</div>` : `<div class="sys-card__users-hint">Назначьте ответственного</div>`}
+        </div>
+        ${usersBlock}
+      </div>
+    </article>
+  `;
+}
+
+function initials(fullName) {
+  const parts = (fullName || '').trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '··';
+  if (parts.length === 1) return parts[0].slice(0, 2);
+  return (parts[0][0] || '') + (parts[1][0] || '');
 }
 
 function shortName(fullName) {
