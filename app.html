@@ -880,7 +880,9 @@ a { color: inherit; text-decoration: none; }
 /* The card */
 .sys-card {
   position: relative;
-  background: var(--card);
+  background:
+    linear-gradient(135deg, transparent 0%, rgba(138,79,28,.02) 100%),
+    var(--card);
   border: 1px solid var(--paper-3);
   border-radius: var(--radius-lg);
   padding: 18px 18px 16px;
@@ -891,15 +893,6 @@ a { color: inherit; text-decoration: none; }
   transition: border-color .18s var(--ease), transform .18s var(--ease),
               box-shadow .18s var(--ease), background .18s var(--ease);
   overflow: hidden;
-  isolation: isolate;
-}
-.sys-card::before {
-  /* subtle paper-grain / warm tint */
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(135deg, transparent 0%, rgba(138,79,28,.02) 100%);
-  pointer-events: none;
-  z-index: -1;
 }
 .sys-card:hover {
   border-color: var(--ink-4);
@@ -988,29 +981,24 @@ a { color: inherit; text-decoration: none; }
 .sys-card__action.danger:hover { background: var(--bad-bg); color: var(--bad-ink); }
 .sys-card__action svg { width: 14px; height: 14px; }
 
-/* Bottom: users block — simple flex with a real wrapper.
-   The left column holds count + hint (both nowrap + ellipsis so long
-   phrases don't push avatars out). The avatar stack stays at its
-   natural width and is always visible. */
+/* Bottom: users block — plain block layout with a single flex row
+   inside. Vertical stacking uses normal block flow so Chrome always
+   paints the content correctly at any zoom level. */
 .sys-card__users {
   margin-top: auto;
   padding-top: 12px;
   border-top: 1px dashed var(--paper-3);
+}
+.sys-card__users-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
   min-width: 0;
-}
-.sys-card__users-left {
-  flex: 1 1 auto;
-  min-width: 0;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
 }
 .sys-card__users-count {
+  flex: 1 1 auto;
+  min-width: 0;
   font-family: var(--font-display);
   font-size: 15px;
   font-weight: 500;
@@ -1022,6 +1010,7 @@ a { color: inherit; text-decoration: none; }
 }
 .sys-card__users-count.orphan { color: var(--bad); }
 .sys-card__users-hint {
+  margin-top: 4px;
   font-size: 10.5px;
   text-transform: uppercase;
   letter-spacing: .08em;
@@ -3836,17 +3825,17 @@ function renderSystemCard(s) {
       </div>
 
       <div class="sys-card__users">
-        <div class="sys-card__users-left">
+        <div class="sys-card__users-row">
           <div class="sys-card__users-count ${s.users.length===0?'orphan':''} num">${usersCountText}</div>
-          <div class="sys-card__users-hint">${
-            s.users.length
-              ? (s.users.some(u => u.systems.find(x => systemKey(x.name)===systemKey(s.name))?.frequency === 'main')
-                  ? 'Есть основной владелец'
-                  : 'Нет основного владельца')
-              : 'Назначьте ответственного'
-          }</div>
+          ${usersBlock}
         </div>
-        ${usersBlock}
+        <div class="sys-card__users-hint">${
+          s.users.length
+            ? (s.users.some(u => u.systems.find(x => systemKey(x.name)===systemKey(s.name))?.frequency === 'main')
+                ? 'Есть основной владелец'
+                : 'Нет основного владельца')
+            : 'Назначьте ответственного'
+        }</div>
       </div>
     </article>
   `;
