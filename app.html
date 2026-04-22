@@ -983,10 +983,9 @@ a { color: inherit; text-decoration: none; }
 .sys-card__action.danger:hover { background: var(--bad-bg); color: var(--bad-ink); }
 .sys-card__action svg { width: 14px; height: 14px; }
 
-/* Bottom: users block — pure block flow, three stacked rows.
-   Avatars on top, count below, hint at the bottom. No flex row, no
-   auto-margin, no grid trickery — just normal block layout that
-   paints reliably at every zoom and viewport width. */
+/* Bottom: users block — pure block flow.
+   Count and hint on top, then a compact comma-separated people list
+   (Иванов И.И., Петров П.И., …). Primary owner is highlighted in accent. */
 .sys-card__users {
   margin-top: 14px;
   padding-top: 12px;
@@ -998,7 +997,6 @@ a { color: inherit; text-decoration: none; }
   font-weight: 500;
   line-height: 1.15;
   color: var(--ink);
-  margin-top: 10px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1016,50 +1014,31 @@ a { color: inherit; text-decoration: none; }
   text-overflow: ellipsis;
 }
 
-/* Avatar stack — first row, left-aligned, wraps if needed */
-.avatar-stack {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  min-height: 30px;
+/* Compact people list: Иванов И.И., Петров П.И., Сидоров С.С. */
+.sys-card__people {
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ink-2);
+  word-spacing: .02em;
+  /* clamp to 2 lines, ellipsize overflow */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
-.avatar-stack > * + * { margin-left: -8px; }
-.avatar {
-  width: 30px; height: 30px;
-  border-radius: 50%;
-  background: var(--accent-bg);
-  color: var(--accent-ink);
-  border: 2px solid var(--card);
-  display: inline-flex;
-  align-items: center; justify-content: center;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: .02em;
-  font-family: var(--font-body);
-  text-transform: uppercase;
-  position: relative;
-  box-shadow: 0 1px 2px rgba(26,23,20,.10);
-  transition: transform .15s var(--ease), z-index .15s;
-  cursor: default;
-  flex-shrink: 0;
+.sys-person {
+  font-weight: 500;
+  color: var(--ink-2);
 }
-.avatar.main {
-  background: var(--accent);
-  color: #fff;
-  box-shadow: 0 1px 3px rgba(26,23,20,.18);
-  z-index: 2;
+.sys-person--main {
+  color: var(--accent);
+  font-weight: 600;
 }
-.avatar.more {
-  background: var(--ink);
-  color: var(--paper);
-  font-size: 10px;
-}
-.avatar:hover {
-  transform: translateY(-2px);
-  z-index: 3;
-}
+
 .sys-card__users .orphan-badge {
   display: inline-block;
+  margin-top: 8px;
   font-size: 11px;
   padding: 4px 10px;
   border-radius: 99px;
@@ -3769,31 +3748,26 @@ function sysPill(key, label, count, active) {
 function renderSystemCard(s) {
   const prio = PRIORITY[s.priority] || PRIORITY.important;
 
-  // Up to 4 avatars, then a "+N" bubble — the grid right column holds them
-  // comfortably; extras collapse into a +N bubble so the stack stays compact.
-  const MAX = 4;
-  // Show "main" (primary) owners first so they're always among the visible dots.
+  // Show "main" (primary) owners first, so they appear at the head of the list.
   const sortedUsers = [...s.users].sort((a, b) => {
     const aMain = a.systems.some(x => systemKey(x.name) === systemKey(s.name) && x.frequency === 'main');
     const bMain = b.systems.some(x => systemKey(x.name) === systemKey(s.name) && x.frequency === 'main');
     return (bMain ? 1 : 0) - (aMain ? 1 : 0);
   });
-  const shown = sortedUsers.slice(0, MAX);
-  const extra = sortedUsers.length - shown.length;
 
-  const avatars = shown.map(u => {
-    const uSys = u.systems.find(x => systemKey(x.name) === systemKey(s.name));
-    const isMain = uSys?.frequency === 'main';
-    const freqLabel = FREQ[uSys?.frequency]?.label || '';
-    return `<span class="avatar ${isMain?'main':''}" title="${esc(u.fullName)}${freqLabel?` · ${esc(freqLabel)}`:''}">${esc(initials(u.fullName))}</span>`;
-  }).join('');
+  // Compact, human-readable list of owners: "Иванов И.И., Петров П.И., …"
+  // Primary owner is highlighted in accent color. List is clamped to 2 lines.
+  const peopleHtml = sortedUsers.map(u => {
+    const isMain = u.systems.some(x => systemKey(x.name) === systemKey(s.name) && x.frequency === 'main');
+    const name = esc(shortName(u.fullName));
+    return isMain
+      ? `<span class="sys-person sys-person--main" title="${esc(u.fullName)} · основной">${name}</span>`
+      : `<span class="sys-person" title="${esc(u.fullName)}">${name}</span>`;
+  }).join(', ');
 
   const usersBlock = s.users.length === 0
     ? `<span class="orphan-badge" title="Систему никто не использует">Бесхозная</span>`
-    : `<div class="avatar-stack" aria-label="Пользователи системы">
-         ${avatars}
-         ${extra > 0 ? `<span class="avatar more" title="Ещё ${extra}">+${extra}</span>` : ''}
-       </div>`;
+    : `<div class="sys-card__people" aria-label="Пользователи системы">${peopleHtml}</div>`;
 
   const usersCountText = s.users.length
     ? `${s.users.length} ${plural(s.users.length,'пользователь','пользователя','пользователей')}`
@@ -3824,7 +3798,6 @@ function renderSystemCard(s) {
       </div>
 
       <div class="sys-card__users">
-        ${usersBlock}
         <div class="sys-card__users-count ${s.users.length===0?'orphan':''} num">${usersCountText}</div>
         <div class="sys-card__users-hint">${
           s.users.length
@@ -3833,6 +3806,7 @@ function renderSystemCard(s) {
                 : 'Нет основного владельца')
             : 'Назначьте ответственного'
         }</div>
+        ${usersBlock}
       </div>
     </article>
   `;
