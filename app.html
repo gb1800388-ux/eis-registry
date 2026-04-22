@@ -988,23 +988,24 @@ a { color: inherit; text-decoration: none; }
 .sys-card__action.danger:hover { background: var(--bad-bg); color: var(--bad-ink); }
 .sys-card__action svg { width: 14px; height: 14px; }
 
-/* Bottom: users block */
+/* Bottom: users block — grid so label shrinks with ellipsis
+   while the avatar column always keeps its natural width. */
 .sys-card__users {
   margin-top: auto;
   padding-top: 12px;
   border-top: 1px dashed var(--paper-3);
-  display: flex; flex-wrap: wrap;
-  align-items: center; justify-content: space-between;
-  gap: 8px 12px;
-  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  column-gap: 10px;
+  row-gap: 4px;
+  align-items: center;
 }
 .sys-card__users-label {
-  display: flex; flex-direction: column; gap: 1px;
-  min-width: 0;
-  flex: 1 1 120px;
-  overflow: hidden;
+  display: contents;
 }
 .sys-card__users-count {
+  grid-column: 1; grid-row: 1;
   font-family: var(--font-display);
   font-size: 15px;
   font-weight: 500;
@@ -1013,10 +1014,11 @@ a { color: inherit; text-decoration: none; }
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 100%;
+  min-width: 0;
 }
 .sys-card__users-count.orphan { color: var(--bad); }
 .sys-card__users-hint {
+  grid-column: 1; grid-row: 2;
   font-size: 10.5px;
   text-transform: uppercase;
   letter-spacing: .08em;
@@ -1025,38 +1027,40 @@ a { color: inherit; text-decoration: none; }
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 100%;
+  min-width: 0;
 }
 
-/* Avatar stack (fixed-size, always fits) */
+/* Avatar stack — right column, vertically centered across both rows */
 .avatar-stack {
+  grid-column: 2; grid-row: 1 / span 2;
+  align-self: center;
   display: flex;
   flex-shrink: 0;
-  max-width: 100%;
 }
 .avatar-stack > * + * { margin-left: -8px; }
 .avatar {
-  width: 28px; height: 28px;
+  width: 30px; height: 30px;
   border-radius: 50%;
-  background: var(--paper-2);
-  color: var(--ink-2);
+  background: var(--accent-bg);
+  color: var(--accent-ink);
   border: 2px solid var(--card);
   display: inline-flex;
   align-items: center; justify-content: center;
-  font-size: 10px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
   letter-spacing: .02em;
   font-family: var(--font-body);
   text-transform: uppercase;
   position: relative;
-  box-shadow: 0 1px 2px rgba(26,23,20,.06);
+  box-shadow: 0 1px 2px rgba(26,23,20,.10);
   transition: transform .15s var(--ease), z-index .15s;
   cursor: default;
 }
 .avatar.main {
-  background: var(--accent-bg);
-  color: var(--accent-ink);
-  box-shadow: 0 0 0 1px var(--accent) inset;
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 1px 3px rgba(26,23,20,.18);
+  z-index: 2;
 }
 .avatar.more {
   background: var(--ink);
@@ -1068,6 +1072,8 @@ a { color: inherit; text-decoration: none; }
   z-index: 2;
 }
 .sys-card__users .orphan-badge {
+  grid-column: 2; grid-row: 1 / span 2;
+  align-self: center;
   font-size: 11px;
   padding: 4px 10px;
   border-radius: 99px;
@@ -3775,10 +3781,10 @@ function sysPill(key, label, count, active) {
 function renderSystemCard(s) {
   const prio = PRIORITY[s.priority] || PRIORITY.important;
 
-  // Up to 3 avatars, then a "+N" bubble — keeps the stack narrow enough
-  // to fit alongside the stats label even on small cards.
-  const MAX = 3;
-  // Prefer showing "main" users first so the primary owners are always visible.
+  // Up to 4 avatars, then a "+N" bubble — the grid right column holds them
+  // comfortably; extras collapse into a +N bubble so the stack stays compact.
+  const MAX = 4;
+  // Show "main" (primary) owners first so they're always among the visible dots.
   const sortedUsers = [...s.users].sort((a, b) => {
     const aMain = a.systems.some(x => systemKey(x.name) === systemKey(s.name) && x.frequency === 'main');
     const bMain = b.systems.some(x => systemKey(x.name) === systemKey(s.name) && x.frequency === 'main');
