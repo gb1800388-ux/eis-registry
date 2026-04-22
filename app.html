@@ -983,36 +983,29 @@ a { color: inherit; text-decoration: none; }
 .sys-card__action.danger:hover { background: var(--bad-bg); color: var(--bad-ink); }
 .sys-card__action svg { width: 14px; height: 14px; }
 
-/* Bottom: users block — plain block layout with a single flex row
-   inside. Vertical stacking uses normal block flow so Chrome always
-   paints the content correctly at any zoom level. */
+/* Bottom: users block — pure block flow, three stacked rows.
+   Avatars on top, count below, hint at the bottom. No flex row, no
+   auto-margin, no grid trickery — just normal block layout that
+   paints reliably at every zoom and viewport width. */
 .sys-card__users {
   margin-top: 14px;
   padding-top: 12px;
   border-top: 1px dashed var(--paper-3);
 }
-.sys-card__users-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  min-width: 0;
-}
 .sys-card__users-count {
-  flex: 1 1 auto;
-  min-width: 0;
   font-family: var(--font-display);
   font-size: 15px;
   font-weight: 500;
   line-height: 1.15;
   color: var(--ink);
+  margin-top: 10px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .sys-card__users-count.orphan { color: var(--bad); }
 .sys-card__users-hint {
-  margin-top: 4px;
+  margin-top: 2px;
   font-size: 10.5px;
   text-transform: uppercase;
   letter-spacing: .08em;
@@ -1023,11 +1016,12 @@ a { color: inherit; text-decoration: none; }
   text-overflow: ellipsis;
 }
 
-/* Avatar stack — fixed width, always visible on the right */
+/* Avatar stack — first row, left-aligned, wraps if needed */
 .avatar-stack {
   display: flex;
-  flex-shrink: 0;
+  flex-wrap: wrap;
   align-items: center;
+  min-height: 30px;
 }
 .avatar-stack > * + * { margin-left: -8px; }
 .avatar {
@@ -1047,6 +1041,7 @@ a { color: inherit; text-decoration: none; }
   box-shadow: 0 1px 2px rgba(26,23,20,.10);
   transition: transform .15s var(--ease), z-index .15s;
   cursor: default;
+  flex-shrink: 0;
 }
 .avatar.main {
   background: var(--accent);
@@ -1064,7 +1059,7 @@ a { color: inherit; text-decoration: none; }
   z-index: 3;
 }
 .sys-card__users .orphan-badge {
-  flex-shrink: 0;
+  display: inline-block;
   font-size: 11px;
   padding: 4px 10px;
   border-radius: 99px;
@@ -3829,10 +3824,8 @@ function renderSystemCard(s) {
       </div>
 
       <div class="sys-card__users">
-        <div class="sys-card__users-row">
-          <div class="sys-card__users-count ${s.users.length===0?'orphan':''} num">${usersCountText}</div>
-          ${usersBlock}
-        </div>
+        ${usersBlock}
+        <div class="sys-card__users-count ${s.users.length===0?'orphan':''} num">${usersCountText}</div>
         <div class="sys-card__users-hint">${
           s.users.length
             ? (s.users.some(u => u.systems.find(x => systemKey(x.name)===systemKey(s.name))?.frequency === 'main')
