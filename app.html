@@ -870,14 +870,17 @@ a { color: inherit; text-decoration: none; }
   cursor: pointer;
 }
 
-/* Card grid */
+/* Card grid — cards keep their intrinsic height; we do not stretch
+   so we can use plain block flow inside cards (no flex auto-margins). */
 .sys-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
   gap: 14px;
+  align-items: start;
 }
 
-/* The card */
+/* The card — plain block container so every descendant paints
+   reliably at any zoom / viewport width. */
 .sys-card {
   position: relative;
   background:
@@ -886,8 +889,6 @@ a { color: inherit; text-decoration: none; }
   border: 1px solid var(--paper-3);
   border-radius: var(--radius-lg);
   padding: 18px 18px 16px;
-  display: flex; flex-direction: column;
-  gap: 14px;
   min-width: 0;
   cursor: pointer;
   transition: border-color .18s var(--ease), transform .18s var(--ease),
@@ -920,6 +921,7 @@ a { color: inherit; text-decoration: none; }
   display: flex; align-items: flex-start; justify-content: space-between;
   gap: 10px;
   min-width: 0;
+  margin-bottom: 14px;
 }
 .sys-card__title-wrap { min-width: 0; flex: 1; }
 .sys-card__title {
@@ -985,7 +987,7 @@ a { color: inherit; text-decoration: none; }
    inside. Vertical stacking uses normal block flow so Chrome always
    paints the content correctly at any zoom level. */
 .sys-card__users {
-  margin-top: auto;
+  margin-top: 14px;
   padding-top: 12px;
   border-top: 1px dashed var(--paper-3);
 }
@@ -1098,8 +1100,10 @@ a { color: inherit; text-decoration: none; }
   .sys-sort { margin-left: 0; width: 100%; justify-content: flex-end; }
 
   .sys-grid { grid-template-columns: 1fr; gap: 12px; }
-  .sys-card { padding: 16px; gap: 12px; }
+  .sys-card { padding: 16px; }
   .sys-card__title { font-size: 18px; }
+  .sys-card__top { margin-bottom: 12px; }
+  .sys-card__users { margin-top: 12px; }
 
   /* On touch there is no hover — show actions always */
   .sys-card__actions { opacity: 1; }
