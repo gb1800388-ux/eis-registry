@@ -7950,8 +7950,29 @@ document.addEventListener('DOMContentLoaded', () => {
   // PWA: register service worker and wire the install pill
   // ------------------------------------------------------------------
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-    navigator.serviceWorker.register('./sw.js').catch(err => {
+    navigator.serviceWorker.register('./sw.js').then(reg => {
+      // Проверяем наличие обновлений при каждой загрузке.
+      reg.update().catch(() => {});
+      // Если появилась новая версия SW — сразу просим её активироваться.
+      reg.addEventListener('updatefound', () => {
+        const newSW = reg.installing;
+        if (!newSW) return;
+        newSW.addEventListener('statechange', () => {
+          if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+            newSW.postMessage('SKIP_WAITING');
+          }
+        });
+      });
+    }).catch(err => {
       console.warn('[pwa] sw registration failed:', err);
+    });
+    // Когда управление перешло к новому SW — перезагружаем страницу один раз,
+    // чтобы получить свежий app.html через network-first.
+    let swReloading = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (swReloading) return;
+      swReloading = true;
+      location.reload();
     });
   }
   let deferredInstallPrompt = null;
