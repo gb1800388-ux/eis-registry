@@ -3,11 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#3B6E4D">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Реестр ЭИС">
-<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#F5F1E8">
 <title>Реестр электронных систем · Загрузка и преемственность</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
@@ -1111,6 +1107,500 @@ a { color: inherit; text-decoration: none; }
 /* ========================================================================
    ROLE TEMPLATES
    ======================================================================== */
+.tpl-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+.tpl-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--line);
+  padding: 16px 18px 14px;
+  display: flex; flex-direction: column; gap: 12px;
+  transition: border-color .15s var(--ease), transform .15s var(--ease), box-shadow .15s var(--ease);
+}
+.tpl-card:hover {
+  border-color: var(--accent-dim);
+  box-shadow: var(--shadow-2);
+  transform: translateY(-1px);
+}
+.tpl-card-head {
+  display: flex; align-items: center; gap: 12px;
+}
+.tpl-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  background: var(--accent-bg);
+  color: var(--accent-ink);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.tpl-card-title { flex: 1; min-width: 0; }
+.tpl-name {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -.01em;
+  color: var(--ink);
+}
+.tpl-role { font-size: 12px; color: var(--ink-3); margin-top: 1px; }
+.tpl-sys {
+  list-style: none;
+  padding: 8px 10px;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  font-size: 13px;
+  display: flex; flex-direction: column; gap: 4px;
+  min-height: 64px;
+}
+.tpl-sys li {
+  display: grid;
+  grid-template-columns: 10px 1fr auto;
+  gap: 8px;
+  align-items: baseline;
+}
+.tpl-sys-dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  margin-top: 6px;
+}
+.tpl-freq-main { background: var(--accent); }
+.tpl-freq-periodic { background: var(--spark); }
+.tpl-freq-rare { background: var(--ink-4); }
+.tpl-sys-name { color: var(--ink); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tpl-sys-purpose { color: var(--ink-3); font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: right; }
+.tpl-sys-more { color: var(--ink-4); font-size: 12px; padding-left: 18px; font-style: italic; }
+.tpl-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px;
+}
+.tpl-stats { font-size: 12px; color: var(--ink-3); display: flex; gap: 6px; }
+.tpl-stats strong { color: var(--ink); font-weight: 600; }
+.tpl-actions { display: flex; gap: 4px; }
+
+/* Template picker in modal */
+.tpl-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+@media (max-width: 520px) { .tpl-picker { grid-template-columns: 1fr; } }
+.tpl-pick {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color .15s var(--ease), background .15s var(--ease);
+}
+.tpl-pick:hover { border-color: var(--accent); background: var(--accent-bg); }
+.tpl-pick-icon {
+  width: 34px; height: 34px; flex-shrink: 0;
+  border-radius: 10px;
+  background: var(--accent-bg); color: var(--accent-ink);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600;
+}
+.tpl-pick-body { display: flex; flex-direction: column; min-width: 0; }
+.tpl-pick-name { font-weight: 500; color: var(--ink); }
+.tpl-pick-role { font-size: 11.5px; color: var(--ink-3); margin-top: 1px; }
+
+/* ========================================================================
+   ECP RADAR — horizontal timeline
+   ======================================================================== */
+.radar-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px 14px;
+  margin-bottom: 16px;
+  border: 1px solid var(--line);
+}
+.radar-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 10px;
+  gap: 12px;
+}
+.radar-head h3 {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: -.01em;
+  color: var(--ink);
+}
+.radar-head h3 em { font-style: normal; font-weight: 700; color: var(--accent); }
+.radar-head-hint { font-size: 12px; color: var(--ink-3); }
+
+.radar-track {
+  position: relative;
+  height: 88px;
+  padding-top: 30px;
+  border-radius: var(--radius);
+  background:
+    linear-gradient(to right,
+      rgba(165,40,52,.10)   0%, rgba(165,40,52,.10)   10%,
+      rgba(165,40,52,.08)   10%, rgba(165,40,52,.08)   24%,
+      rgba(181,88,12,.08)   24%, rgba(181,88,12,.08)   48%,
+      rgba(201,90,58,.07)   48%, rgba(201,90,58,.07)   72%,
+      rgba(59,110,77,.06)   72%, rgba(59,110,77,.06)   100%);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+.radar-zones {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  display: grid;
+  grid-template-columns: 10% 14% 24% 24% 28%;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--ink-4);
+  font-weight: 600;
+  pointer-events: none;
+}
+.radar-zones span {
+  padding: 8px 8px 0;
+  border-left: 1px dashed var(--line);
+  white-space: nowrap;
+}
+.radar-zones span:first-child { border-left: 0; }
+.radar-zone-past  { color: var(--bad) !important; }
+.radar-zone-soon  { color: var(--bad) !important; }
+.radar-zone-warn  { color: var(--warn) !important; }
+.radar-zone-safe  { color: var(--ok) !important; }
+
+.radar-today {
+  position: absolute;
+  top: 26px;
+  bottom: 16px;
+  left: 10%;
+  width: 2px;
+  background: var(--ink);
+  z-index: 2;
+}
+.radar-today::after {
+  content: "сегодня";
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: var(--ink);
+  background: var(--surface);
+  padding: 0 4px;
+  border-radius: 3px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.radar-dot {
+  position: absolute;
+  top: 52px;
+  width: 11px; height: 11px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  border: 2px solid var(--surface);
+  z-index: 3;
+  transition: transform .12s var(--ease), box-shadow .12s var(--ease);
+}
+.radar-dot:hover {
+  transform: translate(-50%, -50%) scale(1.5);
+  z-index: 5;
+  box-shadow: 0 2px 8px rgba(0,0,0,.25);
+}
+.radar-dot.bad  { background: var(--bad); }
+.radar-dot.warn { background: var(--warn); }
+.radar-dot.ok   { background: var(--ok); }
+.radar-dot.info { background: var(--info); }
+.radar-dot.crypto { border-style: double; border-width: 3px; }
+.radar-dot-tooltip {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: #fff;
+  font-size: 11.5px;
+  line-height: 1.35;
+  padding: 6px 9px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .12s var(--ease);
+  z-index: 6;
+}
+.radar-dot-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: var(--ink);
+}
+.radar-dot:hover .radar-dot-tooltip { opacity: 1; }
+.radar-legend {
+  display: flex; gap: 14px; flex-wrap: wrap;
+  margin-top: 10px;
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+.radar-legend-item { display: inline-flex; align-items: center; gap: 6px; }
+.radar-legend-dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  border: 2px solid var(--surface);
+}
+.radar-empty {
+  padding: 30px 14px;
+  text-align: center;
+  color: var(--ink-4);
+  font-size: 13px;
+  font-style: italic;
+}
+
+/* ========================================================================
+   LEAVING SIMULATOR
+   ======================================================================== */
+.sim-hero {
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  margin-bottom: 14px;
+  display: flex; align-items: center; gap: 18px;
+}
+.sim-hero-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-weight: 600;
+  flex: 1;
+}
+.sim-hero-num {
+  font-family: var(--font-display);
+  font-size: 40px;
+  font-weight: 500;
+  letter-spacing: -.02em;
+  line-height: 1;
+}
+.sim-hero-hint {
+  font-size: 12.5px;
+  opacity: .85;
+  max-width: 52%;
+  text-align: right;
+}
+.sim-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.sim-block {
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  padding: 12px 14px;
+  background: var(--surface-2);
+}
+.sim-block-head {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 8px;
+}
+.sim-block-icon {
+  width: 28px; height: 28px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--surface);
+  color: var(--ink-2);
+  font-weight: 700;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.sim-block-icon.bad { background: var(--bad-bg); color: var(--bad-ink); }
+.sim-block-icon.warn { background: var(--warn-bg); color: var(--warn-ink); }
+.sim-block-icon.info { background: var(--info-bg); color: var(--info-ink); }
+.sim-block-title { font-weight: 500; font-size: 13.5px; color: var(--ink); }
+.sim-block-hint { font-size: 11.5px; color: var(--ink-3); margin-top: 1px; }
+.sim-block-num {
+  margin-left: auto;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 20px;
+  color: var(--ink);
+}
+.sim-block-empty {
+  color: var(--ink-4);
+  font-size: 12px;
+  font-style: italic;
+  padding: 6px 0 2px 2px;
+}
+.sim-sys-list {
+  list-style: none;
+  padding: 0;
+  display: flex; flex-direction: column; gap: 5px;
+}
+.sim-sys-item {
+  display: grid;
+  grid-template-columns: 12px 1fr;
+  grid-template-rows: auto auto;
+  gap: 2px 10px;
+  padding: 5px 0;
+  border-top: 1px dashed var(--line);
+  font-size: 13px;
+}
+.sim-sys-item:first-child { border-top: 0; }
+.sim-sys-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  margin-top: 6px;
+  grid-row: 1;
+}
+.sim-sys-dot.bad { background: var(--bad); }
+.sim-sys-dot.warn { background: var(--warn); }
+.sim-sys-dot.ok { background: var(--ok); }
+.sim-sys-dot.info { background: var(--info); }
+.sim-sys-name { grid-column: 2; color: var(--ink); font-weight: 500; }
+.sim-sys-hint { grid-column: 2; color: var(--ink-3); font-size: 11.5px; }
+.sim-plan {
+  border-radius: var(--radius);
+  background: var(--accent-bg);
+  color: var(--accent-ink);
+  padding: 14px 18px;
+}
+.sim-plan-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+.sim-plan ol {
+  padding-left: 20px;
+  font-size: 13px;
+  line-height: 1.55;
+}
+.sim-plan ol li { margin: 2px 0; }
+
+/* Bottom: users block — pure block flow.
+   Count and hint on top, then a compact comma-separated people list
+   (Иванов И.И., Петров П.И., …). Primary owner is highlighted in accent. */
+.sys-card__users {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--paper-3);
+}
+.sys-card__users-count {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.15;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sys-card__users-count.orphan { color: var(--bad); }
+.sys-card__users-hint {
+  margin-top: 2px;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--ink-3);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Compact people list: Иванов И.И., Петров П.И., Сидоров С.С. */
+.sys-card__people {
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ink-2);
+  word-spacing: .02em;
+  /* clamp to 2 lines, ellipsize overflow */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.sys-person {
+  font-weight: 500;
+  color: var(--ink-2);
+}
+.sys-person--main {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.sys-card__users .orphan-badge {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 99px;
+  background: var(--bad-bg);
+  color: var(--bad-ink);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Responsive: tablet */
+@media (max-width: 960px) {
+  .sys-strip { grid-template-columns: repeat(2, 1fr); }
+  .sys-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+}
+
+/* Responsive: phone (incl. iPhone 15 Pro Max @ 430px) */
+@media (max-width: 600px) {
+  .sys-strip { gap: 8px; margin-bottom: 14px; }
+  .sys-strip-cell { padding: 10px 12px; }
+  .sys-strip-cell .n { font-size: 22px; }
+  .sys-strip-cell .l { font-size: 10px; }
+
+  .sys-toolbar { gap: 8px; }
+  .sys-pills {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    margin: 0 calc(-1 * var(--pad-x));
+    padding: 0 var(--pad-x) 2px;
+  }
+  .sys-pills::-webkit-scrollbar { display: none; }
+  .sys-sort { margin-left: 0; width: 100%; justify-content: flex-end; }
+
+  .sys-grid { grid-template-columns: 1fr; gap: 12px; }
+  .sys-card { padding: 16px; }
+  .sys-card__title { font-size: 18px; }
+  .sys-card__top { margin-bottom: 12px; }
+  .sys-card__users { margin-top: 12px; }
+
+  /* On touch there is no hover — show actions always */
+  .sys-card__actions { opacity: 1; }
+  .sys-card__action { width: 36px; height: 36px; }
+  .sys-card__action svg { width: 16px; height: 16px; }
+  .avatar { width: 32px; height: 32px; font-size: 11px; }
+}
+
+/* Extra-small phones */
+@media (max-width: 380px) {
+  .sys-strip { grid-template-columns: repeat(2, 1fr); }
+  .sys-card__title { font-size: 17px; }
+}
+
+/* iOS safe-area insets (notch / home indicator) */
+@supports (padding: max(0px)) {
+  .main {
+    padding-left: env(safe-area-inset-left, 0);
+    padding-right: env(safe-area-inset-right, 0);
+  }
+  .page { padding-bottom: max(60px, env(safe-area-inset-bottom, 60px)); }
+}
+
+/* ========================================================================
+   ROLE TEMPLATES
+   ======================================================================== */
 /* ========================================================================
    IMPORT FROM 1C — preview modal
    ======================================================================== */
@@ -1870,6 +2360,168 @@ a { color: inherit; text-decoration: none; }
   .install-pill span { display: none; }
   .install-pill { padding: 7px 9px; }
 }
+.cmdk-trigger svg { width: 14px; height: 14px; stroke-width: 2; }
+.cmdk-trigger kbd {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  padding: 1px 5px;
+  background: var(--surface);
+  border-radius: 3px;
+  border: 1px solid var(--line);
+}
+@media (max-width: 720px) {
+  .cmdk-trigger-text { display: none; }
+}
+
+/* ========================================================================
+   COMMAND PALETTE (⌘K)
+   ======================================================================== */
+.cmdk-bg {
+  position: fixed; inset: 0;
+  background: rgba(26,23,20,.45);
+  backdrop-filter: blur(6px);
+  display: none;
+  align-items: flex-start; justify-content: center;
+  z-index: 110;
+  padding: 12vh 20px 20px;
+  animation: modalFadeIn .15s var(--ease);
+}
+.cmdk-bg.open { display: flex; }
+.cmdk {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 580px;
+  max-height: 76vh;
+  display: flex; flex-direction: column;
+  box-shadow: 0 28px 60px -20px rgba(26,23,20,.48), 0 0 0 1px rgba(26,23,20,.05);
+  overflow: hidden;
+  animation: modalIn .18s var(--ease);
+}
+.cmdk-input-wrap {
+  position: relative;
+  border-bottom: 1px solid var(--line);
+  padding: 0 18px;
+  display: flex; align-items: center; gap: 10px;
+}
+.cmdk-input-wrap svg { width: 18px; height: 18px; color: var(--ink-3); flex-shrink: 0; }
+.cmdk-input {
+  flex: 1;
+  border: 0; outline: 0; background: transparent;
+  font-family: var(--font-body);
+  font-size: 16px;
+  padding: 16px 0;
+  color: var(--ink);
+}
+.cmdk-input::placeholder { color: var(--ink-4); }
+.cmdk-hint {
+  font-size: 11px; color: var(--ink-4);
+  padding: 4px 6px; border-radius: 4px;
+  background: var(--surface-2);
+  font-family: var(--font-mono);
+  letter-spacing: 0;
+}
+.cmdk-list {
+  overflow-y: auto;
+  padding: 6px 6px 8px;
+  min-height: 0;
+}
+.cmdk-section-label {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--ink-4);
+  font-weight: 600;
+  padding: 10px 14px 4px;
+}
+.cmdk-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background .08s var(--ease);
+}
+.cmdk-item:hover,
+.cmdk-item.active {
+  background: var(--accent-bg);
+}
+.cmdk-item .cmdk-icon {
+  width: 32px; height: 32px; flex-shrink: 0;
+  border-radius: 8px;
+  background: var(--surface-2);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ink-2);
+}
+.cmdk-item.active .cmdk-icon {
+  background: var(--accent); color: #fff;
+}
+.cmdk-item .cmdk-icon svg { width: 16px; height: 16px; stroke-width: 1.8; }
+.cmdk-item-body { flex: 1; min-width: 0; }
+.cmdk-item-title {
+  font-weight: 500;
+  font-size: 14px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.cmdk-item-sub {
+  font-size: 12px;
+  color: var(--ink-3);
+  margin-top: 1px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.cmdk-item .cmdk-badge {
+  font-size: 10.5px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: var(--surface-2);
+  color: var(--ink-3);
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.cmdk-empty {
+  padding: 36px 18px;
+  text-align: center;
+  color: var(--ink-3);
+  font-size: 13px;
+}
+.cmdk-foot {
+  border-top: 1px solid var(--line);
+  padding: 8px 14px;
+  display: flex; align-items: center; gap: 14px;
+  font-size: 11px;
+  color: var(--ink-4);
+  background: var(--surface-2);
+}
+.cmdk-foot kbd {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--ink-2);
+  margin-right: 3px;
+}
+@media (max-width: 560px) {
+  .cmdk-bg { padding: 6vh 12px 12px; }
+  .cmdk-foot { display: none; }
+}
+
+/* Topbar ⌘K trigger */
+.cmdk-trigger {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 7px 10px;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  color: var(--ink-3);
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: border-color .15s var(--ease), color .15s var(--ease);
+}
+.cmdk-trigger:hover { border-color: var(--ink-4); color: var(--ink-2); }
 .cmdk-trigger svg { width: 14px; height: 14px; stroke-width: 2; }
 .cmdk-trigger kbd {
   font-family: var(--font-mono);
@@ -2657,10 +3309,6 @@ body.printing { overflow: hidden; }
         </div>
       </div>
       <div class="topbar-actions">
-        <button class="install-pill" id="installPill" hidden>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          <span id="installBtn">Установить</span>
-        </button>
         <button class="cmdk-trigger" onclick="openCmdK()" aria-label="Поиск и команды" title="Поиск по всему (⌘K)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <span class="cmdk-trigger-text">Поиск</span>
@@ -2924,17 +3572,8 @@ const plural = (n, one, few, many) => {
 const systemKey = (name) => (name || '').trim().toLowerCase();
 
 function save() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    localStorage.setItem(CHECKLIST_KEY, JSON.stringify(checklists));
-  } catch (err) {
-    if (err && (err.name === 'QuotaExceededError' || err.code === 22)) {
-      toast('Места на устройстве не хватило — удалите часть вложений или сделайте экспорт', 'bad');
-    } else {
-      toast('Не удалось сохранить: ' + (err?.message || err), 'bad');
-    }
-    return;
-  }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  localStorage.setItem(CHECKLIST_KEY, JSON.stringify(checklists));
   const ls = $('#last-save');
   if (ls) ls.textContent = fmtTime(new Date().toISOString());
   const dot = $('#saveDot');
@@ -3497,6 +4136,199 @@ function cmdKKey(ev) {
     closeCmdK();
   }
 }
+
+/* ============================================================================
+   COMMAND PALETTE (⌘K)
+   ============================================================================ */
+let cmdk = { open: false, items: [], filtered: [], active: 0 };
+
+function buildCmdKItems() {
+  const items = [];
+  // Quick actions
+  items.push(
+    { group: 'Действие', title: 'Новая анкета', sub: 'Опросный лист для нового сотрудника', icon: 'plus', run: () => { newSurvey(); } },
+    { group: 'Действие', title: 'Отменить последнее', sub: history.past.length ? ('«' + (history.past[history.past.length-1].label || '—') + '»') : 'Нечего отменять', icon: 'undo', run: () => undo() },
+    { group: 'Действие', title: 'Повторить', sub: history.future.length ? ('«' + (history.future[history.future.length-1].label || '—') + '»') : 'Нечего повторять', icon: 'redo', run: () => redo() },
+    { group: 'Действие', title: 'Экспорт CSV · Сотрудники', sub: 'Реестр в виде таблицы', icon: 'download', run: () => exportCSV('employees') },
+    { group: 'Действие', title: 'Экспорт JSON · Резервная копия', sub: 'Полный слепок данных', icon: 'download', run: () => exportJSON() },
+    { group: 'Действие', title: 'Печать текущей страницы', sub: 'Открыть диалог печати', icon: 'printer', run: () => window.print() }
+  );
+  // Pages
+  Object.entries(PAGES).forEach(([key, conf]) => {
+    items.push({ group: 'Страница', title: conf.title, sub: conf.sub, icon: 'page', badge: key.toUpperCase(), run: () => goto(key) });
+  });
+  // Employees
+  state.employees.forEach(e => {
+    items.push({
+      group: 'Сотрудники',
+      title: e.fullName,
+      sub: [e.position, e.department].filter(Boolean).join(' · ') || '—',
+      icon: 'user',
+      badge: (e.systems?.length || 0) + ' сист.',
+      run: () => { ui.editingEmployeeId = e.id; goto('survey'); }
+    });
+  });
+  // Systems
+  state.systems.forEach(s => {
+    items.push({
+      group: 'Системы',
+      title: s.name,
+      sub: [s.type, PRIORITY[s.priority]?.label].filter(Boolean).join(' · '),
+      icon: 'system',
+      badge: s.priority === 'critical' ? 'крит.' : '',
+      run: () => { goto('systems'); setTimeout(() => editSystem(s.id), 50); }
+    });
+  });
+  // Templates (if any)
+  (state.templates || []).forEach(t => {
+    items.push({
+      group: 'Шаблоны',
+      title: t.name,
+      sub: (t.systems?.length || 0) + ' сист. · применить к текущей анкете',
+      icon: 'template',
+      run: () => applyTemplateToSurvey(t.id)
+    });
+  });
+  // Simulator shortcut per employee
+  state.employees.forEach(e => {
+    items.push({
+      group: 'Симулятор',
+      title: 'Что если уйдёт: ' + e.fullName,
+      sub: 'Оценить последствия ухода',
+      icon: 'simulate',
+      run: () => simulateLeave(e.id)
+    });
+  });
+  return items;
+}
+
+const CMDK_ICONS = {
+  plus:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+  undo:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>',
+  redo:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform:scaleX(-1)"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>',
+  download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
+  printer:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>',
+  page:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+  user:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+  system:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>',
+  template: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>',
+  simulate: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>'
+};
+
+function fuzzyMatch(query, text) {
+  if (!query) return { score: 0, match: true };
+  const q = query.toLowerCase().trim();
+  const t = (text || '').toLowerCase();
+  if (t.includes(q)) {
+    return { score: 100 - t.indexOf(q), match: true };
+  }
+  // subsequence match
+  let ti = 0, hits = 0;
+  for (let qi = 0; qi < q.length; qi++) {
+    const c = q[qi];
+    const idx = t.indexOf(c, ti);
+    if (idx === -1) return { score: 0, match: false };
+    hits++;
+    ti = idx + 1;
+  }
+  return { score: hits, match: true };
+}
+
+function openCmdK() {
+  cmdk.items = buildCmdKItems();
+  cmdk.active = 0;
+  cmdk.filtered = cmdk.items;
+  cmdk.open = true;
+  $('#cmdkBg').classList.add('open');
+  const input = $('#cmdkInput');
+  input.value = '';
+  renderCmdKList('');
+  setTimeout(() => input.focus(), 30);
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCmdK() {
+  cmdk.open = false;
+  $('#cmdkBg').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function renderCmdKList(query) {
+  const list = $('#cmdkList');
+  if (!list) return;
+  let items;
+  if (!query.trim()) {
+    items = cmdk.items.slice(0, 40);
+  } else {
+    items = cmdk.items
+      .map(it => {
+        const hay = [it.title, it.sub, it.group].join(' ');
+        const m = fuzzyMatch(query, hay);
+        return m.match ? { ...it, _score: m.score } : null;
+      })
+      .filter(Boolean)
+      .sort((a, b) => b._score - a._score)
+      .slice(0, 40);
+  }
+  cmdk.filtered = items;
+  if (cmdk.active >= items.length) cmdk.active = 0;
+
+  if (!items.length) {
+    list.innerHTML = '<div class="cmdk-empty">Ничего не найдено</div>';
+    return;
+  }
+
+  let html = '';
+  let lastGroup = null;
+  items.forEach((it, i) => {
+    if (it.group !== lastGroup) {
+      html += `<div class="cmdk-section-label">${esc(it.group)}</div>`;
+      lastGroup = it.group;
+    }
+    html += `
+      <div class="cmdk-item ${i === cmdk.active ? 'active' : ''}" data-idx="${i}">
+        <div class="cmdk-icon">${CMDK_ICONS[it.icon] || CMDK_ICONS.page}</div>
+        <div class="cmdk-item-body">
+          <div class="cmdk-item-title">${esc(it.title)}</div>
+          <div class="cmdk-item-sub">${esc(it.sub || '')}</div>
+        </div>
+        ${it.badge ? `<span class="cmdk-badge">${esc(it.badge)}</span>` : ''}
+      </div>`;
+  });
+  list.innerHTML = html;
+  list.querySelectorAll('.cmdk-item').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cmdk.active = +el.dataset.idx;
+      list.querySelectorAll('.cmdk-item').forEach((x,i) => x.classList.toggle('active', i === cmdk.active));
+    });
+    el.addEventListener('click', () => {
+      const it = cmdk.filtered[+el.dataset.idx];
+      if (it) { closeCmdK(); setTimeout(() => it.run(), 0); }
+    });
+  });
+  const active = list.querySelector('.cmdk-item.active');
+  if (active) active.scrollIntoView({ block: 'nearest' });
+}
+
+function cmdKKey(ev) {
+  if (!cmdk.open) return;
+  if (ev.key === 'ArrowDown') {
+    ev.preventDefault();
+    cmdk.active = Math.min(cmdk.filtered.length - 1, cmdk.active + 1);
+    renderCmdKList($('#cmdkInput').value);
+  } else if (ev.key === 'ArrowUp') {
+    ev.preventDefault();
+    cmdk.active = Math.max(0, cmdk.active - 1);
+    renderCmdKList($('#cmdkInput').value);
+  } else if (ev.key === 'Enter') {
+    ev.preventDefault();
+    const it = cmdk.filtered[cmdk.active];
+    if (it) { closeCmdK(); setTimeout(() => it.run(), 0); }
+  } else if (ev.key === 'Escape') {
+    ev.preventDefault();
+    closeCmdK();
+  }
+}
 document.addEventListener('click', e => {
   if (!e.target.closest('.dd')) $$('.dd-menu').forEach(m => m.classList.remove('open'));
 });
@@ -3665,18 +4497,6 @@ function renderSurveyPage(root) {
             <textarea class="textarea" id="sNotes" rows="3" placeholder="Особенности, замечания, нестандартные процессы…">${esc(emp?.notes || '')}</textarea>
           </div>
 
-          <div class="form-section">
-            <div class="form-section-head">
-              <h3><span class="num-badge">5</span>Документы и фото</h3>
-              <div class="form-section-hint">Сертификаты ЭЦП, доверенности, фото АРМ — всё остаётся на устройстве</div>
-            </div>
-            <div class="attachments" id="empAttachments"></div>
-            <label class="attach-dropzone" id="empAttachDrop" for="empAttachInput">
-              Перетащите файлы сюда или <span class="pick">выберите файлы</span> · PDF, изображения, до ${fmtBytes(ATTACH_MAX_BYTES)}
-            </label>
-            <input type="file" id="empAttachInput" multiple accept="${ATTACH_ACCEPT}" style="display:none">
-          </div>
-
           <div class="row gap-2 mt-6" style="flex-wrap:wrap">
             <button type="submit" class="btn btn-primary">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -3686,14 +4506,6 @@ function renderSurveyPage(root) {
               <button type="button" class="btn" onclick="simulateLeave('${emp.id}')" title="Что будет, если этот сотрудник уйдёт?">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
                 Симулятор ухода
-              </button>
-              <button type="button" class="btn" onclick="printOnboardingSheet('${emp.id}')" title="Печать онбординг-листа для нового сотрудника">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-                Онбординг-лист
-              </button>
-              <button type="button" class="btn" onclick="printOffboardingSheet('${emp.id}')" title="Печать обходного листа при увольнении">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-                Обходной лист
               </button>
               <button type="button" class="btn btn-danger" onclick="deleteEmployee('${emp.id}')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
@@ -4100,10 +4912,7 @@ function simulateLeave(empId) {
     body,
     footer: `
       <button class="btn" onclick="closeModal()">Закрыть</button>
-      <button class="btn" onclick="closeModal(); printOffboardingSheet('${r.emp.id}')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-        Обходной лист
-      </button>
+      <button class="btn" onclick="closeModal(); ui.recoveryEmpId='${r.emp.id}'; goto('recovery')">Чек-лист восстановления</button>
       <button class="btn btn-primary" onclick="closeModal(); ui.editingEmployeeId='${r.emp.id}'; goto('survey')">Открыть анкету</button>
     `
   });
@@ -4544,6 +5353,319 @@ function deleteSystem(id) {
     state.systems = state.systems.filter(x => x.id !== id);
     delete checklists[id];
     save();
+    refreshSidebarCounts();
+    toast('Система удалена — Ctrl+Z чтобы вернуть');
+    goto('systems');
+  });
+}
+
+/* ============================================================================
+   ======================= PAGE: ROLE TEMPLATES ===============================
+   ============================================================================ */
+function renderTemplatesPage(root) {
+  const tpls = state.templates || [];
+  root.innerHTML = `
+    <div class="card" style="margin-bottom:16px;background:var(--accent-bg);border-color:transparent">
+      <div class="card-body" style="padding:18px 22px">
+        <div style="display:flex;gap:14px;align-items:flex-start">
+          <div style="flex-shrink:0;margin-top:2px">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--accent-ink)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          </div>
+          <div style="color:var(--accent-ink);font-size:13px;line-height:1.55;flex:1">
+            <strong style="font-family:var(--font-display);font-size:15px;display:block;margin-bottom:2px">Ролевые <em style="color:var(--accent)">шаблоны</em></strong>
+            Готовые наборы систем по должностям. Применяйте шаблон в анкете сотрудника, чтобы не заполнять с нуля, и сохраняйте свои типовые конфигурации.
+          </div>
+          <button class="btn btn-primary" onclick="editTemplate()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Новый шаблон
+          </button>
+        </div>
+      </div>
+    </div>
+
+    ${tpls.length === 0 ? emptyState({
+      title: 'Нет шаблонов',
+      text: 'Добавьте первый ролевой шаблон — пригодится при заполнении анкет',
+      action: '<button class="btn btn-primary" onclick="editTemplate()">Новый шаблон</button>'
+    }) : `
+      <div class="tpl-grid">
+        ${tpls.map(renderTemplateCard).join('')}
+      </div>
+    `}
+  `;
+}
+
+function renderTemplateCard(t) {
+  const sysCount = (t.systems || []).length;
+  const mainCount = (t.systems || []).filter(s => s.frequency === 'main').length;
+  return `
+    <div class="tpl-card">
+      <div class="tpl-card-head">
+        <div class="tpl-icon">${esc(t.icon || '◆')}</div>
+        <div class="tpl-card-title">
+          <div class="tpl-name">${esc(t.name)}</div>
+          <div class="tpl-role">${esc(t.role || '')}</div>
+        </div>
+        ${t.requiresEcp ? '<span class="badge b-accent plain" style="padding:2px 8px;font-size:10.5px">ЭЦП</span>' : ''}
+      </div>
+      <ul class="tpl-sys">
+        ${(t.systems || []).slice(0, 6).map(s => `
+          <li>
+            <span class="tpl-sys-dot tpl-freq-${s.frequency || 'rare'}"></span>
+            <span class="tpl-sys-name">${esc(s.name)}</span>
+            <span class="tpl-sys-purpose">${esc(s.purpose || '')}</span>
+          </li>
+        `).join('')}
+        ${sysCount > 6 ? `<li class="tpl-sys-more">… ещё ${sysCount - 6}</li>` : ''}
+      </ul>
+      <div class="tpl-foot">
+        <div class="tpl-stats">
+          <span><strong class="num">${sysCount}</strong> ${plural(sysCount,'система','системы','систем')}</span>
+          ${mainCount > 0 ? `<span>·</span><span><strong class="num">${mainCount}</strong> основных</span>` : ''}
+        </div>
+        <div class="tpl-actions">
+          <button class="btn btn-sm" onclick="pickTemplateTarget('${t.id}')">Применить</button>
+          <button class="btn btn-sm btn-ghost btn-icon" onclick="editTemplate('${t.id}')" title="Изменить">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="btn btn-sm btn-ghost btn-icon btn-danger" onclick="deleteTemplate('${t.id}')" title="Удалить">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function tplRowHtml(s) {
+  s = s || {};
+  return `
+    <tr>
+      <td><input class="input tpl-s-name" placeholder="Система" value="${esc(s.name || '')}"></td>
+      <td><input class="input tpl-s-purpose" placeholder="Цель" value="${esc(s.purpose || '')}"></td>
+      <td>
+        <select class="select tpl-s-freq">
+          ${Object.entries(FREQ).map(([k,v]) => `<option value="${k}" ${s.frequency===k?'selected':''}>${v.symbol} ${v.label}</option>`).join('')}
+        </select>
+      </td>
+      <td>
+        <button type="button" class="btn btn-ghost btn-icon btn-danger" onclick="this.closest('tr').remove()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </td>
+    </tr>`;
+}
+function addTplRow() {
+  const body = $('#mtBody');
+  if (!body) return;
+  const wrap = document.createElement('tbody');
+  wrap.innerHTML = tplRowHtml();
+  body.appendChild(wrap.firstElementChild);
+}
+
+function editTemplate(id) {
+  const t = id ? (state.templates.find(x => x.id === id) || null) : null;
+  const isNew = !t;
+  openModal({
+    title: isNew ? 'Новый шаблон' : 'Изменить шаблон',
+    sub: 'Набор систем, который можно быстро применить к анкете',
+    body: `
+      <div class="grid grid-3" style="margin-bottom:14px">
+        <div class="field"><label class="label">Название</label><input class="input" id="mtName" value="${esc(t?.name || '')}" placeholder="Бухгалтер"></div>
+        <div class="field"><label class="label">Роль / отдел</label><input class="input" id="mtRole" value="${esc(t?.role || '')}" placeholder="Бухгалтерия"></div>
+        <div class="field"><label class="label">Иконка</label><input class="input" id="mtIcon" value="${esc(t?.icon || '◆')}" maxlength="3" style="text-align:center"></div>
+      </div>
+      <div class="tbl-wrap">
+        <table class="tbl tbl-sm">
+          <thead><tr><th>Система</th><th>Цель</th><th style="width:160px">Частота</th><th style="width:40px"></th></tr></thead>
+          <tbody id="mtBody">
+            ${(t?.systems?.length ? t.systems : [{},{},{}]).map(tplRowHtml).join('')}
+          </tbody>
+        </table>
+      </div>
+      <button type="button" class="add-row" onclick="addTplRow()">+ Добавить систему</button>
+      <div class="field" style="margin-top:14px">
+        <label class="checkbox"><input type="checkbox" id="mtEcp" ${t?.requiresEcp?'checked':''}> Требует ЭЦП</label>
+      </div>
+      <div class="field">
+        <label class="label">Заметка</label>
+        <textarea class="textarea" id="mtNotes" rows="2" placeholder="Особенности, требования">${esc(t?.notes || '')}</textarea>
+      </div>
+    `,
+    footer: `
+      <button class="btn" onclick="closeModal()">Отмена</button>
+      <button class="btn btn-primary" onclick="saveTemplateModal('${t?.id || ''}')">Сохранить</button>
+    `
+  });
+}
+
+function saveTemplateModal(id) {
+  const name = $('#mtName').value.trim();
+  if (!name) { toast('Укажите название', 'bad'); return; }
+  const systems = $$('#mtBody tr').map(tr => ({
+    name: tr.querySelector('.tpl-s-name').value.trim(),
+    purpose: tr.querySelector('.tpl-s-purpose').value.trim(),
+    frequency: tr.querySelector('.tpl-s-freq').value
+  })).filter(s => s.name);
+  const data = {
+    name,
+    role: $('#mtRole').value.trim(),
+    icon: $('#mtIcon').value.trim() || '◆',
+    systems,
+    requiresEcp: $('#mtEcp').checked,
+    notes: $('#mtNotes').value.trim()
+  };
+  snapshot(id ? 'Изменение шаблона' : 'Новый шаблон');
+  if (id) {
+    const idx = state.templates.findIndex(x => x.id === id);
+    state.templates[idx] = { ...state.templates[idx], ...data };
+    toast('Шаблон обновлён');
+  } else {
+    state.templates.push({ id: uid(), ...data });
+    toast('Шаблон создан');
+  }
+  save();
+  closeModal();
+  refreshSidebarCounts();
+  goto('templates');
+}
+
+function deleteTemplate(id) {
+  const t = state.templates.find(x => x.id === id);
+  if (!t) return;
+  confirmAction('Удалить шаблон?', `Шаблон «${t.name}» будет удалён. Применённые к анкетам системы останутся на местах.`, () => {
+    snapshot('Удаление шаблона «' + t.name + '»');
+    state.templates = state.templates.filter(x => x.id !== id);
+    save();
+    refreshSidebarCounts();
+    toast('Шаблон удалён — Ctrl+Z чтобы вернуть');
+    goto('templates');
+  });
+}
+
+/* Apply template to current or chosen employee */
+function pickTemplateTarget(tplId) {
+  const t = state.templates.find(x => x.id === tplId);
+  if (!t) return;
+  const emps = state.employees;
+  openModal({
+    title: 'Применить шаблон',
+    sub: '«' + t.name + '» — ' + (t.systems?.length || 0) + ' ' + plural(t.systems?.length || 0, 'система', 'системы', 'систем'),
+    body: `
+      <div class="field">
+        <label class="label">Кому применить</label>
+        <select class="select" id="tplTarget">
+          <option value="__new__">— Новая анкета —</option>
+          ${emps.map(e => `<option value="${e.id}">${esc(e.fullName)} · ${esc(e.position || '—')}</option>`).join('')}
+        </select>
+      </div>
+      <label class="checkbox" style="margin-top:10px">
+        <input type="checkbox" id="tplMerge" checked>
+        Объединять с уже указанными системами (не перезаписывать)
+      </label>
+    `,
+    footer: `
+      <button class="btn" onclick="closeModal()">Отмена</button>
+      <button class="btn btn-primary" onclick="applyTemplateConfirm('${tplId}')">Применить</button>
+    `
+  });
+}
+
+function saveSystemModal(id) {
+  const name = $('#mName').value.trim();
+  if (!name) { toast('Укажите название', 'bad'); return; }
+  const data = {
+    name,
+    type: $('#mType').value,
+    priority: $('#mPriority').value,
+    requiresEcp: $('#mRequiresEcp').checked,
+    notes: $('#mNotes').value.trim()
+  };
+  if (id) {
+    snapshot('Изменения системы');
+    const idx = state.systems.findIndex(x => x.id === id);
+    state.systems[idx] = { ...state.systems[idx], ...data };
+    toast('Система обновлена');
+  } else {
+    snapshot('Новая система');
+    state.systems.push({
+      id: uid(),
+      ...data,
+      recoverySteps: DEFAULT_RECOVERY_STEPS.map(x => ({...x}))
+    });
+    toast('Система добавлена');
+  }
+}
+
+function applyTemplateToSurvey(tplId) {
+  // from command palette — apply to current editing or new
+  const t = state.templates.find(x => x.id === tplId);
+  if (!t) return;
+  if (ui.currentPage !== 'survey') goto('survey');
+  setTimeout(() => applyTemplateToForm(t, true), 30);
+  toast('Шаблон «' + t.name + '» применён');
+}
+
+function applyTemplateToForm(t, merge) {
+  // Add rows into the already-rendered survey form
+  if (!merge) {
+    $('#sysBody').innerHTML = '';
+  }
+  const existingNames = new Set(
+    $$('#sysBody .sys-name').map(i => systemKey(i.value)).filter(Boolean)
+  );
+  (t.systems || []).forEach(s => {
+    if (!existingNames.has(systemKey(s.name))) {
+      addSystemRow(s);
+    }
+  });
+  if (t.notes && !$('#sNotes').value.trim()) {
+    $('#sNotes').value = t.notes;
+  }
+  updateSysCount();
+}
+
+/* Quick-open template picker from survey */
+function openTemplatePicker() {
+  const tpls = state.templates || [];
+  if (!tpls.length) { toast('Шаблонов пока нет — создайте на странице «Ролевые шаблоны»', 'bad'); return; }
+  openModal({
+    title: 'Применить шаблон к анкете',
+    sub: 'Системы шаблона добавятся к уже указанным',
+    body: `
+      <div class="tpl-picker">
+        ${tpls.map(t => `
+          <button type="button" class="tpl-pick" onclick="applyTemplatePickSelect('${t.id}')">
+            <span class="tpl-pick-icon">${esc(t.icon || '◆')}</span>
+            <span class="tpl-pick-body">
+              <span class="tpl-pick-name">${esc(t.name)}</span>
+              <span class="tpl-pick-role">${esc(t.role || '—')} · ${(t.systems?.length||0)} ${plural(t.systems?.length||0,'система','системы','систем')}</span>
+            </span>
+          </button>
+        `).join('')}
+      </div>
+    `,
+    footer: `<button class="btn" onclick="closeModal()">Отмена</button>`
+  });
+}
+
+function applyTemplatePickSelect(tplId) {
+  const t = state.templates.find(x => x.id === tplId);
+  if (!t) return;
+  closeModal();
+  applyTemplateToForm(t, true);
+  toast('Шаблон «' + t.name + '» применён');
+}
+
+function deleteSystem(id) {
+  const s = state.systems.find(x => x.id === id);
+  if (!s) return;
+  confirmAction('Удалить систему?', `Система «${s.name}» будет удалена из картотеки. Связи с сотрудниками останутся в анкетах.`, () => {
+    snapshot('Удаление системы «' + s.name + '»');
+    state.systems = state.systems.filter(x => x.id !== id);
+    delete checklists[id];
+    save();
+    closeModal();
     refreshSidebarCounts();
     toast('Система удалена — Ctrl+Z чтобы вернуть');
     goto('systems');
