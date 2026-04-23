@@ -1,0 +1,26 @@
+{
+  "name": "Реестр электронных систем",
+  "short_name": "Реестр ЭИС",
+  "description": "Загрузка, преемственность, восстановление АРМ. Всё хранится на устройстве.",
+  "start_url": "./app.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#EFF1EC",
+  "theme_color": "#3B6E4D",
+  "lang": "ru",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}
