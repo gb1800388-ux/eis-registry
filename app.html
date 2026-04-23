@@ -3,8 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#F5F1E8">
+<meta name="theme-color" content="#3B6E4D">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Реестр ЭИС">
+<meta name="mobile-web-app-capable" content="yes">
 <title>Реестр электронных систем · Загрузка и преемственность</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1104,6 +1111,174 @@ a { color: inherit; text-decoration: none; }
 /* ========================================================================
    ROLE TEMPLATES
    ======================================================================== */
+/* ========================================================================
+   IMPORT FROM 1C — preview modal
+   ======================================================================== */
+.imp-cols {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  margin-bottom: 10px;
+}
+.imp-col {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 9px;
+  border-radius: 99px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  font-size: 11.5px;
+}
+.imp-col-label { color: var(--ink-3); text-transform: uppercase; letter-spacing: .04em; font-size: 10.5px; font-weight: 600; }
+.imp-col-val { color: var(--ink); font-weight: 500; }
+.imp-col-val em { color: var(--bad); font-style: italic; font-weight: 400; }
+
+.imp-summary {
+  display: flex; gap: 8px;
+  margin-bottom: 10px;
+  padding: 10px 12px;
+  background: var(--accent-bg);
+  color: var(--accent-ink);
+  border-radius: var(--radius);
+  font-size: 12.5px;
+  font-weight: 500;
+}
+.imp-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .02em;
+}
+.imp-badge.new { background: var(--accent); color: #fff; }
+.imp-badge.upd { background: var(--warn-bg); color: var(--warn-ink); }
+
+.imp-table-wrap {
+  max-height: 40vh;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.imp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+.imp-table thead th {
+  position: sticky; top: 0;
+  background: var(--surface-2);
+  padding: 8px 10px;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  text-align: left;
+  color: var(--ink-3);
+  font-weight: 600;
+  border-bottom: 1px solid var(--line);
+}
+.imp-table tbody td {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--line);
+}
+.imp-table tbody tr:last-child td { border-bottom: 0; }
+.imp-table tbody tr.upd { background: rgba(181, 88, 12, .04); }
+.imp-more {
+  text-align: center;
+  color: var(--ink-3);
+  font-style: italic;
+  padding: 8px !important;
+}
+
+/* ========================================================================
+   ATTACHMENTS — compact grid of file cards
+   ======================================================================== */
+.attachments {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+}
+.attach-card {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  position: relative;
+  transition: border-color .15s var(--ease);
+}
+.attach-card:hover { border-color: var(--accent-dim); }
+.attach-thumb {
+  flex-shrink: 0;
+  width: 48px; height: 48px;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--surface-2);
+  color: var(--ink-3);
+}
+.attach-thumb img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+.attach-thumb svg { width: 22px; height: 22px; }
+.attach-meta { flex: 1; min-width: 0; }
+.attach-name {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.attach-sub {
+  font-size: 11px;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-top: 2px;
+}
+.attach-del {
+  position: absolute;
+  top: 4px; right: 4px;
+  width: 22px; height: 22px;
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink-3);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0;
+  transition: opacity .15s var(--ease), background .15s var(--ease), color .15s var(--ease);
+}
+.attach-card:hover .attach-del,
+.attach-card:focus-within .attach-del { opacity: 1; }
+.attach-del:hover { background: var(--bad-bg); color: var(--bad-ink); }
+.attach-empty {
+  grid-column: 1 / -1;
+  padding: 18px;
+  text-align: center;
+  color: var(--ink-4);
+  font-size: 12.5px;
+  font-style: italic;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+}
+.attach-dropzone {
+  margin-top: 10px;
+  padding: 14px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  color: var(--ink-3);
+  text-align: center;
+  font-size: 12.5px;
+  transition: border-color .15s var(--ease), background .15s var(--ease);
+}
+.attach-dropzone:hover,
+.attach-dropzone.drag {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+  color: var(--accent-ink);
+}
+.attach-dropzone .pick {
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
+}
+
 .tpl-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -1676,6 +1851,25 @@ a { color: inherit; text-decoration: none; }
   transition: border-color .15s var(--ease), color .15s var(--ease);
 }
 .cmdk-trigger:hover { border-color: var(--ink-4); color: var(--ink-2); }
+
+/* PWA install pill — only visible while browser exposes beforeinstallprompt */
+.install-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 12px;
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: filter .15s var(--ease);
+}
+.install-pill:hover { filter: brightness(1.08); }
+.install-pill svg { width: 14px; height: 14px; stroke-width: 2; }
+@media (max-width: 560px) {
+  .install-pill span { display: none; }
+  .install-pill { padding: 7px 9px; }
+}
 .cmdk-trigger svg { width: 14px; height: 14px; stroke-width: 2; }
 .cmdk-trigger kbd {
   font-family: var(--font-mono);
@@ -2155,16 +2349,225 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* ========================================================================
+   PRINTABLE SHEETS — offboarding / onboarding overlay + print rules
+   ======================================================================== */
+.sheet-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: #E5E7E0;
+  z-index: 200;
+  overflow: auto;
+  padding: 24px 12px 80px;
+}
+body.printing .sheet-overlay { display: block; }
+body.printing { overflow: hidden; }
+
+.sheet-toolbar {
+  position: sticky; top: 0;
+  display: flex; justify-content: flex-end; gap: 8px;
+  max-width: 860px;
+  margin: 0 auto 14px;
+  padding: 10px 0;
+  background: #E5E7E0;
+  z-index: 2;
+}
+.sheet-page {
+  max-width: 860px;
+  margin: 0 auto;
+  background: #FFFFFF;
+  box-shadow: 0 4px 18px -8px rgba(0,0,0,.18);
+  padding: 38px 46px;
+  color: #1A1A1A;
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.sheet-head {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  border-bottom: 2px solid #111;
+  padding-bottom: 12px;
+  margin-bottom: 22px;
+}
+.sheet-stamp {
+  font-family: var(--font-display);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.sheet-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 24px;
+  letter-spacing: -.01em;
+  color: #111;
+}
+.sheet-sub {
+  font-size: 12px;
+  color: #555;
+  margin-top: 2px;
+}
+.sheet-head-right { text-align: right; }
+.sheet-meta {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: #777;
+}
+.sheet-date {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.sheet-person {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 24px;
+  margin-bottom: 22px;
+  border: 1px solid #D8D8D4;
+  border-radius: 8px;
+  padding: 14px 18px;
+  background: #FAFAF7;
+}
+.sheet-kv { display: flex; gap: 8px; align-items: baseline; }
+.sheet-k {
+  flex-shrink: 0;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: #777;
+  font-weight: 600;
+  min-width: 80px;
+}
+.sheet-v { flex: 1; font-weight: 500; color: #111; }
+.sheet-blank {
+  display: inline-block;
+  min-width: 160px;
+  border-bottom: 1px dotted #999;
+  height: 1em;
+}
+
+.sheet-section { margin-bottom: 20px; break-inside: avoid; }
+.sheet-h2 {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  color: #111;
+  margin-bottom: 8px;
+  display: flex; align-items: center; gap: 8px;
+}
+.sheet-h2-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+}
+.sheet-hint {
+  font-size: 11.5px;
+  color: #555;
+  font-style: italic;
+  margin-bottom: 6px;
+}
+
+.sheet-tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.sheet-tbl thead th {
+  background: #F2F2EE;
+  padding: 6px 8px;
+  text-align: left;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: #555;
+  font-weight: 600;
+  border: 1px solid #DDD;
+}
+.sheet-tbl tbody td {
+  padding: 7px 8px;
+  border: 1px solid #DDD;
+  vertical-align: top;
+}
+.sheet-num { text-align: center; color: #888; font-variant-numeric: tabular-nums; }
+.sheet-cell-name { font-weight: 500; color: #111; }
+.sheet-cell-sub { font-size: 11px; color: #777; margin-top: 2px; }
+.sheet-cell-center { text-align: center; font-size: 14px; }
+.sheet-empty {
+  padding: 10px 12px;
+  font-style: italic;
+  color: #888;
+  background: #FAFAF7;
+  border: 1px dashed #D8D8D4;
+  border-radius: 6px;
+}
+.sheet-check {
+  list-style: none;
+  padding: 0;
+  font-size: 12.5px;
+  line-height: 1.9;
+  color: #111;
+}
+.sheet-check li { padding-left: 4px; }
+
+.sheet-signs {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 28px 40px;
+  margin-top: 30px;
+  break-inside: avoid;
+}
+.sheet-sign { padding-top: 30px; }
+.sheet-sign-line {
+  border-bottom: 1px solid #555;
+  height: 1px;
+  margin-bottom: 6px;
+}
+.sheet-sign-role {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: #777;
+  font-weight: 600;
+}
+
+@media (max-width: 520px) {
+  .sheet-page { padding: 22px 18px; }
+  .sheet-person { grid-template-columns: 1fr; }
+  .sheet-signs { grid-template-columns: 1fr; }
+}
+
+/* ========================================================================
    PRINT
    ======================================================================== */
 @media print {
   body { background: white; }
-  .nav, .topbar, .nav-foot, .modal-bg, .toasts, .btn, .add-row { display: none !important; }
+  .nav, .topbar, .nav-foot, .modal-bg, .toasts, .btn, .add-row, .cmdk-bg, .install-pill { display: none !important; }
   .main { margin-left: 0; }
   .page { display: block !important; padding: 0; }
   .page:not(.active) { display: none !important; }
   .card { border: 1px solid #ccc; break-inside: avoid; }
   .matrix-cell { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  /* printable sheet takes the whole page */
+  body.printing .app,
+  body.printing .modal-bg,
+  body.printing .toasts { display: none !important; }
+  body.printing .sheet-overlay {
+    position: static; background: white; padding: 0; overflow: visible;
+  }
+  body.printing .sheet-toolbar { display: none !important; }
+  body.printing .sheet-page {
+    box-shadow: none; max-width: none; margin: 0; padding: 20mm;
+  }
+  .sheet-h2-num, .imp-badge, .sheet-stamp { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 </style>
 </head>
@@ -2254,6 +2657,10 @@ a { color: inherit; text-decoration: none; }
         </div>
       </div>
       <div class="topbar-actions">
+        <button class="install-pill" id="installPill" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span id="installBtn">Установить</span>
+        </button>
         <button class="cmdk-trigger" onclick="openCmdK()" aria-label="Поиск и команды" title="Поиск по всему (⌘K)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <span class="cmdk-trigger-text">Поиск</span>
@@ -2284,6 +2691,11 @@ a { color: inherit; text-decoration: none; }
               Импорт из JSON
             </label>
             <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)">
+            <label class="dd-item" style="cursor:pointer" for="import1cFile">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/><path d="M8 13h8M8 17h5"/></svg>
+              Импорт из 1С:ЗУП (CSV / XLSX)
+            </label>
+            <input type="file" id="import1cFile" accept=".csv,.tsv,.txt,.xls,.xlsx" style="display:none" onchange="import1C(event)">
             <div class="dd-sep"></div>
             <button class="dd-item" onclick="window.print()">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
@@ -2458,7 +2870,9 @@ let ui = {
   sortBy: null,
   sortDir: 'asc',
   search: {},
-  charts: {}
+  charts: {},
+  surveyAttachments: [],  // temp buffer for survey form
+  systemAttachments: []   // temp buffer for system-edit modal
 };
 
 /* ============================================================================
@@ -2510,8 +2924,17 @@ const plural = (n, one, few, many) => {
 const systemKey = (name) => (name || '').trim().toLowerCase();
 
 function save() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  localStorage.setItem(CHECKLIST_KEY, JSON.stringify(checklists));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    localStorage.setItem(CHECKLIST_KEY, JSON.stringify(checklists));
+  } catch (err) {
+    if (err && (err.name === 'QuotaExceededError' || err.code === 22)) {
+      toast('Места на устройстве не хватило — удалите часть вложений или сделайте экспорт', 'bad');
+    } else {
+      toast('Не удалось сохранить: ' + (err?.message || err), 'bad');
+    }
+    return;
+  }
   const ls = $('#last-save');
   if (ls) ls.textContent = fmtTime(new Date().toISOString());
   const dot = $('#saveDot');
@@ -2602,11 +3025,13 @@ function load() {
     e.id ||= uid();
     e.systems ||= [];
     e.ecps ||= [];
+    e.attachments ||= [];
     e.cryptoStatus ||= 'not_installed';
   });
   state.systems.forEach(s => {
     s.id ||= uid();
     s.recoverySteps ||= DEFAULT_RECOVERY_STEPS.map(x => ({ ...x }));
+    s.attachments ||= [];
   });
   state.templates.forEach(t => { t.id ||= uid(); t.systems ||= []; });
 }
@@ -2704,6 +3129,117 @@ function seedDemo() {
   ];
   state.employees = emp;
   state.systems = sys;
+}
+
+/* ============================================================================
+   ATTACHMENTS — files stored as base64 data-URLs inside the registry state.
+   Conservative limits so localStorage doesn't blow up (~5–10 MB browser cap).
+   ============================================================================ */
+const ATTACH_MAX_BYTES = 3 * 1024 * 1024;       // hard per-file cap
+const ATTACH_WARN_BYTES = 1.2 * 1024 * 1024;    // above this → "рекомендуем сжать"
+const ATTACH_ACCEPT = 'image/*,application/pdf';
+
+function fmtBytes(n) {
+  if (n == null) return '—';
+  if (n < 1024) return n + ' Б';
+  if (n < 1024 * 1024) return (n / 1024).toFixed(0) + ' КБ';
+  return (n / 1024 / 1024).toFixed(1) + ' МБ';
+}
+
+function attachIcon(type) {
+  if (type?.startsWith('image/')) {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>';
+  }
+  if (type === 'application/pdf') {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+  }
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>';
+}
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.onerror = () => reject(r.error);
+    r.readAsDataURL(file);
+  });
+}
+
+/* Renders the attachment grid into the given container.
+   `getList` returns the current array; `setList` replaces it. */
+function renderAttachmentsInto(container, getList, setList, opts = {}) {
+  const list = getList();
+  const readonly = !!opts.readonly;
+  if (!container) return;
+  if (!list.length) {
+    container.innerHTML = `<div class="attach-empty">Пока нет файлов</div>`;
+    return;
+  }
+  container.innerHTML = list.map((a, i) => {
+    const isImage = (a.type || '').startsWith('image/');
+    const preview = isImage
+      ? `<img src="${a.dataUrl}" alt="${esc(a.name)}" loading="lazy">`
+      : `<div class="attach-ic">${attachIcon(a.type)}</div>`;
+    return `
+      <div class="attach-card" data-idx="${i}">
+        <a class="attach-thumb" href="${a.dataUrl}" download="${esc(a.name)}" target="_blank" rel="noopener">${preview}</a>
+        <div class="attach-meta">
+          <div class="attach-name" title="${esc(a.name)}">${esc(a.name)}</div>
+          <div class="attach-sub">${esc((a.type || '').split('/')[1] || 'файл')} · ${fmtBytes(a.size)}</div>
+        </div>
+        ${readonly ? '' : `<button type="button" class="attach-del" data-idx="${i}" title="Удалить">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>`}
+      </div>`;
+  }).join('');
+  if (!readonly) {
+    container.querySelectorAll('.attach-del').forEach(btn => {
+      btn.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        const idx = +btn.dataset.idx;
+        const next = getList().slice();
+        next.splice(idx, 1);
+        setList(next);
+        renderAttachmentsInto(container, getList, setList, opts);
+      });
+    });
+  }
+}
+
+async function ingestFiles(files, getList, setList, onDone) {
+  const list = getList().slice();
+  let added = 0, skipped = 0;
+  for (const file of files) {
+    if (file.size > ATTACH_MAX_BYTES) {
+      toast(`«${file.name}» больше ${fmtBytes(ATTACH_MAX_BYTES)} — не добавлено`, 'bad');
+      skipped++;
+      continue;
+    }
+    if (file.size > ATTACH_WARN_BYTES) {
+      toast(`«${file.name}» — ${fmtBytes(file.size)}: большой файл, лучше сжать`);
+    }
+    try {
+      const dataUrl = await readFileAsDataUrl(file);
+      list.push({
+        id: uid(),
+        name: file.name,
+        type: file.type || 'application/octet-stream',
+        size: file.size,
+        addedAt: new Date().toISOString(),
+        dataUrl
+      });
+      added++;
+    } catch (err) {
+      toast(`Не удалось прочитать «${file.name}»`, 'bad');
+      skipped++;
+    }
+  }
+  if (added) {
+    setList(list);
+    if (onDone) onDone();
+  }
+  if (added) toast(`Добавлено ${added} ${plural(added,'файл','файла','файлов')}`);
 }
 
 /* ============================================================================
@@ -2807,7 +3343,7 @@ function buildCmdKItems() {
       run: () => applyTemplateToSurvey(t.id)
     });
   });
-  // Simulator shortcut per employee
+  // Simulator + printable sheets per employee
   state.employees.forEach(e => {
     items.push({
       group: 'Симулятор',
@@ -2815,6 +3351,20 @@ function buildCmdKItems() {
       sub: 'Оценить последствия ухода',
       icon: 'simulate',
       run: () => simulateLeave(e.id)
+    });
+    items.push({
+      group: 'Печать',
+      title: 'Обходной лист: ' + e.fullName,
+      sub: 'Листок при увольнении',
+      icon: 'printer',
+      run: () => printOffboardingSheet(e.id)
+    });
+    items.push({
+      group: 'Печать',
+      title: 'Онбординг-лист: ' + e.fullName,
+      sub: 'Чек-лист для нового сотрудника',
+      icon: 'printer',
+      run: () => printOnboardingSheet(e.id)
     });
   });
   return items;
@@ -3115,6 +3665,18 @@ function renderSurveyPage(root) {
             <textarea class="textarea" id="sNotes" rows="3" placeholder="Особенности, замечания, нестандартные процессы…">${esc(emp?.notes || '')}</textarea>
           </div>
 
+          <div class="form-section">
+            <div class="form-section-head">
+              <h3><span class="num-badge">5</span>Документы и фото</h3>
+              <div class="form-section-hint">Сертификаты ЭЦП, доверенности, фото АРМ — всё остаётся на устройстве</div>
+            </div>
+            <div class="attachments" id="empAttachments"></div>
+            <label class="attach-dropzone" id="empAttachDrop" for="empAttachInput">
+              Перетащите файлы сюда или <span class="pick">выберите файлы</span> · PDF, изображения, до ${fmtBytes(ATTACH_MAX_BYTES)}
+            </label>
+            <input type="file" id="empAttachInput" multiple accept="${ATTACH_ACCEPT}" style="display:none">
+          </div>
+
           <div class="row gap-2 mt-6" style="flex-wrap:wrap">
             <button type="submit" class="btn btn-primary">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -3124,6 +3686,14 @@ function renderSurveyPage(root) {
               <button type="button" class="btn" onclick="simulateLeave('${emp.id}')" title="Что будет, если этот сотрудник уйдёт?">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
                 Симулятор ухода
+              </button>
+              <button type="button" class="btn" onclick="printOnboardingSheet('${emp.id}')" title="Печать онбординг-листа для нового сотрудника">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                Онбординг-лист
+              </button>
+              <button type="button" class="btn" onclick="printOffboardingSheet('${emp.id}')" title="Печать обходного листа при увольнении">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                Обходной лист
               </button>
               <button type="button" class="btn btn-danger" onclick="deleteEmployee('${emp.id}')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
@@ -3165,7 +3735,52 @@ function renderSurveyPage(root) {
     for (let i = 0; i < 2; i++) addEcpRow();
   }
 
+  // Attachments — clone existing list into temp buffer, render, wire dropzone
+  ui.surveyAttachments = (emp?.attachments || []).map(a => ({ ...a }));
+  wireAttachmentsUI({
+    grid: '#empAttachments',
+    drop: '#empAttachDrop',
+    input: '#empAttachInput',
+    get: () => ui.surveyAttachments,
+    set: (list) => { ui.surveyAttachments = list; }
+  });
+
   updateSysCount();
+}
+
+/* Generic wiring for an attachments section on any page.
+   - `grid` / `drop` / `input` are selectors
+   - `get()` returns current list, `set(list)` replaces it */
+function wireAttachmentsUI({ grid, drop, input, get, set, readonly }) {
+  const gridEl = $(grid);
+  const dropEl = drop && $(drop);
+  const inputEl = input && $(input);
+  renderAttachmentsInto(gridEl, get, set, { readonly });
+  if (readonly) return;
+
+  const refresh = () => renderAttachmentsInto(gridEl, get, set, { readonly });
+
+  if (inputEl) {
+    inputEl.onchange = async (ev) => {
+      const files = [...(ev.target.files || [])];
+      if (!files.length) return;
+      await ingestFiles(files, get, set, refresh);
+      inputEl.value = '';
+    };
+  }
+  if (dropEl) {
+    dropEl.addEventListener('dragover', (ev) => {
+      ev.preventDefault();
+      dropEl.classList.add('drag');
+    });
+    dropEl.addEventListener('dragleave', () => dropEl.classList.remove('drag'));
+    dropEl.addEventListener('drop', async (ev) => {
+      ev.preventDefault();
+      dropEl.classList.remove('drag');
+      const files = [...(ev.dataTransfer?.files || [])];
+      if (files.length) await ingestFiles(files, get, set, refresh);
+    });
+  }
 }
 
 function newSurvey() {
@@ -3260,6 +3875,7 @@ function saveSurvey(ev) {
     cryptoStatus: $('#sCryptoStatus').value,
     armId: $('#sArmId').value.trim(),
     notes: $('#sNotes').value.trim(),
+    attachments: (ui.surveyAttachments || []).map(a => ({ ...a })),
     updatedAt: new Date().toISOString()
   };
 
@@ -3484,7 +4100,10 @@ function simulateLeave(empId) {
     body,
     footer: `
       <button class="btn" onclick="closeModal()">Закрыть</button>
-      <button class="btn" onclick="closeModal(); ui.recoveryEmpId='${r.emp.id}'; goto('recovery')">Чек-лист восстановления</button>
+      <button class="btn" onclick="closeModal(); printOffboardingSheet('${r.emp.id}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Обходной лист
+      </button>
       <button class="btn btn-primary" onclick="closeModal(); ui.editingEmployeeId='${r.emp.id}'; goto('survey')">Открыть анкету</button>
     `
   });
@@ -3860,12 +4479,29 @@ function editSystem(id) {
           <label class="label">Заметки</label>
           <textarea class="textarea" id="mNotes" rows="2" placeholder="Особенности эксплуатации…">${esc(s?.notes || '')}</textarea>
         </div>
+        <div class="field" style="grid-column:1/-1">
+          <label class="label">Документы и фото</label>
+          <div class="attachments" id="mAttachments"></div>
+          <label class="attach-dropzone" id="mAttachDrop" for="mAttachInput">
+            Перетащите файлы или <span class="pick">выберите</span> · лицензии, инструкции, скрины
+          </label>
+          <input type="file" id="mAttachInput" multiple accept="${ATTACH_ACCEPT}" style="display:none">
+        </div>
       </div>
     `,
     footer: `
       <button class="btn" onclick="closeModal()">Отмена</button>
       <button class="btn btn-primary" onclick="saveSystemModal('${s?.id || ''}')">Сохранить</button>
     `
+  });
+  // Seed the temp buffer with existing attachments and wire UI
+  ui.systemAttachments = (s?.attachments || []).map(a => ({ ...a }));
+  wireAttachmentsUI({
+    grid: '#mAttachments',
+    drop: '#mAttachDrop',
+    input: '#mAttachInput',
+    get: () => ui.systemAttachments,
+    set: (list) => { ui.systemAttachments = list; }
   });
 }
 
@@ -3877,7 +4513,8 @@ function saveSystemModal(id) {
     type: $('#mType').value,
     priority: $('#mPriority').value,
     requiresEcp: $('#mRequiresEcp').checked,
-    notes: $('#mNotes').value.trim()
+    notes: $('#mNotes').value.trim(),
+    attachments: (ui.systemAttachments || []).map(a => ({ ...a }))
   };
   if (id) {
     snapshot('Изменения системы');
@@ -5468,6 +6105,623 @@ function importJSON(ev) {
   ev.target.value = '';
 }
 
+/* ============================================================================
+   IMPORT FROM 1C:ЗУП — accepts CSV (UTF-8 / Windows-1251 / UTF-16 BOM)
+   and XLSX (SheetJS loaded lazily from the CDN cached by the service worker).
+   Auto-detects columns by their Russian headers, shows a preview and lets
+   the user pick a merge strategy before committing.
+   ============================================================================ */
+
+/* Simple CSV parser that supports: , ; \t separators, quoted fields,
+   escaped quotes (""), and CRLF / LF line endings. */
+function parseCSV(text) {
+  if (!text) return [];
+  // Auto-detect separator — majority vote on the first non-empty line.
+  const firstLine = text.split(/\r?\n/).find(l => l.trim()) || '';
+  const counts = { ',': 0, ';': 0, '\t': 0 };
+  let inQ = false;
+  for (const ch of firstLine) {
+    if (ch === '"') inQ = !inQ;
+    else if (!inQ && counts[ch] !== undefined) counts[ch]++;
+  }
+  const sep = Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
+
+  const rows = [];
+  let row = [], field = '', q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) {
+      if (c === '"') {
+        if (text[i + 1] === '"') { field += '"'; i++; }
+        else q = false;
+      } else field += c;
+    } else {
+      if (c === '"') q = true;
+      else if (c === sep) { row.push(field); field = ''; }
+      else if (c === '\n' || c === '\r') {
+        if (c === '\r' && text[i + 1] === '\n') i++;
+        row.push(field); field = '';
+        if (row.some(x => x.trim())) rows.push(row);
+        row = [];
+      } else field += c;
+    }
+  }
+  if (field.length || row.length) { row.push(field); if (row.some(x => x.trim())) rows.push(row); }
+  return rows;
+}
+
+/* Try common encodings — 1С often exports as Windows-1251. */
+async function readAsTextAutoEncoding(file) {
+  const buf = await file.arrayBuffer();
+  const bytes = new Uint8Array(buf);
+  // UTF-8 BOM
+  if (bytes[0] === 0xEF && bytes[1] === 0xBB && bytes[2] === 0xBF) {
+    return new TextDecoder('utf-8').decode(bytes.slice(3));
+  }
+  // UTF-16 LE BOM
+  if (bytes[0] === 0xFF && bytes[1] === 0xFE) {
+    return new TextDecoder('utf-16le').decode(bytes.slice(2));
+  }
+  // Heuristic: if we see many bytes in the 0xC0-0xFF range but almost no valid
+  // UTF-8 multibyte sequences, it's probably Windows-1251.
+  let high = 0, utf8ok = 0, i = 0;
+  while (i < Math.min(bytes.length, 8000)) {
+    const b = bytes[i];
+    if (b >= 0xC0) {
+      high++;
+      // quick UTF-8 multibyte validation
+      if ((b & 0xE0) === 0xC0 && (bytes[i + 1] & 0xC0) === 0x80) { utf8ok++; i += 2; continue; }
+      if ((b & 0xF0) === 0xE0 && (bytes[i + 1] & 0xC0) === 0x80 && (bytes[i + 2] & 0xC0) === 0x80) { utf8ok++; i += 3; continue; }
+    }
+    i++;
+  }
+  const looksCyrillic = high > 5 && utf8ok / Math.max(high, 1) < 0.5;
+  const enc = looksCyrillic ? 'windows-1251' : 'utf-8';
+  try {
+    return new TextDecoder(enc, { fatal: false }).decode(bytes);
+  } catch {
+    return new TextDecoder('utf-8', { fatal: false }).decode(bytes);
+  }
+}
+
+/* Given a list of header strings, return an index map for our fields. */
+function detect1CColumns(headers) {
+  const norm = (s) => (s || '').toString().toLowerCase().replace(/[ёЁ]/g, 'е').replace(/[\s«»".,_-]+/g, '');
+  const h = headers.map(norm);
+  const findOneOf = (...needles) => {
+    for (let i = 0; i < h.length; i++) {
+      if (needles.some(n => h[i].includes(norm(n)))) return i;
+    }
+    return -1;
+  };
+  return {
+    fullName:   findOneOf('фио', 'сотрудник', 'фамилияимяотчество', 'полноеимя'),
+    lastName:   findOneOf('фамилия'),
+    firstName:  findOneOf('имя'),
+    middleName: findOneOf('отчество'),
+    position:   findOneOf('должность'),
+    department: findOneOf('подразделение', 'отдел', 'департамент'),
+    armId:      findOneOf('табельный', 'таб№', 'табномер', 'номерсотрудника'),
+    phone:      findOneOf('телефон', 'мобильный'),
+    email:      findOneOf('email', 'электроннаяпочта', 'почта')
+  };
+}
+
+function buildFullName(row, cols) {
+  if (cols.fullName >= 0 && row[cols.fullName]?.trim()) return row[cols.fullName].trim();
+  const parts = [
+    cols.lastName   >= 0 ? row[cols.lastName]   : '',
+    cols.firstName  >= 0 ? row[cols.firstName]  : '',
+    cols.middleName >= 0 ? row[cols.middleName] : ''
+  ].map(s => (s || '').trim()).filter(Boolean);
+  return parts.join(' ');
+}
+
+async function import1C(ev) {
+  closeDDs();
+  const file = ev.target.files[0];
+  if (!file) return;
+  ev.target.value = '';
+  try {
+    const ext = file.name.toLowerCase().split('.').pop();
+    let rows;
+    if (ext === 'xls' || ext === 'xlsx') {
+      rows = await parseXlsx(file);
+    } else {
+      const text = await readAsTextAutoEncoding(file);
+      rows = parseCSV(text);
+    }
+    if (!rows.length || rows.length < 2) {
+      toast('Файл пустой или нет строк с данными', 'bad');
+      return;
+    }
+    const headers = rows[0];
+    const dataRows = rows.slice(1);
+    const cols = detect1CColumns(headers);
+    if (cols.fullName < 0 && cols.lastName < 0) {
+      toast('Не найден столбец ФИО — проверьте заголовки', 'bad');
+      return;
+    }
+    openImport1CPreview(file.name, headers, dataRows, cols);
+  } catch (err) {
+    console.error(err);
+    toast('Не удалось прочитать файл: ' + (err?.message || err), 'bad');
+  }
+}
+
+async function parseXlsx(file) {
+  // Lazy-load SheetJS. It will be cached by the service worker after first fetch.
+  if (!window.XLSX) {
+    await new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+      s.onload = resolve;
+      s.onerror = () => reject(new Error('Не удалось загрузить парсер XLSX'));
+      document.head.appendChild(s);
+    });
+  }
+  const buf = await file.arrayBuffer();
+  const wb = window.XLSX.read(buf, { type: 'array' });
+  const sheet = wb.Sheets[wb.SheetNames[0]];
+  return window.XLSX.utils.sheet_to_json(sheet, { header: 1, blankrows: false, defval: '' });
+}
+
+function openImport1CPreview(fileName, headers, dataRows, cols) {
+  // Staging: build candidate employees and classify as new / existing
+  const byName = new Map(state.employees.map(e => [e.fullName.trim().toLowerCase(), e]));
+  const candidates = dataRows.map((row, i) => {
+    const fullName = buildFullName(row, cols);
+    const exists = byName.get(fullName.toLowerCase());
+    return {
+      i,
+      row,
+      fullName,
+      position:   cols.position   >= 0 ? (row[cols.position]   || '').trim() : '',
+      department: cols.department >= 0 ? (row[cols.department] || '').trim() : '',
+      armId:      cols.armId      >= 0 ? (row[cols.armId]      || '').trim() : '',
+      existingId: exists?.id || null,
+      include:    !!fullName
+    };
+  }).filter(c => c.fullName);
+
+  const newCount = candidates.filter(c => !c.existingId).length;
+  const updCount = candidates.filter(c =>  c.existingId).length;
+
+  const columnPill = (name, idx) => `
+    <span class="imp-col">
+      <span class="imp-col-label">${esc(name)}</span>
+      <span class="imp-col-val">${idx >= 0 ? esc(headers[idx] || '—') : '<em>не найдено</em>'}</span>
+    </span>`;
+
+  openModal({
+    title: 'Импорт из 1С:ЗУП',
+    sub: fileName + ' · ' + dataRows.length + ' ' + plural(dataRows.length,'строка','строки','строк'),
+    body: `
+      <div class="imp-cols">
+        ${columnPill('ФИО', cols.fullName >= 0 ? cols.fullName : cols.lastName)}
+        ${columnPill('Должность', cols.position)}
+        ${columnPill('Отдел', cols.department)}
+        ${columnPill('Таб. №', cols.armId)}
+      </div>
+      <div class="imp-summary">
+        <span class="imp-badge new">${newCount} ${plural(newCount,'новый','новых','новых')}</span>
+        <span class="imp-badge upd">${updCount} ${plural(updCount,'обновит','обновит','обновит')}</span>
+      </div>
+      <div class="imp-table-wrap">
+        <table class="imp-table">
+          <thead><tr><th style="width:28px"></th><th>ФИО</th><th>Должность</th><th>Отдел</th><th style="width:90px">Статус</th></tr></thead>
+          <tbody>
+            ${candidates.slice(0, 60).map((c, i) => `
+              <tr class="${c.existingId ? 'upd' : 'new'}">
+                <td><input type="checkbox" class="imp-row" data-i="${i}" checked style="width:16px;height:16px;accent-color:var(--accent)"></td>
+                <td>${esc(c.fullName)}</td>
+                <td>${esc(c.position || '—')}</td>
+                <td>${esc(c.department || '—')}</td>
+                <td><span class="imp-badge ${c.existingId ? 'upd' : 'new'}">${c.existingId ? 'обновить' : 'новый'}</span></td>
+              </tr>
+            `).join('')}
+            ${candidates.length > 60 ? `<tr><td colspan="5" class="imp-more">… и ещё ${candidates.length - 60} (все импортируются)</td></tr>` : ''}
+          </tbody>
+        </table>
+      </div>
+      <div class="field" style="margin-top:14px">
+        <label class="label">Стратегия для совпадений по ФИО</label>
+        <select class="select" id="impStrategy">
+          <option value="skip">Пропускать существующих (безопасный режим)</option>
+          <option value="update" selected>Обновлять должность/отдел/таб. №</option>
+        </select>
+      </div>
+    `,
+    footer: `
+      <button class="btn" onclick="closeModal()">Отмена</button>
+      <button class="btn btn-primary" id="impConfirm">Импортировать</button>
+    `
+  });
+
+  // Stash candidates on the modal so the confirm button can read them
+  $('#impConfirm').onclick = () => runImport1C(candidates);
+}
+
+function runImport1C(candidates) {
+  const strategy = $('#impStrategy').value;
+  const picked = new Set(
+    [...$$('.imp-row')].filter(ch => ch.checked).map(ch => +ch.dataset.i)
+  );
+  // For rows that are not rendered (>60), default to including them
+  const willImport = candidates.filter((c, i) => picked.has(i) || i >= 60);
+  if (!willImport.length) { toast('Никто не выбран', 'bad'); return; }
+
+  snapshot('Импорт из 1С:ЗУП (' + willImport.length + ' стр.)');
+  let added = 0, updated = 0, skipped = 0;
+  for (const c of willImport) {
+    if (c.existingId) {
+      if (strategy === 'skip') { skipped++; continue; }
+      const emp = state.employees.find(e => e.id === c.existingId);
+      if (!emp) continue;
+      if (c.position)   emp.position = c.position;
+      if (c.department) emp.department = c.department;
+      if (c.armId)      emp.armId = c.armId;
+      emp.updatedAt = new Date().toISOString();
+      updated++;
+    } else {
+      state.employees.push({
+        id: uid(),
+        fullName: c.fullName,
+        position: c.position || '',
+        department: c.department || '',
+        armId: c.armId || '',
+        systems: [],
+        ecps: [],
+        attachments: [],
+        cryptoVersion: '',
+        cryptoExpiry: '',
+        cryptoStatus: 'not_installed',
+        notes: '',
+        updatedAt: new Date().toISOString()
+      });
+      added++;
+    }
+  }
+  save();
+  closeModal();
+  refreshSidebarCounts();
+  goto('employees');
+  const bits = [];
+  if (added)   bits.push('добавлено ' + added);
+  if (updated) bits.push('обновлено ' + updated);
+  if (skipped) bits.push('пропущено ' + skipped);
+  toast('Импорт завершён: ' + bits.join(', ') + ' — Ctrl+Z чтобы вернуть');
+}
+
+/* ============================================================================
+   PRINTABLE SHEETS — offboarding (обходной лист) + onboarding (онбординг-лист)
+   Rendered into a dedicated overlay. body.printing hides the rest of the app
+   and shows only the sheet, both on screen and via @media print.
+   ============================================================================ */
+
+function openPrintableSheet(html) {
+  let sheet = $('#printSheet');
+  if (!sheet) {
+    sheet = document.createElement('div');
+    sheet.id = 'printSheet';
+    sheet.className = 'sheet-overlay';
+    document.body.appendChild(sheet);
+  }
+  sheet.innerHTML = `
+    <div class="sheet-toolbar">
+      <button class="btn" onclick="closePrintableSheet()">Закрыть</button>
+      <button class="btn btn-primary" onclick="window.print()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Печать
+      </button>
+    </div>
+    <div class="sheet-page">${html}</div>
+  `;
+  document.body.classList.add('printing');
+}
+
+function closePrintableSheet() {
+  document.body.classList.remove('printing');
+  const sheet = $('#printSheet');
+  if (sheet) sheet.innerHTML = '';
+}
+
+/* Shared document header — organization name + date + doc title */
+function sheetHeader(title, sub) {
+  const today = new Date().toLocaleDateString('ru-RU', { day: '2-digit', month: 'long', year: 'numeric' });
+  return `
+    <header class="sheet-head">
+      <div class="sheet-head-left">
+        <div class="sheet-stamp">Реестр ЭИС</div>
+        <h1 class="sheet-title">${esc(title)}</h1>
+        ${sub ? `<div class="sheet-sub">${esc(sub)}</div>` : ''}
+      </div>
+      <div class="sheet-head-right">
+        <div class="sheet-meta">Дата составления</div>
+        <div class="sheet-date">${today}</div>
+      </div>
+    </header>`;
+}
+
+/* Employee info strip */
+function sheetEmployeeBlock(emp) {
+  const row = (label, value) => `
+    <div class="sheet-kv">
+      <div class="sheet-k">${esc(label)}</div>
+      <div class="sheet-v">${value ? esc(value) : '<span class="sheet-blank">____________________________</span>'}</div>
+    </div>`;
+  return `
+    <section class="sheet-person">
+      ${row('ФИО', emp.fullName)}
+      ${row('Должность', emp.position)}
+      ${row('Отдел / подразделение', emp.department)}
+      ${row('АРМ', emp.armId)}
+    </section>`;
+}
+
+/* Signature block at the bottom */
+function sheetSignatures(roles) {
+  return `
+    <section class="sheet-signs">
+      ${roles.map(r => `
+        <div class="sheet-sign">
+          <div class="sheet-sign-line"></div>
+          <div class="sheet-sign-role">${esc(r)}</div>
+        </div>
+      `).join('')}
+    </section>`;
+}
+
+/* ----------- Offboarding (обходной лист) ----------- */
+function printOffboardingSheet(empId) {
+  const r = computeLeaveImpact(empId);
+  if (!r) { toast('Сотрудник не найден', 'bad'); return; }
+  const { emp } = r;
+
+  const mainSystems = (emp.systems || []).filter(s =>
+    s.frequency === 'main' || r.orphanSystems.some(o => systemKey(o.name) === systemKey(s.name))
+  );
+
+  const sysRow = (s, idx, extra) => `
+    <tr>
+      <td class="sheet-num">${idx + 1}</td>
+      <td>
+        <div class="sheet-cell-name">${esc(s.name)}</div>
+        ${extra ? `<div class="sheet-cell-sub">${esc(extra)}</div>` : ''}
+      </td>
+      <td class="sheet-cell-center">☐</td>
+      <td><span class="sheet-blank"></span></td>
+      <td><span class="sheet-blank"></span></td>
+    </tr>`;
+
+  const systemsToRevoke = (emp.systems || []);
+  const ecps = (emp.ecps || []);
+
+  const html = `
+    ${sheetHeader('Обходной лист при увольнении', 'Передача доступов, знаний и криптографии')}
+    ${sheetEmployeeBlock(emp)}
+
+    <section class="sheet-section">
+      <h2 class="sheet-h2"><span class="sheet-h2-num">1</span>Доступы к электронным системам — отозвать</h2>
+      ${systemsToRevoke.length ? `
+        <table class="sheet-tbl">
+          <thead>
+            <tr>
+              <th style="width:34px">№</th>
+              <th>Система</th>
+              <th style="width:90px">Отозван</th>
+              <th style="width:160px">Ответственный</th>
+              <th style="width:120px">Дата</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${systemsToRevoke.map((s, i) => sysRow(s, i, (s.purpose || '') + (s.frequency === 'main' ? ' · основной пользователь' : '')) ).join('')}
+          </tbody>
+        </table>
+      ` : '<div class="sheet-empty">Систем не зарегистрировано</div>'}
+    </section>
+
+    <section class="sheet-section">
+      <h2 class="sheet-h2"><span class="sheet-h2-num">2</span>ЭЦП и криптография — отозвать / переоформить</h2>
+      ${(ecps.length || r.hasCrypto) ? `
+        <table class="sheet-tbl">
+          <thead>
+            <tr>
+              <th style="width:34px">№</th>
+              <th>Ключ / лицензия</th>
+              <th style="width:120px">Действует до</th>
+              <th style="width:90px">Отозван</th>
+              <th style="width:160px">Куда передан</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${ecps.map((c, i) => `
+              <tr>
+                <td class="sheet-num">${i + 1}</td>
+                <td><div class="sheet-cell-name">${esc(c.type || '—')}</div></td>
+                <td class="sheet-cell-center">${fmtDate(c.expiry)}</td>
+                <td class="sheet-cell-center">☐</td>
+                <td><span class="sheet-blank"></span></td>
+              </tr>
+            `).join('')}
+            ${r.hasCrypto ? `
+              <tr>
+                <td class="sheet-num">${ecps.length + 1}</td>
+                <td>
+                  <div class="sheet-cell-name">Лицензия КриптоПро CSP ${esc(emp.cryptoVersion || '')}</div>
+                  ${emp.armId ? `<div class="sheet-cell-sub">АРМ: ${esc(emp.armId)}</div>` : ''}
+                </td>
+                <td class="sheet-cell-center">${fmtDate(emp.cryptoExpiry)}</td>
+                <td class="sheet-cell-center">☐</td>
+                <td><span class="sheet-blank"></span></td>
+              </tr>
+            ` : ''}
+          </tbody>
+        </table>
+      ` : '<div class="sheet-empty">ЭЦП и лицензии КриптоПро не зарегистрированы</div>'}
+    </section>
+
+    <section class="sheet-section">
+      <h2 class="sheet-h2"><span class="sheet-h2-num">3</span>Передача знаний — преемник</h2>
+      ${r.nowSoleSystems.length || r.orphanSystems.length ? `
+        <div class="sheet-hint">${r.orphanSystems.length ? r.orphanSystems.length + ' система' + (r.orphanSystems.length === 1 ? '' : 'ы') + ' останут' + (r.orphanSystems.length === 1 ? 'ся' : 'ся') + ' без владельца — требуется назначить преемника.' : ''}${r.nowSoleSystems.length ? ' По ' + r.nowSoleSystems.length + ' систем' + plural(r.nowSoleSystems.length, 'е', 'ам', 'ам') + ' останется один носитель знаний.' : ''}</div>
+        <table class="sheet-tbl">
+          <thead>
+            <tr>
+              <th style="width:34px">№</th>
+              <th>Система (требует передачи)</th>
+              <th>Преемник (ФИО, должность)</th>
+              <th style="width:90px">Передано</th>
+              <th style="width:120px">Дата</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${[...r.orphanSystems, ...r.nowSoleSystems].map((s, i) => `
+              <tr>
+                <td class="sheet-num">${i + 1}</td>
+                <td>
+                  <div class="sheet-cell-name">${esc(s.name)}${s.priority === 'critical' ? ' · <strong>критичная</strong>' : ''}</div>
+                  ${s.purpose ? `<div class="sheet-cell-sub">${esc(s.purpose)}</div>` : ''}
+                </td>
+                <td><span class="sheet-blank"></span></td>
+                <td class="sheet-cell-center">☐</td>
+                <td><span class="sheet-blank"></span></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      ` : '<div class="sheet-empty">Передача знаний не требуется — по всем системам остаются другие пользователи</div>'}
+    </section>
+
+    <section class="sheet-section">
+      <h2 class="sheet-h2"><span class="sheet-h2-num">4</span>Материальные ценности и документы</h2>
+      <ul class="sheet-check">
+        <li>☐ Возврат АРМ (системный блок, ноутбук, монитор)</li>
+        <li>☐ Возврат RuToken / JaCarta / eToken</li>
+        <li>☐ Возврат служебного мобильного устройства</li>
+        <li>☐ Возврат пропуска, ключей, печатей</li>
+        <li>☐ Сдача рабочих документов и инструкций</li>
+        <li>☐ Подписание соглашения о неразглашении (NDA-exit)</li>
+      </ul>
+    </section>
+
+    ${sheetSignatures(['Сотрудник', 'Непосредственный руководитель', 'Администратор ИТ / ИБ', 'Отдел кадров'])}
+  `;
+  openPrintableSheet(html);
+}
+
+/* ----------- Onboarding (онбординг-лист) ----------- */
+function printOnboardingSheet(empId, options = {}) {
+  const emp = state.employees.find(e => e.id === empId);
+  if (!emp) { toast('Сотрудник не найден', 'bad'); return; }
+
+  // Derive the target systems — from assigned list; if empty and a template
+  // was passed, use that instead.
+  let targetSystems = emp.systems || [];
+  if (options.templateId) {
+    const t = state.templates?.find(x => x.id === options.templateId);
+    if (t) targetSystems = t.systems;
+  }
+
+  const recoveryItems = DEFAULT_RECOVERY_STEPS;
+
+  const html = `
+    ${sheetHeader('Онбординг-лист для нового сотрудника', 'Развёртывание АРМ, доступы, обучение')}
+    ${sheetEmployeeBlock(emp)}
+
+    <section class="sheet-section">
+      <h2 class="sheet-h2"><span class="sheet-h2-num">1</span>Развёртывание АРМ</h2>
+      <table class="sheet-tbl">
+        <thead>
+          <tr>
+            <th style="width:34px">№</th>
+            <th>Шаг</th>
+            <th style="width:90px">Выполнено</th>
+            <th style="width:160px">Ответственный</th>
+            <th style="width:120px">Дата</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${recoveryItems.map((step, i) => `
+            <tr>
+              <td class="sheet-num">${i + 1}</td>
+              <td>
+                <div class="sheet-cell-name">${esc(step.label)}</div>
+                ${step.hint ? `<div class="sheet-cell-sub">${esc(step.hint)}</div>` : ''}
+              </td>
+              <td class="sheet-cell-center">☐</td>
+              <td><span class="sheet-blank"></span></td>
+              <td><span class="sheet-blank"></span></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </section>
+
+    <section class="sheet-section">
+      <h2 class="sheet-h2"><span class="sheet-h2-num">2</span>Выдать доступы к системам</h2>
+      ${targetSystems.length ? `
+        <table class="sheet-tbl">
+          <thead>
+            <tr>
+              <th style="width:34px">№</th>
+              <th>Система</th>
+              <th style="width:160px">Учётная запись</th>
+              <th style="width:90px">Выдано</th>
+              <th style="width:120px">Дата</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${targetSystems.map((s, i) => {
+              const meta = state.systems.find(x => systemKey(x.name) === systemKey(s.name));
+              const extra = [
+                s.purpose,
+                meta?.priority === 'critical' ? 'критичная' : '',
+                meta?.requiresEcp ? 'ЭЦП' : ''
+              ].filter(Boolean).join(' · ');
+              return `
+                <tr>
+                  <td class="sheet-num">${i + 1}</td>
+                  <td>
+                    <div class="sheet-cell-name">${esc(s.name)}</div>
+                    ${extra ? `<div class="sheet-cell-sub">${esc(extra)}</div>` : ''}
+                  </td>
+                  <td><span class="sheet-blank"></span></td>
+                  <td class="sheet-cell-center">☐</td>
+                  <td><span class="sheet-blank"></span></td>
+                </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      ` : '<div class="sheet-empty">Системы не назначены — заполните анкету или примените шаблон</div>'}
+    </section>
+
+    <section class="sheet-section">
+      <h2 class="sheet-h2"><span class="sheet-h2-num">3</span>ЭЦП и КриптоПро — выпустить / установить</h2>
+      <ul class="sheet-check">
+        <li>☐ УКЭП (для ФНС, контрагентов, банка — по профилю должности)</li>
+        <li>☐ Лицензия КриптоПро CSP, версия <span class="sheet-blank" style="min-width:100px"></span></li>
+        <li>☐ Установка сертификатов на АРМ, проверка цепочки доверия</li>
+        <li>☐ Резервное копирование ключей / RuToken</li>
+      </ul>
+    </section>
+
+    <section class="sheet-section">
+      <h2 class="sheet-h2"><span class="sheet-h2-num">4</span>Обучение и документы</h2>
+      <ul class="sheet-check">
+        <li>☐ Инструктаж по информационной безопасности</li>
+        <li>☐ Ознакомление с регламентом работы с ЭЦП</li>
+        <li>☐ Передача рабочих инструкций по ключевым системам</li>
+        <li>☐ Подписание NDA / трудового договора</li>
+        <li>☐ Назначение куратора на первые 2 недели</li>
+      </ul>
+    </section>
+
+    ${sheetSignatures(['Новый сотрудник', 'Куратор / наставник', 'Администратор ИТ', 'Отдел кадров'])}
+  `;
+  openPrintableSheet(html);
+}
+
 function clearAll() {
   confirmAction('Очистить все данные?', 'Будут удалены все сотрудники, системы и чек-листы. Операция обратима через Ctrl+Z до перезагрузки страницы. Рекомендуется сначала экспортировать резервную копию.', () => {
     snapshot('Очистка всех данных');
@@ -5569,6 +6823,40 @@ document.addEventListener('DOMContentLoaded', () => {
   if (state.employees.length || state.systems.length) {
     $('#last-save').textContent = fmtTime(new Date().toISOString());
   }
+
+  // ------------------------------------------------------------------
+  // PWA: register service worker and wire the install pill
+  // ------------------------------------------------------------------
+  if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+    navigator.serviceWorker.register('./sw.js').catch(err => {
+      console.warn('[pwa] sw registration failed:', err);
+    });
+  }
+  let deferredInstallPrompt = null;
+  window.addEventListener('beforeinstallprompt', (ev) => {
+    ev.preventDefault();
+    deferredInstallPrompt = ev;
+    const pill = $('#installPill');
+    if (pill) pill.hidden = false;
+  });
+  window.addEventListener('appinstalled', () => {
+    deferredInstallPrompt = null;
+    const pill = $('#installPill');
+    if (pill) pill.hidden = true;
+    toast('Приложение установлено');
+  });
+  $('#installPill')?.addEventListener('click', async () => {
+    if (!deferredInstallPrompt) {
+      toast('Браузер уже считает приложение установленным или не поддерживает установку', 'bad');
+      return;
+    }
+    deferredInstallPrompt.prompt();
+    const { outcome } = await deferredInstallPrompt.userChoice;
+    if (outcome === 'accepted') {
+      deferredInstallPrompt = null;
+      $('#installPill').hidden = true;
+    }
+  });
 });
 </script>
 </body>
