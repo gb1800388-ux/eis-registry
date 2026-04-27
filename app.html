@@ -821,6 +821,51 @@ a { color: inherit; text-decoration: none; }
   flex-wrap: wrap;
   margin-bottom: 14px;
 }
+/* Pass-pills — фильтр-таблетки на странице смены паролей */
+.pass-pills {
+  display: flex; gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.pass-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px;
+  font-size: 12.5px;
+  border-radius: 99px;
+  border: 1px solid var(--paper-3);
+  background: var(--card);
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+  white-space: nowrap;
+}
+.pass-pill:hover { background: var(--card-hover); border-color: var(--border-2); }
+.pass-pill.active {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+.pass-pill .num {
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  padding: 0 5px;
+  border-radius: 99px;
+  background: var(--paper-2);
+  color: var(--ink-3);
+  font-family: var(--font-mono);
+}
+.pass-pill.active .num {
+  background: var(--accent);
+  color: #fff;
+}
+.pass-empty {
+  padding: 30px 14px;
+  text-align: center;
+  color: var(--ink-3);
+  font-style: italic;
+  font-size: 13px;
+}
+
 .sys-pills {
   display: flex; gap: 6px;
   flex-wrap: wrap;
@@ -2482,6 +2527,11 @@ body.printing { overflow: hidden; }
         «Автобусный фактор»
         <span class="count" id="nav-count-risks">0</span>
       </button>
+      <button class="nav-item" data-page="passwords">
+        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Пароли почты
+        <span class="count" id="nav-count-passwords">0</span>
+      </button>
       <button class="nav-item" data-page="recovery">
         <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
         Восстановление АРМ
@@ -2764,6 +2814,38 @@ const daysLeft = (iso) => {
   return Math.round((d - today) / 86400000);
 };
 
+/* Возвращает статус ротации пароля корпоративной почты для сотрудника.
+   Сторонняя дата хранится в e.emailLastRotated; политика — e.emailRotationDays.
+   Без емэйла → null (нечего ротировать).
+   Без даты ротации → 'unknown' (никогда не меняли).
+   tone: bad | warn | soon | ok | unknown
+*/
+function emailRotationStatus(emp) {
+  if (!emp || !emp.email) return null;
+  const interval = +emp.emailRotationDays || 90;
+  if (!emp.emailLastRotated) {
+    return { tone: 'unknown', daysLeft: null, nextDue: null, lastRotated: null, interval };
+  }
+  const last = new Date(emp.emailLastRotated);
+  if (isNaN(last)) return { tone: 'unknown', daysLeft: null, nextDue: null, lastRotated: null, interval };
+  const next = new Date(last);
+  next.setDate(next.getDate() + interval);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const diff = Math.round((next - today) / 86400000);
+  let tone;
+  if (diff < 0)       tone = 'bad';   // просрочено
+  else if (diff <= 7) tone = 'soon';  // эту неделю
+  else if (diff <= 30) tone = 'warn'; // в течение месяца
+  else                tone = 'ok';
+  return {
+    tone,
+    daysLeft: diff,
+    nextDue: next.toISOString().slice(0,10),
+    lastRotated: emp.emailLastRotated,
+    interval
+  };
+}
+
 const plural = (n, one, few, many) => {
   const m = Math.abs(n) % 100; const k = m % 10;
   if (m > 10 && m < 20) return many;
@@ -2878,6 +2960,10 @@ function load() {
     e.ecps ||= [];
     e.attachments ||= [];
     e.cryptoStatus ||= 'not_installed';
+    // Корпоративная почта — отдельный блок для напоминалки о смене пароля
+    if (e.email == null) e.email = '';
+    if (e.emailLastRotated == null) e.emailLastRotated = '';
+    if (e.emailRotationDays == null) e.emailRotationDays = 90;
   });
   state.systems.forEach(s => {
     s.id ||= uid();
@@ -2898,6 +2984,15 @@ function seedDemo() {
     { id: uid(), name: 'Архив документов',type: 'Desktop', priority: 'nice',      requiresEcp: false, notes: 'Legacy-система' }
   ];
   sys.forEach(s => s.recoverySteps = DEFAULT_RECOVERY_STEPS.map(x => ({...x})));
+
+  // Чтобы демо-страница «Пароли почты» не была пустой, проставим даты
+  // относительно сегодняшнего дня (просрочено / скоро / норма / без даты).
+  const _today = new Date();
+  const _daysAgo = (n) => {
+    const d = new Date(_today);
+    d.setDate(d.getDate() - n);
+    return d.toISOString().slice(0, 10);
+  };
 
   const emp = [
     {
@@ -2920,6 +3015,9 @@ function seedDemo() {
       cryptoExpiry: '2027-01-10',
       cryptoStatus: 'active',
       armId: 'АРМ-07',
+      email: 'ivanova@company.ru',
+      emailLastRotated: _daysAgo(95),  // просрочено ~5 дней
+      emailRotationDays: 90,
       notes: ''
     },
     {
@@ -2939,6 +3037,9 @@ function seedDemo() {
       cryptoExpiry: '2025-09-01',
       cryptoStatus: 'expiring_soon',
       armId: 'АРМ-12',
+      email: 'petrov@company.ru',
+      emailLastRotated: _daysAgo(30),  // ~60 дней до плановой
+      emailRotationDays: 90,
       notes: ''
     },
     {
@@ -2956,6 +3057,9 @@ function seedDemo() {
       cryptoExpiry: '',
       cryptoStatus: 'not_installed',
       armId: 'АРМ-05',
+      email: 'sokolova@company.ru',
+      emailLastRotated: _daysAgo(85),  // ~5 дней до плановой
+      emailRotationDays: 90,
       notes: 'Подписи не требуются для текущих задач'
     },
     {
@@ -2975,6 +3079,9 @@ function seedDemo() {
       cryptoExpiry: '2025-04-10',
       cryptoStatus: 'expired',
       armId: 'АРМ-01',
+      email: 'nikolaev@company.ru',
+      emailLastRotated: '',           // никогда не меняли — статус "unknown"
+      emailRotationDays: 90,
       notes: ''
     }
   ];
@@ -3245,6 +3352,25 @@ function buildCmdKItems() {
       icon: 'printer',
       run: () => printOnboardingSheet(e.id)
     });
+    if (e.email) {
+      const st = emailRotationStatus(e);
+      const subBits = [e.email, e.armId ? 'АРМ ' + e.armId : null].filter(Boolean).join(' · ');
+      items.push({
+        group: 'Пароли почты',
+        title: 'Сменил пароль почты: ' + e.fullName,
+        sub: subBits + (st && st.daysLeft != null ? ' · сейчас ' + (st.daysLeft < 0 ? 'просрочено на ' + Math.abs(st.daysLeft) + ' д.' : 'через ' + st.daysLeft + ' д.') : ''),
+        icon: 'lock',
+        run: () => markEmailPasswordChanged(e.id)
+      });
+    }
+  });
+  // Quick action: открыть страницу паролей и распечатать обходной
+  items.push({
+    group: 'Действие',
+    title: 'Лист обхода: смена паролей',
+    sub: 'Распечатать список АРМ для физического обхода',
+    icon: 'printer',
+    run: () => printPasswordWalkingList()
   });
   return items;
 }
@@ -3259,7 +3385,8 @@ const CMDK_ICONS = {
   user:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
   system:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>',
   template: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>',
-  simulate: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>'
+  simulate: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>',
+  lock:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'
 };
 
 function fuzzyMatch(query, text) {
@@ -3393,7 +3520,8 @@ const PAGES = {
   departments: { title: 'Распределение по отделам',sub: 'Загрузка и покрытие по отделам',   render: renderDepartmentsPage },
   ecp:         { title: 'ЭЦП и КриптоПро',        sub: 'Контроль сроков и лицензий',        render: renderEcpPage },
   risks:       { title: 'Автобусный фактор',      sub: 'Единственные носители знаний',      render: renderRisksPage },
-  recovery:    { title: 'Восстановление АРМ',     sub: 'Чек-листы по сотрудникам и системам',render: renderRecoveryPage }
+  recovery:    { title: 'Восстановление АРМ',     sub: 'Чек-листы по сотрудникам и системам',render: renderRecoveryPage },
+  passwords:   { title: 'Пароли почты',           sub: 'Напоминалка о смене на АРМ',         render: renderPasswordsPage }
 };
 
 function goto(page) {
@@ -3539,14 +3667,42 @@ function renderSurveyPage(root) {
 
           <div class="form-section">
             <div class="form-section-head">
-              <h3><span class="num-badge">4</span>Комментарий</h3>
+              <h3><span class="num-badge">4</span>Корпоративная почта</h3>
+              <div class="form-section-hint">Напоминание о смене пароля по политике организации</div>
+            </div>
+            <div class="grid grid-4">
+              <div class="field" style="grid-column: span 2">
+                <label class="label">E-mail</label>
+                <input class="input" type="email" id="sEmail" placeholder="ivanov@company.ru" value="${esc(emp?.email || '')}">
+              </div>
+              <div class="field">
+                <label class="label">Пароль сменён</label>
+                <input class="input" type="date" id="sEmailLastRotated" value="${esc(emp?.emailLastRotated || '')}">
+              </div>
+              <div class="field">
+                <label class="label">Период (дн.)</label>
+                <select class="select" id="sEmailRotationDays">
+                  <option value="30"  ${(+emp?.emailRotationDays || 90) === 30 ? 'selected' : ''}>30 дней</option>
+                  <option value="60"  ${(+emp?.emailRotationDays || 90) === 60 ? 'selected' : ''}>60 дней</option>
+                  <option value="90"  ${(+emp?.emailRotationDays || 90) === 90 ? 'selected' : ''}>90 дней (по умолчанию)</option>
+                  <option value="180" ${(+emp?.emailRotationDays || 90) === 180 ? 'selected' : ''}>180 дней</option>
+                  <option value="365" ${(+emp?.emailRotationDays || 90) === 365 ? 'selected' : ''}>1 год</option>
+                </select>
+              </div>
+            </div>
+            <div id="sEmailHint" class="form-section-hint" style="margin-top:6px"></div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-head">
+              <h3><span class="num-badge">5</span>Комментарий</h3>
             </div>
             <textarea class="textarea" id="sNotes" rows="3" placeholder="Особенности, замечания, нестандартные процессы…">${esc(emp?.notes || '')}</textarea>
           </div>
 
           <div class="form-section">
             <div class="form-section-head">
-              <h3><span class="num-badge">5</span>Документы и фото</h3>
+              <h3><span class="num-badge">6</span>Документы и фото</h3>
               <div class="form-section-hint">Сертификаты ЭЦП, доверенности, фото АРМ — всё остаётся на устройстве</div>
             </div>
             <div class="attachments" id="empAttachments"></div>
@@ -3623,6 +3779,33 @@ function renderSurveyPage(root) {
     get: () => ui.surveyAttachments,
     set: (list) => { ui.surveyAttachments = list; }
   });
+
+  // Корпоративная почта — превью «следующая смена через N дней»
+  const updateEmailHint = () => {
+    const hint = $('#sEmailHint');
+    if (!hint) return;
+    const email = $('#sEmail').value.trim();
+    const last  = $('#sEmailLastRotated').value;
+    const days  = +$('#sEmailRotationDays').value || 90;
+    if (!email) { hint.innerHTML = '<span style="color:var(--ink-3)">Поле необязательное — заполните, если нужна напоминалка о смене пароля</span>'; return; }
+    if (!last)  { hint.innerHTML = '<span style="color:var(--bad)">Дата последней смены не указана — поставлено как «никогда»</span>'; return; }
+    const st = emailRotationStatus({ email, emailLastRotated: last, emailRotationDays: days });
+    if (!st || st.daysLeft == null) { hint.textContent = ''; return; }
+    const dueLabel = fmtDate(st.nextDue);
+    if (st.daysLeft < 0) {
+      hint.innerHTML = `<span style="color:var(--bad)">Просрочено на ${Math.abs(st.daysLeft)} ${plural(Math.abs(st.daysLeft),'день','дня','дней')} (нужно было сменить ${dueLabel})</span>`;
+    } else if (st.daysLeft === 0) {
+      hint.innerHTML = `<span style="color:var(--bad)">Сегодня плановая дата смены</span>`;
+    } else {
+      const tone = st.tone === 'soon' ? 'var(--bad)' : st.tone === 'warn' ? 'var(--warn)' : 'var(--ink-3)';
+      hint.innerHTML = `<span style="color:${tone}">Следующая смена — через ${st.daysLeft} ${plural(st.daysLeft,'день','дня','дней')} (${dueLabel})</span>`;
+    }
+  };
+  ['#sEmail','#sEmailLastRotated','#sEmailRotationDays'].forEach(sel => {
+    $(sel)?.addEventListener('input',  updateEmailHint);
+    $(sel)?.addEventListener('change', updateEmailHint);
+  });
+  updateEmailHint();
 
   updateSysCount();
 }
@@ -3718,6 +3901,9 @@ function saveSurvey(ev) {
     cryptoExpiry: $('#sCryptoExpiry').value,
     cryptoStatus: $('#sCryptoStatus').value,
     armId: $('#sArmId').value.trim(),
+    email: $('#sEmail').value.trim(),
+    emailLastRotated: $('#sEmailLastRotated').value,
+    emailRotationDays: +$('#sEmailRotationDays').value || 90,
     notes: $('#sNotes').value.trim(),
     attachments: (ui.surveyAttachments || []).map(a => ({ ...a })),
     updatedAt: new Date().toISOString()
@@ -5886,6 +6072,354 @@ function renderRisksPage(root) {
 }
 
 /* ============================================================================
+   ====================== PAGE: EMAIL PASSWORD ROTATION =======================
+   Напоминалка о смене паролей корпоративной почты на АРМ сотрудников.
+   Политика — раз в N дней (по умолчанию 90).
+   ============================================================================ */
+function renderPasswordsPage(root) {
+  // Список кандидатов = сотрудники с указанным email-ом
+  const items = state.employees
+    .map(e => ({ emp: e, st: emailRotationStatus(e) }))
+    .filter(x => x.st)
+    .sort((a, b) => {
+      // Сначала просрочка (по возрастанию daysLeft, т.е. самые старые сверху),
+      // потом неизвестные, потом ближайшие сроки.
+      const aOver = a.st.daysLeft != null && a.st.daysLeft < 0;
+      const bOver = b.st.daysLeft != null && b.st.daysLeft < 0;
+      if (aOver !== bOver) return aOver ? -1 : 1;
+      const ad = a.st.daysLeft == null ? 1e9 : a.st.daysLeft;
+      const bd = b.st.daysLeft == null ? 1e9 : b.st.daysLeft;
+      return ad - bd;
+    });
+
+  const overdue = items.filter(x => x.st.daysLeft != null && x.st.daysLeft < 0);
+  const thisWeek = items.filter(x => x.st.daysLeft != null && x.st.daysLeft >= 0 && x.st.daysLeft <= 7);
+  const thisMonth = items.filter(x => x.st.daysLeft != null && x.st.daysLeft > 7 && x.st.daysLeft <= 30);
+  const safe = items.filter(x => x.st.daysLeft != null && x.st.daysLeft > 30);
+  const unknown = items.filter(x => x.st.daysLeft == null);
+
+  // Группировка под фильтр
+  const filter = ui.passFilter || 'due';  // due / overdue / week / month / ok / all
+  let visible;
+  switch (filter) {
+    case 'overdue': visible = overdue; break;
+    case 'week':    visible = thisWeek; break;
+    case 'month':   visible = thisMonth; break;
+    case 'ok':      visible = safe; break;
+    case 'unknown': visible = unknown; break;
+    case 'all':     visible = items; break;
+    case 'due':
+    default:        visible = [...overdue, ...thisWeek, ...thisMonth, ...unknown]; break;
+  }
+
+  const pill = (key, label, count) => `
+    <button class="pass-pill ${filter === key ? 'active' : ''}" onclick="ui.passFilter='${key}'; goto('passwords')">
+      ${esc(label)} <span class="num">${count}</span>
+    </button>`;
+
+  const rowHtml = (item) => {
+    const { emp, st } = item;
+    const tone = st.tone === 'bad' ? 'bad'
+               : st.tone === 'soon' ? 'bad'
+               : st.tone === 'warn' ? 'warn'
+               : st.tone === 'ok'   ? 'ok'
+               : 'info';
+    let badge, daysText;
+    if (st.daysLeft == null) {
+      badge = `<span class="badge b-info">не известно</span>`;
+      daysText = 'дата ни разу не зафиксирована';
+    } else if (st.daysLeft < 0) {
+      badge = `<span class="badge b-bad">просрочено</span>`;
+      daysText = `просрочено на ${Math.abs(st.daysLeft)} ${plural(Math.abs(st.daysLeft),'день','дня','дней')}`;
+    } else if (st.daysLeft === 0) {
+      badge = `<span class="badge b-bad">сегодня</span>`;
+      daysText = 'плановая дата — сегодня';
+    } else if (st.daysLeft <= 7) {
+      badge = `<span class="badge b-bad">${st.daysLeft} ${plural(st.daysLeft,'день','дня','дней')}</span>`;
+      daysText = `сменить до ${fmtDate(st.nextDue)}`;
+    } else if (st.daysLeft <= 30) {
+      badge = `<span class="badge b-warn">${st.daysLeft} ${plural(st.daysLeft,'день','дня','дней')}</span>`;
+      daysText = `сменить до ${fmtDate(st.nextDue)}`;
+    } else {
+      badge = `<span class="badge b-ok">${st.daysLeft} ${plural(st.daysLeft,'день','дня','дней')}</span>`;
+      daysText = `следующая смена ${fmtDate(st.nextDue)}`;
+    }
+    return `
+      <div class="alert-row ${tone}">
+        <span class="alert-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </span>
+        <div>
+          <div class="alert-name">${esc(emp.email || '—')}</div>
+          <div class="alert-sub">
+            ${esc(shortName(emp.fullName))}
+            ${emp.armId ? ' · АРМ ' + esc(emp.armId) : ''}
+            ${emp.department ? ' · ' + esc(emp.department) : ''}
+            · ${esc(daysText)}
+            ${st.lastRotated ? ' · послед. смена ' + fmtDate(st.lastRotated) : ''}
+          </div>
+        </div>
+        ${badge}
+        <div class="row gap-2" style="flex-wrap:nowrap">
+          <button class="btn btn-sm btn-primary" onclick="markEmailPasswordChanged('${emp.id}')" title="Я только что сменил пароль на этом АРМ">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>
+            Сменил
+          </button>
+          <button class="btn btn-sm" onclick="ui.editingEmployeeId='${emp.id}'; goto('survey')" title="Открыть анкету">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+        </div>
+      </div>`;
+  };
+
+  const totalWithEmail = items.length;
+  const dueNow = overdue.length + thisWeek.length;
+
+  if (state.employees.length === 0) {
+    root.innerHTML = emptyState({
+      title: 'Нет сотрудников в реестре',
+      text: 'Заполните анкеты — после этого появится список почтовых паролей',
+      action: '<button class="btn btn-primary" onclick="goto(\'survey\')">К анкете</button>'
+    });
+    return;
+  }
+
+  if (totalWithEmail === 0) {
+    root.innerHTML = `
+      ${passInfoCard()}
+      ${emptyState({
+        title: 'E-mail ни у кого не указан',
+        text: 'Откройте анкету сотрудника и заполните раздел «Корпоративная почта» — после этого здесь появится напоминалка',
+        action: '<button class="btn btn-primary" onclick="goto(\'employees\')">К сотрудникам</button>'
+      })}`;
+    return;
+  }
+
+  root.innerHTML = `
+    ${passInfoCard()}
+
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-label">Просрочено</div>
+        <div class="hero-stat-num num" style="color:${overdue.length ? 'var(--bad)' : 'var(--ink-3)'}">${overdue.length}</div>
+        <div class="hero-stat-hint">Менять немедленно</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-label">Эту неделю</div>
+        <div class="hero-stat-num num" style="color:${thisWeek.length ? 'var(--bad)' : 'var(--ink-3)'}">${thisWeek.length}</div>
+        <div class="hero-stat-hint">≤ 7 дней до плановой</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-label">В этом месяце</div>
+        <div class="hero-stat-num num" style="color:${thisMonth.length ? 'var(--warn)' : 'var(--ink-3)'}">${thisMonth.length}</div>
+        <div class="hero-stat-hint">8–30 дней</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-label">Активны</div>
+        <div class="hero-stat-num num" style="color:var(--ok)">${safe.length}</div>
+        <div class="hero-stat-hint">Из ${totalWithEmail} с e-mail</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <h3>Список <em>смен</em></h3>
+          <div class="card-sub">${visible.length} ${plural(visible.length,'запись','записи','записей')} в фильтре «${{
+            due: 'Все, что нужно сменить',
+            overdue: 'Просроченные',
+            week: 'На этой неделе',
+            month: 'В этом месяце',
+            ok: 'В норме',
+            unknown: 'Без даты',
+            all: 'Все с e-mail'
+          }[filter] || ''}»</div>
+        </div>
+        <div class="row gap-2" style="flex-wrap:wrap">
+          <button class="btn" onclick="markAllDueChanged()" title="Отметить как сменено сегодня все, что в фильтре">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>
+            Все сменены сегодня
+          </button>
+          <button class="btn" onclick="printPasswordWalkingList()" title="Печать листа обхода АРМ">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            Лист обхода
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="pass-pills">
+          ${pill('due',     'Нужно менять',  dueNow + unknown.length)}
+          ${pill('overdue', 'Просрочено',    overdue.length)}
+          ${pill('week',    'Эту неделю',    thisWeek.length)}
+          ${pill('month',   'В этом месяце', thisMonth.length)}
+          ${pill('unknown', 'Без даты',      unknown.length)}
+          ${pill('ok',      'В норме',       safe.length)}
+          ${pill('all',     'Все',           items.length)}
+        </div>
+        ${visible.length === 0
+          ? '<div class="pass-empty">В этом срезе пусто — отличная работа.</div>'
+          : visible.map(rowHtml).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function passInfoCard() {
+  return `
+    <div class="card" style="margin-bottom:16px;background:var(--accent-bg);border-color:transparent">
+      <div class="card-body" style="padding:18px 22px">
+        <div style="display:flex;gap:14px;align-items:flex-start">
+          <div style="flex-shrink:0;margin-top:2px">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--accent-ink)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </div>
+          <div style="color:var(--accent-ink);font-size:13px;line-height:1.55">
+            <strong style="font-family:var(--font-display);font-size:15px;display:block;margin-bottom:2px">Смена паролей <em style="color:var(--accent)">корп. почты</em></strong>
+            Напоминание включается автоматически по политике организации (по умолчанию — раз в 90 дней). После того как вы лично сменили пароль на АРМ — нажмите «Сменил», и таймер перезапустится с сегодняшней даты.
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+/* Один сотрудник — отметить смену пароля сегодняшней датой. */
+function markEmailPasswordChanged(empId) {
+  const emp = state.employees.find(e => e.id === empId);
+  if (!emp || !emp.email) return;
+  snapshot('Смена пароля почты ' + emp.fullName);
+  emp.emailLastRotated = new Date().toISOString().slice(0, 10);
+  emp.updatedAt = new Date().toISOString();
+  save();
+  refreshSidebarCounts();
+  goto('passwords');
+  toast('Отмечено: пароль сменён сегодня — Ctrl+Z чтобы откатить');
+}
+
+/* Bulk: все, кто сейчас в активном фильтре «нужно менять», — сменены сегодня. */
+function markAllDueChanged() {
+  const today = new Date().toISOString().slice(0, 10);
+  const filter = ui.passFilter || 'due';
+  const items = state.employees
+    .map(e => ({ emp: e, st: emailRotationStatus(e) }))
+    .filter(x => x.st);
+  let willMark;
+  switch (filter) {
+    case 'overdue': willMark = items.filter(x => x.st.daysLeft != null && x.st.daysLeft < 0); break;
+    case 'week':    willMark = items.filter(x => x.st.daysLeft != null && x.st.daysLeft >= 0 && x.st.daysLeft <= 7); break;
+    case 'month':   willMark = items.filter(x => x.st.daysLeft != null && x.st.daysLeft > 7 && x.st.daysLeft <= 30); break;
+    case 'unknown': willMark = items.filter(x => x.st.daysLeft == null); break;
+    case 'ok':      willMark = items.filter(x => x.st.daysLeft != null && x.st.daysLeft > 30); break;
+    case 'all':     willMark = items; break;
+    case 'due':
+    default:
+      willMark = items.filter(x => x.st.daysLeft == null || x.st.daysLeft <= 30);
+  }
+  if (!willMark.length) { toast('В выбранном срезе никого нет', 'bad'); return; }
+  confirmAction(
+    'Отметить как сменено сегодня?',
+    `Будет проставлена дата смены ${today} у ${willMark.length} ${plural(willMark.length,'сотрудника','сотрудников','сотрудников')}.`,
+    () => {
+      snapshot('Bulk-смена паролей (' + willMark.length + ')');
+      willMark.forEach(x => {
+        x.emp.emailLastRotated = today;
+        x.emp.updatedAt = new Date().toISOString();
+      });
+      save();
+      refreshSidebarCounts();
+      goto('passwords');
+      toast(`Отмечено ${willMark.length} — Ctrl+Z чтобы откатить`);
+    }
+  );
+}
+
+/* Печатный лист обхода АРМ для смены паролей. */
+function printPasswordWalkingList() {
+  const items = state.employees
+    .map(e => ({ emp: e, st: emailRotationStatus(e) }))
+    .filter(x => x.st && (x.st.daysLeft == null || x.st.daysLeft <= 30))
+    .sort((a, b) => {
+      // Группируем по АРМ-у для удобства физического обхода
+      const aArm = (a.emp.armId || 'ZZZ').toUpperCase();
+      const bArm = (b.emp.armId || 'ZZZ').toUpperCase();
+      return aArm.localeCompare(bArm, 'ru', { numeric: true });
+    });
+
+  if (!items.length) { toast('Нет смен для обхода', 'bad'); return; }
+
+  const today = new Date().toLocaleDateString('ru-RU', { day: '2-digit', month: 'long', year: 'numeric' });
+  const html = `
+    <header class="sheet-head">
+      <div class="sheet-head-left">
+        <div class="sheet-stamp">Реестр ЭИС</div>
+        <h1 class="sheet-title">Лист обхода — смена паролей корп. почты</h1>
+        <div class="sheet-sub">Подходим к АРМ, меняем пароль, ставим галочку</div>
+      </div>
+      <div class="sheet-head-right">
+        <div class="sheet-meta">Дата</div>
+        <div class="sheet-date">${today}</div>
+      </div>
+    </header>
+
+    <section class="sheet-section">
+      <table class="sheet-tbl">
+        <thead>
+          <tr>
+            <th style="width:34px">№</th>
+            <th style="width:110px">АРМ</th>
+            <th>Сотрудник</th>
+            <th>E-mail</th>
+            <th style="width:120px">Послед. смена</th>
+            <th style="width:90px">Статус</th>
+            <th style="width:80px">Сменено</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${items.map((x, i) => {
+            let label;
+            if (x.st.daysLeft == null) label = 'Никогда';
+            else if (x.st.daysLeft < 0) label = 'Просрочено ' + Math.abs(x.st.daysLeft) + ' д.';
+            else if (x.st.daysLeft <= 7) label = '≤ 7 дней';
+            else label = '≤ 30 дней';
+            return `
+              <tr>
+                <td class="sheet-num">${i + 1}</td>
+                <td class="sheet-cell-name">${esc(x.emp.armId || '—')}</td>
+                <td>
+                  <div class="sheet-cell-name">${esc(x.emp.fullName)}</div>
+                  ${x.emp.position ? `<div class="sheet-cell-sub">${esc(x.emp.position)}${x.emp.department ? ' · ' + esc(x.emp.department) : ''}</div>` : ''}
+                </td>
+                <td><div class="sheet-cell-name">${esc(x.emp.email)}</div></td>
+                <td class="sheet-cell-center">${x.st.lastRotated ? fmtDate(x.st.lastRotated) : '—'}</td>
+                <td class="sheet-cell-center">${esc(label)}</td>
+                <td class="sheet-cell-center" style="font-size:18px">☐</td>
+              </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </section>
+
+    <section class="sheet-section">
+      <div class="sheet-hint">Всего к смене: <strong>${items.length}</strong>. После завершения обхода вернитесь в реестр, отфильтруйте по «Все с e-mail» и нажмите «Сменил» для каждого, либо «Все сменены сегодня» в нужном срезе.</div>
+    </section>
+
+    <section class="sheet-signs">
+      <div class="sheet-sign">
+        <div class="sheet-sign-line"></div>
+        <div class="sheet-sign-role">Исполнитель (ФИО, подпись)</div>
+      </div>
+      <div class="sheet-sign">
+        <div class="sheet-sign-line"></div>
+        <div class="sheet-sign-role">Дата завершения обхода</div>
+      </div>
+    </section>
+  `;
+  openPrintableSheet(html);
+}
+
+/* ============================================================================
    ========================= PAGE: RECOVERY ===================================
    ============================================================================ */
 function renderRecoveryPage(root) {
@@ -6125,6 +6659,19 @@ function refreshSidebarCounts() {
     riskC.textContent = n;
     riskC.style.background = n > 0 ? 'var(--warn)' : '';
     riskC.style.color = n > 0 ? '#fff' : '';
+  }
+  const passC = $('#nav-count-passwords');
+  if (passC) {
+    let n = 0;
+    state.employees.forEach(e => {
+      const st = emailRotationStatus(e);
+      if (!st) return;
+      // в счётчик попадает всё, что просрочено или нет даты
+      if (st.daysLeft == null || st.daysLeft <= 7) n++;
+    });
+    passC.textContent = n;
+    passC.style.background = n > 0 ? 'var(--bad)' : '';
+    passC.style.color      = n > 0 ? '#fff'       : '';
   }
 }
 
